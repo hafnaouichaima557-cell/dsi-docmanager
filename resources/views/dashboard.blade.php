@@ -1,20 +1,17 @@
-@extends('layouts.app')
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Dashboard') }}
+        </h2>
+    </x-slot>
 
-@section('content')
-<h1 class="text-2xl font-bold text-gray-800 mb-6">Dashboard</h1>
-
-<div class="grid grid-cols-3 gap-6">
-    <div class="bg-white p-6 rounded-xl shadow text-center">
-        <p class="text-4xl font-bold text-blue-800">{{ $totalDocuments }}</p>
-        <p class="text-gray-500 mt-2">Total Documents</p>
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900">
+                    {{ __("You're logged in!") }}
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="bg-white p-6 rounded-xl shadow text-center">
-        <p class="text-4xl font-bold text-yellow-500">{{ $pendingDocuments }}</p>
-        <p class="text-gray-500 mt-2">En attente</p>
-    </div>
-    <div class="bg-white p-6 rounded-xl shadow text-center">
-        <p class="text-4xl font-bold text-green-500">{{ $approvedDocuments }}</p>
-        <p class="text-gray-500 mt-2">Approuvés</p>
-    </div>
-</div>
-@endsection
+</x-app-layout>
