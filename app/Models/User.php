@@ -37,16 +37,19 @@ class User extends Authenticatable
         ];
     }
 
+    // المستخدم يملك وثائق
     public function documents()
     {
         return $this->hasMany(Document::class, 'created_by');
     }
 
+    // المستخدم مسؤول على خطوات workflow
     public function workflowSteps()
     {
         return $this->hasMany(WorkflowStep::class, 'assigned_to');
     }
 
+    //role
     public function isAdmin(): bool
     {
         return $this->hasRole('administrateur');
@@ -57,6 +60,7 @@ class User extends Authenticatable
         return $this->hasRole('responsable');
     }
 
+    // تحقق إذا المستخدم مفعل
     public function isActive(): bool
     {
         return $this->is_active === true;
