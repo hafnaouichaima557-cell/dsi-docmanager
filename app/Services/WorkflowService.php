@@ -6,16 +6,16 @@ use App\Models\Document;
 use App\Models\WorkflowStep;
 use App\Models\WorkflowHistory;
 use App\Models\AuditLog;
+use App\Notifications\DocumentStatusChanged;
+use App\Notifications\DocumentPendingApproval;
 use Illuminate\Support\Facades\DB;
 
 class WorkflowService
 {
-    // diag 2 : تبعث الوثيقة للworkflow
     public function submit(Document $document, array $steps): void
     {
         DB::transaction(function () use ($document, $steps) {
 
-            // خلق خطوات الworkflow
             foreach ($steps as $order => $step) {
                 WorkflowStep::create([
                     'document_id' => $document->id,
@@ -27,27 +27,31 @@ class WorkflowService
                 ]);
             }
 
-            // تبديل status الوثيقة
             $document->update([
                 'status'       => 'submitted',
                 'current_step' => 1,
                 'submitted_at' => now(),
             ]);
 
-            // تسجيل في التاريخ
             $this->logHistory($document, 'submitted', 'draft', 'submitted');
 
-            // تسجيل في الأوديت
             AuditLog::log(
                 action     : 'submitted',
                 module     : 'workflow',
                 description: 'Document soumis : ' . $document->title,
                 model      : $document
             );
+
+            // diag 2 : notification للمسؤول عن الخطوة الأولى
+            $firstStep = $document->workflowSteps()->first();
+            if ($firstStep && $firstStep->assignedUser) {
+                $firstStep->assignedUser->notify(
+                    new DocumentPendingApproval($document, $firstStep)
+                );
+            }
         });
     }
 
-    // diag 2 : قبول خطوة
     public function approve(WorkflowStep $step, ?string $comment = null): void
     {
         DB::transaction(function () use ($step, $comment) {
@@ -64,20 +68,32 @@ class WorkflowService
                                  ->first();
 
             if ($nextStep) {
-                // خطوة جاية موجودة
                 $nextStep->update(['status' => 'in_progress']);
                 $document->update([
                     'status'       => 'under_review',
                     'current_step' => $nextStep->step_order,
                 ]);
                 $this->logHistory($document, 'approved_step', 'under_review', 'under_review');
+
+                // notification للمسؤول عن الخطوة الجاية
+                if ($nextStep->assignedUser) {
+                    $nextStep->assignedUser->notify(
+                        new DocumentPendingApproval($document, $nextStep)
+                    );
+                }
             } else {
-                // آخر خطوة — الوثيقة مقبولة
                 $document->update([
                     'status'      => 'approved',
                     'approved_at' => now(),
                 ]);
                 $this->logHistory($document, 'approved', 'under_review', 'approved');
+
+                // diag 2 : notification لصاحب الوثيقة
+                if ($document->creator) {
+                    $document->creator->notify(
+                        new DocumentStatusChanged($document, 'under_review', 'approved', $comment)
+                    );
+                }
             }
 
             AuditLog::log(
@@ -89,7 +105,6 @@ class WorkflowService
         });
     }
 
-    // diag 2 : رفض خطوة
     public function reject(WorkflowStep $step, string $comment): void
     {
         DB::transaction(function () use ($step, $comment) {
@@ -105,6 +120,13 @@ class WorkflowService
 
             $this->logHistory($document, 'rejected', 'under_review', 'rejected');
 
+            // diag 2 : notification لصاحب الوثيقة
+            if ($document->creator) {
+                $document->creator->notify(
+                    new DocumentStatusChanged($document, 'under_review', 'rejected', $comment)
+                );
+            }
+
             AuditLog::log(
                 action     : 'rejected',
                 module     : 'workflow',
@@ -114,7 +136,6 @@ class WorkflowService
         });
     }
 
-    // diag 5 : نشر الوثيقة
     public function publish(Document $document): void
     {
         DB::transaction(function () use ($document) {
@@ -126,6 +147,13 @@ class WorkflowService
 
             $this->logHistory($document, 'published', 'approved', 'published');
 
+            // diag 5 : notification لصاحب الوثيقة
+            if ($document->creator) {
+                $document->creator->notify(
+                    new DocumentStatusChanged($document, 'approved', 'published')
+                );
+            }
+
             AuditLog::log(
                 action     : 'published',
                 module     : 'workflow',
@@ -135,7 +163,6 @@ class WorkflowService
         });
     }
 
-    // diag 3 : تعطيل الوثيقة
     public function disable(Document $document): void
     {
         DB::transaction(function () use ($document) {
@@ -150,6 +177,13 @@ class WorkflowService
 
             $this->logHistory($document, 'disabled', $oldStatus, 'disabled');
 
+            // diag 3 : notification لصاحب الوثيقة
+            if ($document->creator) {
+                $document->creator->notify(
+                    new DocumentStatusChanged($document, $oldStatus, 'disabled')
+                );
+            }
+
             AuditLog::log(
                 action     : 'disabled',
                 module     : 'workflow',
@@ -159,7 +193,6 @@ class WorkflowService
         });
     }
 
-    // تسجيل تاريخ الworkflow
     private function logHistory(
         Document $document,
         string $action,
