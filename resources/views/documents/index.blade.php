@@ -3,7 +3,6 @@
 @section('content')
 <div class="p-6">
 
-    {{-- Header --}}
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-bold text-gray-800">📄 Documents</h1>
         <a href="{{ route('documents.create') }}"
@@ -12,14 +11,18 @@
         </a>
     </div>
 
-    {{-- Message succès --}}
     @if(session('success'))
         <div class="bg-green-100 text-green-700 p-3 rounded mb-4">
             {{ session('success') }}
         </div>
     @endif
 
-    {{-- Table --}}
+    @if(session('error'))
+        <div class="bg-red-100 text-red-700 p-3 rounded mb-4">
+            {{ session('error') }}
+        </div>
+    @endif
+
     <div class="bg-white rounded-xl shadow overflow-hidden">
         <table class="w-full text-sm">
             <thead class="bg-gray-50 text-gray-600">
@@ -57,9 +60,9 @@
                     </td>
                     <td class="p-4 text-gray-500">{{ $document->priority }}</td>
                     <td class="p-4 text-gray-500">{{ $document->creator->name ?? '—' }}</td>
-                    <td class="p-4">
+                    <td class="p-4 flex gap-2">
                         <a href="{{ route('documents.show', $document) }}"
-                           class="text-blue-600 hover:underline mr-2">Voir</a>
+                           class="text-blue-600 hover:underline">Voir</a>
                         <a href="{{ route('documents.edit', $document) }}"
                            class="text-yellow-600 hover:underline">Modifier</a>
                     </td>
@@ -75,7 +78,6 @@
         </table>
     </div>
 
-    {{-- Pagination --}}
     <div class="mt-4">
         {{ $documents->links() }}
     </div>

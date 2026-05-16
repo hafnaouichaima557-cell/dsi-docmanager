@@ -50,6 +50,18 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        // ✅ تحقق من is_active
+        $user = Auth::user();
+
+        if (! $user->is_active) {
+            Auth::logout();
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'email' => 'هاد الحساب موقوف. تواصل مع المسؤول.',
+            ]);
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
 
