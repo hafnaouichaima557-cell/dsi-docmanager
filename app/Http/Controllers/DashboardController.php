@@ -21,7 +21,7 @@ class DashboardController extends Controller
                                    ->get();
 
         $recentAuditLogs = AuditLog::with('user')
-                                   ->latest('performed_at')
+                                   ->latest('created_at')
                                    ->take(5)
                                    ->get();
 
