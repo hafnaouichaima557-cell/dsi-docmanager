@@ -1,4 +1,4 @@
-[16/05/2026 11:02] Chocho🫀: @extends('layouts.app')
+@extends('layouts.app')
 
 @section('content')
 <div class="p-6">
@@ -64,7 +64,7 @@
                             </select>
                             <button type="submit" class="text-green-600 hover:underline text-xs">Changer</button>
                         </form>
-[16/05/2026 11:02] Chocho🫀: {{-- Désactiver — diag 7 --}}
+{{-- Désactiver — diag 7 --}}
                         @if($user->is_active && $user->id !== auth()->id())
                         <form action="{{ route('users.disable', $user) }}" method="POST">
                             @csrf
