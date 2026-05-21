@@ -2,7 +2,7 @@
 
 @section('content')
 
-{{-- Stats Cards --}}
+{{-- Stats --}}
 <div class="row g-3 mb-4">
     <div class="col-md-3">
         <div class="card border-0 shadow-sm">
@@ -13,8 +13,7 @@
                         <h2 class="fw-bold mb-0" style="color:#0d2b6b">{{ $totalDocuments }}</h2>
                         <small class="text-muted">Tous statuts confondus</small>
                     </div>
-                    <div class="rounded-circle d-flex align-items-center justify-content-center"
-                         style="width:48px;height:48px;background:#e8f0fe">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center" style="width:48px;height:48px;background:#e8f0fe">
                         <i class="bi bi-file-earmark-text" style="font-size:22px;color:#1a4fa0"></i>
                     </div>
                 </div>
@@ -30,8 +29,7 @@
                         <h2 class="fw-bold mb-0 text-success">{{ $approvedDocuments }}</h2>
                         <small class="text-muted">Approuvés</small>
                     </div>
-                    <div class="rounded-circle d-flex align-items-center justify-content-center"
-                         style="width:48px;height:48px;background:#d1fae5">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center" style="width:48px;height:48px;background:#d1fae5">
                         <i class="bi bi-check-circle" style="font-size:22px;color:#059669"></i>
                     </div>
                 </div>
@@ -47,8 +45,7 @@
                         <h2 class="fw-bold mb-0 text-warning">{{ $pendingDocuments }}</h2>
                         <small class="text-muted">En attente d'approbation</small>
                     </div>
-                    <div class="rounded-circle d-flex align-items-center justify-content-center"
-                         style="width:48px;height:48px;background:#fef3c7">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center" style="width:48px;height:48px;background:#fef3c7">
                         <i class="bi bi-clock" style="font-size:22px;color:#d97706"></i>
                     </div>
                 </div>
@@ -64,8 +61,7 @@
                         <h2 class="fw-bold mb-0 text-primary">{{ $publishedDocuments }}</h2>
                         <small class="text-muted">Documents publiés</small>
                     </div>
-                    <div class="rounded-circle d-flex align-items-center justify-content-center"
-                         style="width:48px;height:48px;background:#ede9fe">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center" style="width:48px;height:48px;background:#ede9fe">
                         <i class="bi bi-globe" style="font-size:22px;color:#7c3aed"></i>
                     </div>
                 </div>
@@ -73,10 +69,8 @@
         </div>
     </div>
 </div>
-
-{{-- Charts + Recent --}}
-<div class="row g-3">
-{{-- Donut Chart --}}
+{{-- Donut + Recent Docs --}}
+<div class="row g-3 mb-3">
     <div class="col-md-4">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-header bg-white border-0 fw-semibold" style="font-size:14px">
@@ -96,34 +90,40 @@
                             <span class="rounded-circle" style="width:10px;height:10px;background:#1d4ed8;display:inline-block"></span>
                             Validés
                         </span>
-                        <strong>{{ $approvedDocuments }}</strong>
+                        <span>
+                            <strong>{{ $approvedDocuments }}</strong>
+                            <small class="text-muted ms-1">({{ $totalDocuments > 0 ? round($approvedDocuments / $totalDocuments * 100) : 0 }}%)</small>
+                        </span>
                     </div>
                     <div class="d-flex align-items-center justify-content-between mb-2">
                         <span class="d-flex align-items-center gap-2" style="font-size:13px">
                             <span class="rounded-circle" style="width:10px;height:10px;background:#d97706;display:inline-block"></span>
                             En relecture
                         </span>
-                        <strong>{{ $pendingDocuments }}</strong>
+                        <span>
+                            <strong>{{ $pendingDocuments }}</strong>
+                            <small class="text-muted ms-1">({{ $totalDocuments > 0 ? round($pendingDocuments / $totalDocuments * 100) : 0 }}%)</small>
+                        </span>
                     </div>
                     <div class="d-flex align-items-center justify-content-between">
                         <span class="d-flex align-items-center gap-2" style="font-size:13px">
                             <span class="rounded-circle" style="width:10px;height:10px;background:#7c3aed;display:inline-block"></span>
                             Publiés
                         </span>
-                        <strong>{{ $publishedDocuments }}</strong>
+                        <span>
+                            <strong>{{ $publishedDocuments }}</strong>
+                            <small class="text-muted ms-1">({{ $totalDocuments > 0 ? round($publishedDocuments / $totalDocuments * 100) : 0 }}%)</small>
+                        </span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-{{-- Recent Documents --}}
-    <div class="col-md-8">
+<div class="col-md-8">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-header bg-white border-0 d-flex align-items-center justify-content-between">
                 <span class="fw-semibold" style="font-size:14px">Derniers documents</span>
-                <a href="{{ route('documents.index') }}" class="btn btn-sm btn-outline-primary" style="font-size:12px">
-                    Voir tout
-                </a>
+                <a href="{{ route('documents.index') }}" class="btn btn-sm btn-outline-primary" style="font-size:12px">Voir tout</a>
             </div>
             <div class="card-body p-0">
                 @if($recentDocuments->isEmpty())
@@ -146,27 +146,17 @@
                         @foreach($recentDocuments as $doc)
                         <tr>
                             <td class="ps-3">
-                                <a href="{{ route('documents.show', $doc) }}"
-                                   class="text-decoration-none fw-medium text-dark">
+                                <a href="{{ route('documents.show', $doc) }}" class="text-decoration-none fw-medium text-dark">
                                     {{ Str::limit($doc->title, 30) }}
                                 </a>
                             </td>
                             <td class="text-muted">{{ $doc->category->name ?? '—' }}</td>
                             <td>
                                 @php
-                                    $badges = [
-                                        'draft'        => 'secondary',
-                                        'submitted'    => 'primary',
-                                        'under_review' => 'warning',
-                                        'approved'     => 'success',
-                                        'published'    => 'info',
-                                        'disabled'     => 'danger',
-                                    ];
+                                    $badges = ['draft'=>'secondary','submitted'=>'primary','under_review'=>'warning','approved'=>'success','published'=>'info','disabled'=>'danger'];
                                     $badge = $badges[$doc->status] ?? 'secondary';
                                 @endphp
-                                <span class="badge bg-{{ $badge }}" style="font-size:11px">
-                                    {{ $doc->status }}
-                                </span>
+                                <span class="badge bg-{{ $badge }}" style="font-size:11px">{{ $doc->status }}</span>
                             </td>
                             <td class="text-muted">{{ $doc->creator->name ?? '—' }}</td>
                             <td class="text-muted">{{ $doc->created_at->format('d/m/Y') }}</td>
@@ -177,6 +167,54 @@
                 @endif
             </div>
         </div>
+    </div>
+</div>
+{{-- Workflow --}}
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white border-0 fw-semibold" style="font-size:14px">
+        <i class="bi bi-diagram-3 me-2 text-primary"></i>Workflow en cours
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0" style="font-size:13px">
+            <thead class="table-light">
+                <tr>
+                    <th class="border-0 ps-3">Document</th>
+                    <th class="border-0">Étape</th>
+                    <th class="border-0">Assigné à</th>
+                    <th class="border-0">Statut</th>
+                    <th class="border-0">Deadline</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($workflowSteps as $step)
+                <tr>
+                    <td class="ps-3">
+                        <a href="{{ route('documents.show', $step->document) }}" class="text-decoration-none fw-medium text-dark">
+                            {{ Str::limit($step->document->title ?? '—', 30) }}
+                        </a>
+                    </td>
+                    <td>{{ $step->step_name }}</td>
+                    <td class="text-muted">{{ $step->assignedUser->name ?? '—' }}</td>
+                    <td>
+                        @php
+                            $sc = ['pending'=>'secondary','in_progress'=>'warning','approved'=>'success','rejected'=>'danger'];
+                            $sl = ['pending'=>'En attente','in_progress'=>'En cours','approved'=>'Approuvé','rejected'=>'Rejeté'];
+                        @endphp
+                        <span class="badge bg-{{ $sc[$step->status] ?? 'secondary' }}" style="font-size:11px">
+                            {{ $sl[$step->status] ?? $step->status }}
+                        </span>
+                    </td>
+                    <td class="text-muted">{{ $step->deadline ? $step->deadline->format('d/m/Y') : '—' }}</td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="5" class="text-center py-4 text-muted">
+                        <i class="bi bi-inbox me-2"></i>Aucun workflow en cours
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
 </div>
 

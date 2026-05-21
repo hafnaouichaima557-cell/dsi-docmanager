@@ -18,30 +18,42 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])
          ->name('dashboard');
 
-    // Profil — diag 4
+    // Profil
     Route::get('/profile', [ProfileController::class, 'edit'])
          ->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])
          ->name('profile.update');
 
-    // Documents — diag 1, 2, 3, 5
+    // Documents
     Route::resource('documents', DocumentController::class);
     Route::patch('documents/{document}/disable', [DocumentController::class, 'disable'])
          ->name('documents.disable');
     Route::patch('documents/{document}/publish', [DocumentController::class, 'publish'])
          ->name('documents.publish');
 
-    // Workflow — diag 2, 5
+    // Workflow
+    Route::get('/workflow', [WorkflowController::class, 'index'])
+         ->name('workflow.index');
     Route::post('documents/{document}/submit', [WorkflowController::class, 'submit'])
          ->name('workflow.submit');
     Route::post('workflow/steps/{step}/approve', [WorkflowController::class, 'approve'])
          ->name('workflow.approve');
     Route::post('workflow/steps/{step}/reject', [WorkflowController::class, 'reject'])
          ->name('workflow.reject');
-    Route::post('documents/{document}/publish', [WorkflowController::class, 'publish'])
-         ->name('workflow.publish');
 
-    // Admin — diag 6, 7, 8, 9
+    // Notifications
+    Route::get('/notifications', function () {
+        $notifications = auth()->user()->notifications()->paginate(20);
+        auth()->user()->unreadNotifications->markAsRead();
+        return view('notifications.index', compact('notifications'));
+    })->name('notifications.index');
+
+    Route::post('/notifications/mark-read', function () {
+        auth()->user()->unreadNotifications->markAsRead();
+        return back();
+    })->name('notifications.mark-read');
+
+    // Admin
     Route::middleware(['role:administrateur'])->prefix('admin')->group(function () {
         Route::resource('users', UserController::class);
         Route::patch('users/{user}/disable', [UserController::class, 'disable'])

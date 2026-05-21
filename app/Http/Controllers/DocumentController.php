@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Storage;
 
 class DocumentController extends Controller
 {
-    // diag 1 : قائمة الوثائق
+    // قائمة الوثائق
     public function index()
     {
         $documents = Document::with('creator', 'category')
@@ -20,35 +20,38 @@ class DocumentController extends Controller
         return view('documents.index', compact('documents'));
     }
 
-    // diag 1 : فورم إضافة وثيقة
+    // فورم إضافة وثيقة
     public function create()
     {
-        $categories = \App\Models\DocumentCategory::active()->get();
-        return view('documents.create', compact('categories'));
+        return view('documents.create');
     }
 
-    // diag 1 : حفظ وثيقة جديدة
+    // حفظ وثيقة جديدة
     public function store(Request $request)
     {
         $request->validate([
             'title'       => 'required|string|max:255',
             'description' => 'nullable|string',
-            'category_id' => 'required|exists:document_categories,id',
-            'file'        => 'required|file|max:10240',
+            'priority'    => 'nullable|in:low,normal,high,urgent',
+            'file'        => 'required|file|mimes:pdf,docx,xlsx|max:10240',
+        ], [
+            'title.required' => 'Le titre est obligatoire.',
+            'file.required'  => 'Veuillez joindre un fichier.',
+            'file.mimes'     => 'Le fichier doit être PDF, DOCX ou XLSX.',
         ]);
 
         $document = Document::create([
             'title'       => $request->title,
             'description' => $request->description,
-            'category_id' => $request->category_id,
+            'priority'    => $request->priority ?? 'normal',
             'created_by'  => auth()->id(),
             'status'      => 'draft',
         ]);
 
         // رفع الملف
         if ($request->hasFile('file')) {
-            $file    = $request->file('file');
-            $path    = $file->store('documents', 'local');
+            $file = $request->file('file');
+            $path = $file->store('documents', 'local');
 
             DocumentVersion::create([
                 'document_id'    => $document->id,
@@ -63,7 +66,7 @@ class DocumentController extends Controller
             ]);
         }
 
-        // تسجيل في الأوديت — diag 3
+        // تسجيل في الأوديت
         AuditLog::log(
             action     : 'created',
             module     : 'document',
@@ -82,23 +85,23 @@ class DocumentController extends Controller
         return view('documents.show', compact('document'));
     }
 
-    // diag 2 : فورم تعديل
+    // فورم تعديل
     public function edit(Document $document)
     {
         $this->authorize('update', $document);
-        $categories = \App\Models\DocumentCategory::active()->get();
-        return view('documents.edit', compact('document', 'categories'));
+        return view('documents.edit', compact('document'));
     }
 
-    // diag 2 : حفظ التعديل
+    // حفظ التعديل
     public function update(Request $request, Document $document)
     {
         $this->authorize('update', $document);
 
         $request->validate([
             'title'       => 'required|string|max:255',
-            'category_id' => 'required|exists:document_categories,id',
-            'file'        => 'nullable|file|max:10240',
+            'description' => 'nullable|string',
+            'priority'    => 'nullable|in:low,normal,high,urgent',
+            'file'        => 'nullable|file|mimes:pdf,docx,xlsx|max:10240',
         ]);
 
         $oldValues = $document->toArray();
@@ -106,17 +109,16 @@ class DocumentController extends Controller
         $document->update([
             'title'       => $request->title,
             'description' => $request->description,
-            'category_id' => $request->category_id,
-            'status'      => 'under_review', // diag 2
+            'priority'    => $request->priority ?? $document->priority,
+            'status'      => 'under_review',
         ]);
 
-        // نسخة جديدة — diag 2
+        // نسخة جديدة
         if ($request->hasFile('file')) {
             $file    = $request->file('file');
             $version = $document->versions()->count() + 1;
             $path    = $file->store('documents', 'local');
 
-            // إلغاء النسخة الحالية
             $document->versions()->update(['is_current' => false]);
 
             DocumentVersion::create([
@@ -133,7 +135,6 @@ class DocumentController extends Controller
             ]);
         }
 
-        // تسجيل في الأوديت — diag 2
         AuditLog::log(
             action     : 'updated',
             module     : 'document',
@@ -147,7 +148,7 @@ class DocumentController extends Controller
                          ->with('success', 'Document mis à jour');
     }
 
-    // diag 3 : تعطيل وثيقة
+    // تعطيل وثيقة
     public function disable(Request $request, Document $document)
     {
         $this->authorize('disable', $document);
@@ -158,7 +159,6 @@ class DocumentController extends Controller
             'disabled_by' => auth()->id(),
         ]);
 
-        // تسجيل في الأوديت — diag 3
         AuditLog::log(
             action     : 'disabled',
             module     : 'document',
@@ -170,7 +170,7 @@ class DocumentController extends Controller
                          ->with('success', 'Document désactivé');
     }
 
-    // diag 5 : نشر وثيقة
+    // نشر وثيقة
     public function publish(Request $request, Document $document)
     {
         $this->authorize('publish', $document);
@@ -180,7 +180,6 @@ class DocumentController extends Controller
             'published_at' => now(),
         ]);
 
-        // تسجيل في الأوديت — diag 5
         AuditLog::log(
             action     : 'published',
             module     : 'document',
@@ -192,6 +191,7 @@ class DocumentController extends Controller
                          ->with('success', 'Document publié avec succès');
     }
 
+    // حذف وثيقة
     public function destroy(Document $document)
     {
         $this->authorize('delete', $document);

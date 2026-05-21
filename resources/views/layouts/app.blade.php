@@ -30,7 +30,7 @@
             <img src="{{ asset('images/logo-icosnet.png') }}" alt="icosnet" height="32"
                  onerror="this.style.display='none'">
             <div>
-                <div class="text-white fw-semibold" style="font-size:13px">DSI DocManager</div>
+                <div class="text-white fw-semibold" style="font-size:13px">Doc Flow</div>
                 <div style="font-size:11px;color:rgba(255,255,255,0.5)">icosnet</div>
             </div>
         </div>
@@ -49,9 +49,23 @@
                 <i class="bi bi-file-earmark-text"></i> Documents
             </a>
 
-            <a href="{{ route('documents.index') }}?status=under_review"
-               class="sidebar-link {{ request()->is('*workflow*') ? 'active' : '' }}">
+            {{-- Workflow --}}
+            <a href="{{ route('workflow.index') }}"
+               class="sidebar-link {{ request()->routeIs('workflow.*') ? 'active' : '' }}">
                 <i class="bi bi-arrow-repeat"></i> Workflow
+            </a>
+
+            {{-- Notifications --}}
+            <a href="{{ route('notifications.index') }}"
+               class="sidebar-link {{ request()->routeIs('notifications.*') ? 'active' : '' }}"
+               style="position:relative">
+                <i class="bi bi-bell"></i> Notifications
+                @php $unread = auth()->user()->unreadNotifications->count(); @endphp
+                @if($unread > 0)
+                <span style="margin-left:auto;background:#ef4444;color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;display:flex;align-items:center;justify-content:center">
+                    {{ $unread }}
+                </span>
+                @endif
             </a>
 
             @if(auth()->user()->isAdmin() || auth()->user()->isResponsable())
@@ -68,7 +82,8 @@
             </a>
             @endif
         </nav>
-{{-- User --}}
+
+        {{-- User --}}
         <div class="p-3 border-top border-white border-opacity-10 d-flex align-items-center gap-2">
             <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white fw-bold flex-shrink-0"
                  style="width:36px;height:36px;font-size:14px">
@@ -115,7 +130,8 @@
             {{-- Actions --}}
             <div class="d-flex align-items-center gap-3">
                 <span class="text-muted" style="font-size:12px">{{ now()->format('d/m/Y') }}</span>
-{{-- Notifications --}}
+
+                {{-- Notifications dropdown --}}
                 <div class="position-relative">
                     <button class="btn btn-light btn-sm position-relative" data-bs-toggle="dropdown">
                         <i class="bi bi-bell" style="font-size:16px"></i>
