@@ -10,6 +10,9 @@ class CheckUserActive
 {
     public function handle(Request $request, Closure $next): mixed
     {
+        if (!$request->hasSession()) {
+        return $next($request);
+    }
         // diag 7 : إذا المستخدم معطل — يخرج تلقائياً
         if (Auth::check() && !Auth::user()->isActive()) {
             Auth::logout();

@@ -12,10 +12,15 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->string('action');
+            $table->string('module')->nullable();
             $table->string('model_type')->nullable();
             $table->unsignedBigInteger('model_id')->nullable();
+            $table->json('old_values')->nullable();        
+            $table->json('new_values')->nullable(); 
             $table->json('changes')->nullable();
             $table->string('ip_address')->nullable();
+            $table->text('user_agent')->nullable();
+            $table->text('description')->nullable();
             $table->timestamp('performed_at')->nullable();
             $table->timestamps();
         });

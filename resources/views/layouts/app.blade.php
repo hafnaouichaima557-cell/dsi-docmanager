@@ -26,7 +26,7 @@
             @endunless
 
             <main>
-                {{ $slot }}
+                @yield('content')
             </main>
         </div>
 
