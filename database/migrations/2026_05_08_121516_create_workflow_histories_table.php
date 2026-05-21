@@ -13,7 +13,11 @@ return new class extends Migration
             $table->foreignId('document_id')->constrained('documents')->cascadeOnDelete();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->string('action');
+            $table->string('from_status')->nullable();
+            $table->string('to_status')->nullable();
             $table->text('comment')->nullable();
+            $table->string('ip_address')->nullable();
+            $table->timestamp('performed_at')->nullable();
             $table->timestamps();
         });
     }

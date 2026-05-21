@@ -12,8 +12,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('document_id')->constrained('documents')->cascadeOnDelete();
             $table->foreignId('assigned_to')->constrained('users')->cascadeOnDelete();
+            $table->string('step_name')->nullable();
+            $table->integer('step_order')->default(1);
             $table->string('status')->default('pending');
-            $table->integer('order')->default(1);
+            $table->timestamp('deadline')->nullable();
+             $table->timestamp('acted_at')->nullable();
             $table->text('comment')->nullable();
             $table->timestamps();
         });
