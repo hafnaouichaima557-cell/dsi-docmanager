@@ -19,13 +19,20 @@ return new class extends Migration
             $table->boolean('is_active')->default(true);
             $table->timestamp('last_login_at')->nullable();
             $table->rememberToken();
-            $table->timestamps();
             $table->softDeletes();
+            $table->timestamps();
+        });
+
+        Schema::create('password_reset_tokens', function (Blueprint $table) {
+            $table->string('email')->primary();
+            $table->string('token');
+            $table->timestamp('created_at')->nullable();
         });
     }
 
     public function down(): void
     {
+        Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('users');
     }
 };
