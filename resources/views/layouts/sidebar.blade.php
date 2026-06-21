@@ -1,6 +1,6 @@
 <div class="w-56 bg-blue-900 flex flex-col min-h-screen">
     <div class="px-5 py-5 border-b border-white/10">
-        <span class="text-white font-medium text-sm">DSI DocManager</span>
+        <span class="text-white font-medium text-sm">Doc Flow</span>
         <small class="block text-white/50 text-xs mt-1">Direction des Systèmes d'Info</small>
     </div>
     <nav class="flex-1 py-3">

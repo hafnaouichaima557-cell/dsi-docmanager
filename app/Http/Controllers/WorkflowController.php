@@ -13,6 +13,16 @@ class WorkflowController extends Controller
         private WorkflowService $workflowService
     ) {}
 
+    // قائمة الـ workflow
+    public function index()
+    {
+        $steps = \App\Models\WorkflowStep::with('document', 'assignedUser')
+                                         ->where('status', 'in_progress')
+                                         ->latest()
+                                         ->paginate(10);
+        return view('workflow.index', compact('steps'));
+    }
+
     // diag 2 : تبعث الوثيقة للworkflow
     public function submit(Request $request, Document $document)
     {
