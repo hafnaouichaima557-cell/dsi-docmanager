@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Document;
 use App\Models\DocumentVersion;
+use App\Models\DocumentCategory;
 use App\Models\AuditLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -26,7 +27,8 @@ class DocumentController extends Controller
     // فورم إضافة وثيقة
     public function create()
     {
-        return view('documents.create');
+        $categories = DocumentCategory::all();
+        return view('documents.create', compact('categories'));
     }
 
     // حفظ وثيقة جديدة
@@ -49,7 +51,7 @@ class DocumentController extends Controller
             'priority'    => $request->priority ?? 'normal',
             'created_by'  => auth()->id(),
             'status'      => 'draft',
-            'category_id' => $request->category_id ?? 1,
+            'category_id' => $request->category_id ?? null,
         ]);
 
         // رفع الملف
@@ -93,7 +95,8 @@ class DocumentController extends Controller
     public function edit(Document $document)
     {
         $this->authorize('update', $document);
-        return view('documents.edit', compact('document'));
+        $categories = DocumentCategory::all();
+        return view('documents.edit', compact('document', 'categories'));
     }
 
     // حفظ التعديل
@@ -116,12 +119,12 @@ class DocumentController extends Controller
             'priority'    => $request->priority ?? $document->priority,
             'status'      => 'under_review',
         ]);
-
-        // نسخة جديدة
+// نسخة جديدة
         if ($request->hasFile('file')) {
             $file    = $request->file('file');
             $version = $document->versions()->count() + 1;
             $path    = $file->store('documents', 'local');
+
             $document->versions()->update(['is_current' => false]);
 
             DocumentVersion::create([
