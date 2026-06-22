@@ -46,6 +46,7 @@ class DocumentController extends Controller
             'priority'    => $request->priority ?? 'normal',
             'created_by'  => auth()->id(),
             'status'      => 'draft',
+            'category_id' => $request->category_id ?? 1,
         ]);
 
         // رفع الملف
