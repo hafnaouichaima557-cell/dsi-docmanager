@@ -1,4 +1,4 @@
-[16/05/2026 11:00] Chocho🫀: @extends('layouts.app')
+ @extends('layouts.app')
 
 @section('content')
 <div class="p-6 max-w-2xl mx-auto">
@@ -78,7 +78,7 @@
                     class="w-full border rounded px-3 py-2 focus:outline-none focus:border-blue-500"
                     placeholder="Décrivez les modifications...">{{ old('change_notes') }}</textarea>
             </div>
-[16/05/2026 11:00] Chocho🫀: {{-- Boutons --}}
+{{-- Boutons --}}
             <div class="flex gap-3">
                 <button type="submit"
                     class="bg-blue-700 text-white px-6 py-2 rounded hover:bg-blue-600">
