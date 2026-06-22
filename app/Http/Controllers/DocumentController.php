@@ -7,9 +7,12 @@ use App\Models\DocumentVersion;
 use App\Models\AuditLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class DocumentController extends Controller
 {
+    use AuthorizesRequests;
+
     // قائمة الوثائق
     public function index()
     {
@@ -119,7 +122,6 @@ class DocumentController extends Controller
             $file    = $request->file('file');
             $version = $document->versions()->count() + 1;
             $path    = $file->store('documents', 'local');
-
             $document->versions()->update(['is_current' => false]);
 
             DocumentVersion::create([
