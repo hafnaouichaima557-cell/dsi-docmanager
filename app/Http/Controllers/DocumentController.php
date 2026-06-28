@@ -15,11 +15,26 @@ class DocumentController extends Controller
     use AuthorizesRequests;
 
     // قائمة الوثائق
-    public function index()
+    public function index(Request $request)
     {
-        $documents = Document::with('creator', 'category')
-                             ->latest()
-                             ->paginate(10);
+        $query = Document::with('creator', 'category')->latest();
+
+        // بحث
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', '%'.$search.'%')
+                  ->orWhere('reference', 'like', '%'.$search.'%')
+                  ->orWhere('description', 'like', '%'.$search.'%');
+            });
+        }
+
+        // فلترة بالحالة
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $documents = $query->paginate(10)->withQueryString();
 
         return view('documents.index', compact('documents'));
     }
@@ -119,7 +134,8 @@ class DocumentController extends Controller
             'priority'    => $request->priority ?? $document->priority,
             'status'      => 'under_review',
         ]);
-// نسخة جديدة
+
+        // نسخة جديدة
         if ($request->hasFile('file')) {
             $file    = $request->file('file');
             $version = $document->versions()->count() + 1;
