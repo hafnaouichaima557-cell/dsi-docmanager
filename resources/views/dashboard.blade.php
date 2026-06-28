@@ -69,6 +69,27 @@
         </div>
     </div>
 </div>
+
+{{-- Rejected card row --}}
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <p class="text-muted mb-1" style="font-size:12px;text-transform:uppercase;letter-spacing:1px">Rejetés</p>
+                        <h2 class="fw-bold mb-0 text-danger">{{ $rejectedDocuments }}</h2>
+                        <small class="text-muted">Documents rejetés</small>
+                    </div>
+                    <div class="rounded-circle d-flex align-items-center justify-content-center" style="width:48px;height:48px;background:#fee2e2">
+                        <i class="bi bi-x-circle" style="font-size:22px;color:#dc2626"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 {{-- Donut + Recent Docs --}}
 <div class="row g-3 mb-3">
     <div class="col-md-4">
@@ -105,7 +126,7 @@
                             <small class="text-muted ms-1">({{ $totalDocuments > 0 ? round($pendingDocuments / $totalDocuments * 100) : 0 }}%)</small>
                         </span>
                     </div>
-                    <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
                         <span class="d-flex align-items-center gap-2" style="font-size:13px">
                             <span class="rounded-circle" style="width:10px;height:10px;background:#7c3aed;display:inline-block"></span>
                             Publiés
@@ -115,11 +136,21 @@
                             <small class="text-muted ms-1">({{ $totalDocuments > 0 ? round($publishedDocuments / $totalDocuments * 100) : 0 }}%)</small>
                         </span>
                     </div>
+                    <div class="d-flex align-items-center justify-content-between">
+                        <span class="d-flex align-items-center gap-2" style="font-size:13px">
+                            <span class="rounded-circle" style="width:10px;height:10px;background:#dc2626;display:inline-block"></span>
+                            Rejetés
+                        </span>
+                        <span>
+                            <strong>{{ $rejectedDocuments }}</strong>
+                            <small class="text-muted ms-1">({{ $totalDocuments > 0 ? round($rejectedDocuments / $totalDocuments * 100) : 0 }}%)</small>
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-<div class="col-md-8">
+    <div class="col-md-8">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-header bg-white border-0 d-flex align-items-center justify-content-between">
                 <span class="fw-semibold" style="font-size:14px">Derniers documents</span>
@@ -153,7 +184,7 @@
                             <td class="text-muted">{{ $doc->category->name ?? '—' }}</td>
                             <td>
                                 @php
-                                    $badges = ['draft'=>'secondary','submitted'=>'primary','under_review'=>'warning','approved'=>'success','published'=>'info','disabled'=>'danger'];
+                                    $badges = ['draft'=>'secondary','submitted'=>'primary','under_review'=>'warning','approved'=>'success','published'=>'info','disabled'=>'danger','rejected'=>'danger'];
                                     $badge = $badges[$doc->status] ?? 'secondary';
                                 @endphp
                                 <span class="badge bg-{{ $badge }}" style="font-size:11px">{{ $doc->status }}</span>
@@ -169,6 +200,7 @@
         </div>
     </div>
 </div>
+
 {{-- Workflow --}}
 <div class="card border-0 shadow-sm">
     <div class="card-header bg-white border-0 fw-semibold" style="font-size:14px">
@@ -225,8 +257,8 @@
         type: 'doughnut',
         data: {
             datasets: [{
-                data: [{{ $approvedDocuments }}, {{ $pendingDocuments }}, {{ $publishedDocuments }}],
-                backgroundColor: ['#1d4ed8', '#d97706', '#7c3aed'],
+                data: [{{ $approvedDocuments }}, {{ $pendingDocuments }}, {{ $publishedDocuments }}, {{ $rejectedDocuments }}],
+                backgroundColor: ['#1d4ed8', '#d97706', '#7c3aed', '#dc2626'],
                 borderWidth: 0
             }]
         },

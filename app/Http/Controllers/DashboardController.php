@@ -14,6 +14,7 @@ class DashboardController extends Controller
         $pendingDocuments   = Document::where('status', 'under_review')->count();
         $approvedDocuments  = Document::where('status', 'approved')->count();
         $publishedDocuments = Document::where('status', 'published')->count();
+        $rejectedDocuments  = Document::where('status', 'rejected')->count();
 
         $recentDocuments = Document::with('creator', 'category')
                                    ->latest()
@@ -36,6 +37,7 @@ class DashboardController extends Controller
             'pendingDocuments',
             'approvedDocuments',
             'publishedDocuments',
+            'rejectedDocuments',
             'recentDocuments',
             'recentAuditLogs',
             'workflowSteps',
