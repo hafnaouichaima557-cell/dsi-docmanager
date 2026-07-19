@@ -213,6 +213,18 @@ class DocumentController extends Controller
                          ->with('success', 'Document publié avec succès');
     }
 
+    // عرض / فتح الملف (PDF, DOCX, XLSX) في المتصفح
+    public function voir(Document $document)
+    {
+        $version = $document->versions()->where('is_current', true)->first();
+
+        if (!$version || !Storage::disk('local')->exists($version->file_path)) {
+            return back()->with('error', 'Fichier introuvable.');
+        }
+
+        return response()->file(storage_path('app/' . $version->file_path));
+    }
+
     // حذف وثيقة
     public function destroy(Document $document)
     {

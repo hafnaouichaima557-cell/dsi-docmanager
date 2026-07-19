@@ -16,10 +16,17 @@ class WorkflowController extends Controller
     // قائمة الـ workflow
     public function index()
     {
-        $steps = \App\Models\WorkflowStep::with('document', 'assignedUser')
-                                         ->where('status', 'in_progress')
-                                         ->latest()
-                                         ->paginate(10);
+        // $steps = \App\Models\WorkflowStep::with('document', 'assignedUser')
+        //                                  ->where('status', 'in_progress')
+        //                                  ->latest()
+        //                                  ->paginate(10);
+        $steps = \App\Models\WorkflowStep::with(['document', 'assignedUser'])
+                    ->where('status', 'in_progress')
+                    ->whereHas('document', function ($query) {
+                        $query->where('created_by', '!=', auth()->id());
+                    })
+                    ->latest()
+                    ->paginate(10);
         return view('workflow.index', compact('steps'));
     }
 

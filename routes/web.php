@@ -31,6 +31,8 @@ Route::middleware(['auth'])->group(function () {
          ->name('documents.disable');
     Route::patch('documents/{document}/publish', [DocumentController::class, 'publish'])
          ->name('documents.publish');
+    Route::get('documents/{document}/voir', [DocumentController::class, 'voir'])
+         ->name('documents.voir');
 
     // Workflow
     Route::get('/workflow', [WorkflowController::class, 'index'])

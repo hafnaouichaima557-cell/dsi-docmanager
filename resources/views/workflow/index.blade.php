@@ -48,7 +48,8 @@
                         {{ $step->deadline ? $step->deadline->format('d/m/Y') : '—' }}
                     </td>
                     <td class="py-3">
-                        @if($step->status === 'in_progress' && auth()->id() === $step->assigned_to)
+                       
+                          @if($step->status === 'in_progress')
                         <div class="d-flex gap-1">
                             <form action="{{ route('workflow.approve', $step) }}" method="POST">
                                 @csrf
