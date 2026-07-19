@@ -40,12 +40,30 @@
               placeholder="Ex: Rapport sécurité réseau — Mai 2026"
               style="padding:9px 13px;border:1.5px solid #dbeafe;border-radius:9px;font-size:14px;color:#111827;background:#f8fbff;width:100%;box-sizing:border-box;outline:none">
           </div>
+
           <div>
             <label style="font-size:13px;font-weight:600;color:#1e3a5f;display:block;margin-bottom:5px">Description</label>
             <textarea name="description" rows="4"
               placeholder="Décrivez brièvement l'objectif ou le contenu du document…"
               style="padding:9px 13px;border:1.5px solid #dbeafe;border-radius:9px;font-size:14px;color:#111827;background:#f8fbff;width:100%;box-sizing:border-box;resize:vertical;outline:none">{{ old('description') }}</textarea>
           </div>
+
+          {{-- Catégorie --}}
+          <div>
+            <label style="font-size:13px;font-weight:600;color:#1e3a5f;display:block;margin-bottom:5px">
+              Catégorie <span style="color:#ef4444">*</span>
+            </label>
+            <select name="category_id" required
+              style="padding:9px 13px;border:1.5px solid #dbeafe;border-radius:9px;font-size:14px;color:#111827;background:#f8fbff;width:100%;box-sizing:border-box;outline:none">
+              <option value="">-- Choisir une catégorie --</option>
+              @foreach($categories as $category)
+                <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
+                  {{ $category->name }}
+                </option>
+              @endforeach
+            </select>
+          </div>
+
         </div>
       </div>
 

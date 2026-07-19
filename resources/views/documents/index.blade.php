@@ -51,6 +51,14 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 @endif
+
+@if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>{{ session('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+@endif
+
 {{-- Table --}}
 <div class="card border-0 shadow-sm">
     <div class="card-body p-0">
@@ -111,6 +119,13 @@
                                class="btn btn-sm btn-outline-primary" title="Voir">
                                 <i class="bi bi-eye"></i>
                             </a>
+
+                            <a href="{{ route('documents.voir', $document) }}"
+                               target="_blank"
+                               class="btn btn-sm btn-outline-success" title="Ouvrir le document">
+                                <i class="bi bi-file-earmark-pdf"></i>
+                            </a>
+
                             <a href="{{ route('documents.edit', $document) }}"
                                class="btn btn-sm btn-outline-secondary" title="Modifier">
                                 <i class="bi bi-pencil"></i>
