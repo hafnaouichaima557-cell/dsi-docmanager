@@ -40,7 +40,7 @@
 }
 
 /* Total — bleu nuit */
-.kpi-1 { background: linear-gradient(135deg, #0d2b6b 0%, #1a4fa0 100%); box-shadow: 0 8px 24px rgba(13,43,107,0.35); }
+.kpi-1 { background: linear-gradient(135deg, #466bb9 0%, #1a4fa0 100%); box-shadow: 0 8px 24px rgba(13,43,107,0.35); }
 /* Validés — vert */
 .kpi-2 { background: linear-gradient(135deg, #059669 0%, #34d399 100%); box-shadow: 0 8px 24px rgba(5,150,105,0.35); }
 /* En Relecture — rose */
@@ -238,8 +238,8 @@
 <div class="row g-3 mb-3">
     <div class="col-lg-4">
         <div class="section-card card h-100">
-            <div class="section-header">
-                <span><i class="bi bi-pie-chart me-2"></i>Répartition</span>
+            <div class="section-header" style="background:linear-gradient(135deg,#0d2b6b,#1a4fa0);color:#fff;">
+                <span><i class="bi bi-pie-chart me-2" style="color:#fff"></i>Répartition</span>
             </div>
             <div class="card-body d-flex align-items-center justify-content-center flex-column gap-3 py-4">
                 <div style="position:relative;width:165px;height:165px">
@@ -277,9 +277,9 @@
 
     <div class="col-lg-8">
         <div class="section-card card h-100">
-            <div class="section-header">
-                <span><i class="bi bi-clock-history me-2"></i>Derniers documents</span>
-                <a href="{{ route('documents.index') }}" class="btn-voir">Voir tout →</a>
+            <div class="section-header" style="background:linear-gradient(135deg,#0d2b6b,#1a4fa0);color:#fff;">
+                <span><i class="bi bi-clock-history me-2" style="color:#fff"></i>Derniers documents</span>
+                <a href="{{ route('documents.index') }}" class="btn-voir" style="background:rgba(255,255,255,0.15);color:#fff;">Voir tout →</a>
             </div>
             @if($recentDocuments->isEmpty())
                 <div class="card-body text-center text-muted py-5">
@@ -311,9 +311,9 @@
 
 {{-- Workflow --}}
 <div class="section-card card">
-    <div class="section-header">
-        <span><i class="bi bi-arrow-repeat me-2"></i>Workflow en cours</span>
-        <a href="{{ route('workflow.index') }}" class="btn-voir">Voir tout →</a>
+    <div class="section-header" style="background:linear-gradient(135deg,#0d2b6b,#1a4fa0);color:#fff;">
+        <span><i class="bi bi-arrow-repeat me-2" style="color:#fff"></i>Workflow en cours</span>
+        <a href="{{ route('workflow.index') }}" class="btn-voir" style="background:rgba(255,255,255,0.15);color:#fff;">Voir tout →</a>
     </div>
     <div class="card-body p-0">
         @forelse($workflowSteps as $step)

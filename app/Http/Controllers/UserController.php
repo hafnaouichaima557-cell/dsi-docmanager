@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\AuditLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
@@ -33,6 +34,7 @@ class UserController extends Controller
             'password'   => 'required|min:8',
             'department' => 'nullable|string',
             'role'       => 'required|exists:roles,name',
+            'photo'      => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         $user = User::create([
@@ -42,6 +44,12 @@ class UserController extends Controller
             'department' => $request->department,
             'is_active'  => true,
         ]);
+
+        // photo de profil (optionnelle)
+        if ($request->hasFile('photo')) {
+            $path = $request->file('photo')->store('avatars', 'public');
+            $user->update(['photo' => $path]);
+        }
 
         // تعيين الرول — diag 6
         $user->assignRole($request->role);
@@ -121,9 +129,19 @@ class UserController extends Controller
         $request->validate([
             'name'       => 'required|string|max:255',
             'department' => 'nullable|string',
+            'photo'      => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         $user->update($request->only('name', 'department'));
+
+        // photo de profil (optionnelle) — remplace l'ancienne si une nouvelle est envoyée
+        if ($request->hasFile('photo')) {
+            if ($user->photo) {
+                Storage::disk('public')->delete($user->photo);
+            }
+            $path = $request->file('photo')->store('avatars', 'public');
+            $user->update(['photo' => $path]);
+        }
 
         return redirect()->route('users.index')
                          ->with('success', 'Utilisateur mis à jour');
@@ -131,6 +149,10 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
+        if ($user->photo) {
+            Storage::disk('public')->delete($user->photo);
+        }
+
         $user->delete();
         return redirect()->route('users.index')
                          ->with('success', 'Utilisateur supprimé');

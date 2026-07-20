@@ -7,36 +7,42 @@
     <title>DSI DocManager — icosnet</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --sidebar-from: #0b1f4d;
             --sidebar-to: #1a4fa0;
             --accent: #4f8ef7;
+            --accent-100: #eaf1ff;
+            --navy-950: #0e1526;
+            --slate-500: #6b7686;
+            --slate-300: #dfe3ea;
+            --slate-100: #f4f6f9;
+            --amber: #f5a524;
         }
 
         * { font-family: 'Inter', 'Segoe UI', sans-serif; }
 
-        body { overflow: hidden; }
+        body { overflow: hidden; background: var(--slate-100); }
 
         /* ============ SIDEBAR ============ */
         .sidebar {
-            width: 260px;
+            width: 264px;
             min-height: 100vh;
-            background: linear-gradient(160deg, var(--sidebar-from) 0%, var(--sidebar-to) 100%);
-            box-shadow: 2px 0 12px rgba(0,0,0,0.15);
+            background: linear-gradient(165deg, var(--sidebar-from) 0%, var(--sidebar-to) 100%);
+            box-shadow: 2px 0 16px rgba(0,0,0,0.15);
             position: relative;
         }
 
         .sidebar-logo {
-            padding: 20px 20px 18px;
+            padding: 20px 22px 18px;
             border-bottom: 1px solid rgba(255,255,255,0.08);
         }
 
         .sidebar-logo-icon {
             width: 38px;
             height: 38px;
-            border-radius: 10px;
+            border-radius: 11px;
             background: linear-gradient(135deg, var(--accent), #7db2ff);
             display: flex;
             align-items: center;
@@ -48,10 +54,11 @@
         }
 
         .sidebar-brand-title {
+            font-family: 'Manrope', sans-serif;
             font-size: 14.5px;
-            font-weight: 700;
+            font-weight: 800;
             color: #fff;
-            letter-spacing: 0.2px;
+            letter-spacing: 0.1px;
             line-height: 1.2;
         }
 
@@ -82,7 +89,7 @@
             text-decoration: none;
             font-size: 13.5px;
             font-weight: 500;
-            border-radius: 8px;
+            border-radius: 9px;
             transition: all 0.18s ease;
             position: relative;
         }
@@ -127,7 +134,8 @@
             margin: 14px 22px 0;
             border-top: 1px solid rgba(255,255,255,0.08);
         }
-/* User footer */
+
+        /* User footer */
         .sidebar-user {
             padding: 16px 18px;
             border-top: 1px solid rgba(255,255,255,0.08);
@@ -176,48 +184,90 @@
         .topbar {
             background: #fff;
             border-bottom: 1px solid #e9ecf2;
-            padding: 12px 28px;
+            padding: 13px 28px;
         }
 
-        .topbar .breadcrumb-tag {
-            font-size: 12.5px;
-            color: #8b93a7;
-            font-weight: 500;
-        }
-
-        .topbar .breadcrumb-current {
+        .breadcrumb-tag {
             font-size: 13px;
+            color: var(--slate-500);
             font-weight: 600;
-            color: #1a2233;
         }
 
+        .breadcrumb-current {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--navy-950);
+            background: var(--accent-100);
+            padding: 5px 12px 5px 8px;
+            border-radius: 999px;
+        }
+
+        .breadcrumb-current .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent);
+        }
+
+        .search-box .input-group {
+            background: var(--slate-100);
+            border: 1px solid #e9ecf2;
+            border-radius: 11px;
+            overflow: hidden;
+            transition: border-color .15s ease, background .15s ease, box-shadow .15s ease;
+        }
+        .search-box .input-group:focus-within {
+            border-color: var(--accent);
+            background: #fff;
+            box-shadow: 0 0 0 4px var(--accent-100);
+        }
         .search-box .input-group-text,
         .search-box .form-control {
-            background: #f4f6fa;
-            border: 1px solid #e9ecf2;
+            background: transparent;
+            border: none;
+        }
+        .search-box .form-control {
+            font-size: 13.5px;
+            padding-left: 0;
         }
         .search-box .form-control:focus {
             box-shadow: none;
-            border-color: var(--accent);
-            background: #fff;
+        }
+        .search-box .kbd-hint {
+            font-size: 10.5px;
+            color: #9aa3b2;
+            border: 1px solid var(--slate-300);
+            border-radius: 5px;
+            padding: 2px 6px;
+            margin-right: 4px;
+            white-space: nowrap;
         }
 
-        .main-content {
-            height: calc(100vh - 65px);
-            overflow-y: auto;
-            background: #f4f6f9;
-            padding: 28px;
+        .icon-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            border: 1px solid var(--slate-300);
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background .15s ease, border-color .15s ease;
         }
+        .icon-btn:hover { background: var(--slate-100); border-color: #cdd4e0; }
 
         .notif-badge {
             position: absolute;
             top: -3px;
             right: -3px;
-            width: 18px;
-            height: 18px;
-            background: #ef4444;
+            width: 17px;
+            height: 17px;
+            background: var(--amber);
             border-radius: 50%;
-            font-size: 10px;
+            font-size: 9.5px;
             font-weight: 700;
             color: #fff;
             display: flex;
@@ -226,13 +276,56 @@
             box-shadow: 0 0 0 2px #fff;
         }
 
-        .role-badge {
-            background: #eaf1ff;
-            color: #1a4fa0;
+        .topbar-divider {
+            width: 1px;
+            height: 26px;
+            background: var(--slate-300);
+        }
+
+        .profile-chip {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 5px 12px 5px 6px;
+            border-radius: 999px;
+            background: var(--slate-100);
+            border: 1px solid #ecf0f5;
+            transition: background .15s ease;
+        }
+        .profile-chip:hover { background: #eaedf2; }
+
+        .profile-chip-avatar {
+            width: 27px;
+            height: 27px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), #0e1526);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 700;
             font-size: 11px;
-            font-weight: 600;
-            padding: 5px 10px;
-            border-radius: 20px;
+            flex-shrink: 0;
+        }
+
+        .profile-chip-name {
+            font-size: 12.5px;
+            font-weight: 700;
+            color: var(--navy-950);
+            line-height: 1.15;
+        }
+
+        .profile-chip-role {
+            font-size: 10.5px;
+            color: var(--slate-500);
+            line-height: 1.15;
+        }
+
+        .main-content {
+            height: calc(100vh - 66px);
+            overflow-y: auto;
+            background: var(--slate-100);
+            padding: 28px;
         }
     </style>
 </head>
@@ -266,7 +359,8 @@
                class="sidebar-link {{ request()->routeIs('documents.*') ? 'active' : '' }}">
                 <i class="bi bi-file-earmark-text"></i> Documents
             </a>
-<a href="{{ route('workflow.index') }}"
+
+            <a href="{{ route('workflow.index') }}"
                class="sidebar-link {{ request()->routeIs('workflow.*') ? 'active' : '' }}">
                 <i class="bi bi-arrow-repeat"></i> Workflow
             </a>
@@ -324,34 +418,38 @@
             <div class="d-flex align-items-center gap-2 flex-shrink-0">
                 <span class="breadcrumb-tag">icosnet</span>
                 <i class="bi bi-chevron-right text-muted" style="font-size:10px"></i>
-                <span class="breadcrumb-current">DSI DocManager</span>
+                <span class="breadcrumb-current">
+                    <span class="dot"></span> DSI DocManager
+                </span>
             </div>
 
             {{-- Recherche globale --}}
             <div class="flex-grow-1 search-box" style="max-width:420px">
-                <div class="input-group input-group-sm">
-                    <span class="input-group-text border-end-0">
+                <div class="input-group input-group-sm px-2">
+                    <span class="input-group-text">
                         <i class="bi bi-search text-muted"></i>
                     </span>
-                    <input type="text" class="form-control border-start-0"
+                    <input type="text" class="form-control"
                            placeholder="Rechercher un document..."
                            onkeydown="if(event.key==='Enter'){window.location='/documents?search='+this.value}">
+                    <span class="input-group-text kbd-hint border-0 bg-transparent">⌘K</span>
                 </div>
             </div>
 
             {{-- Actions --}}
             <div class="d-flex align-items-center gap-3">
-                <span class="text-muted" style="font-size:12px">{{ now()->format('d/m/Y') }}</span>
-{{-- Notifications dropdown --}}
+                <span class="text-muted" style="font-size:12.5px;font-weight:500">{{ now()->format('d/m/Y') }}</span>
+
+                {{-- Notifications dropdown --}}
                 <div class="position-relative">
-                    <button class="btn btn-light btn-sm position-relative" data-bs-toggle="dropdown">
+                    <button class="icon-btn position-relative border-0" data-bs-toggle="dropdown" aria-label="Notifications">
                         <i class="bi bi-bell" style="font-size:16px"></i>
                         @php $unread = auth()->user()->unreadNotifications->count(); @endphp
                         @if($unread > 0)
                         <span class="notif-badge">{{ $unread }}</span>
                         @endif
                     </button>
-                    <div class="dropdown-menu dropdown-menu-end shadow" style="width:320px;max-height:400px;overflow-y:auto">
+                    <div class="dropdown-menu dropdown-menu-end shadow border-0" style="width:320px;max-height:400px;overflow-y:auto">
                         <div class="dropdown-header d-flex justify-content-between align-items-center">
                             <span class="fw-semibold">Notifications</span>
                             @if($unread > 0)
@@ -381,10 +479,18 @@
                     </div>
                 </div>
 
-                {{-- Rôle --}}
-                <span class="role-badge">
-                    {{ auth()->user()->getRoleNames()->first() ?? 'utilisateur' }}
-                </span>
+                <div class="topbar-divider"></div>
+
+                {{-- Profil --}}
+                <div class="profile-chip">
+                    <div class="profile-chip-avatar">
+                        {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                    </div>
+                    <div class="d-flex flex-column">
+                        <span class="profile-chip-name">{{ auth()->user()->name }}</span>
+                        <span class="profile-chip-role">{{ auth()->user()->getRoleNames()->first() ?? 'utilisateur' }}</span>
+                    </div>
+                </div>
             </div>
         </div>
 

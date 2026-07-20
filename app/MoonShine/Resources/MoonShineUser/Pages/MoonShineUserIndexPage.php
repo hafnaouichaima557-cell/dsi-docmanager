@@ -32,7 +32,7 @@ final class MoonShineUserIndexPage extends IndexPage
     {
         return [
             ID::make()->sortable(),
-            
+
             BelongsTo::make(
                 __('moonshine::ui.resource.role'),
                 'moonshineUserRole',
