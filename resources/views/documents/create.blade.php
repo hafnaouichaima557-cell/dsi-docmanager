@@ -175,31 +175,7 @@
 
         </div>
       </div>
-
-      {{-- Priorité --}}
-      <div class="section-block">
-        <p class="section-label -priority"><i class="bi bi-flag"></i> Priorité</p>
-        <div class="prio-grid">
-          @foreach([
-            'low'    => ['Basse',   'bi-arrow-down-circle', '#059669', '#f0fdf4'],
-            'normal' => ['Normale', 'bi-dash-circle',       '#1d4ed8', '#eff6ff'],
-            'high'   => ['Haute',   'bi-arrow-up-circle',   '#d97706', '#fffbeb'],
-            'urgent' => ['Urgente', 'bi-exclamation-circle','#dc2626', '#fef2f2'],
-          ] as $val => $opt)
-          <label style="cursor:pointer">
-            <input type="radio" name="priority" value="{{ $val }}"
-              {{ old('priority','normal') == $val ? 'checked' : '' }}
-              style="display:none" class="prio-radio">
-            <div class="prio-card" data-color="{{ $opt[2] }}" data-bg="{{ $opt[3] }}"
-              style="border:1.5px solid {{ old('priority','normal')==$val ? $opt[2] : '#dbeafe' }};border-radius:11px;padding:11px 6px;text-align:center;background:{{ old('priority','normal')==$val ? $opt[3] : '#f8fbff' }}">
-              <i class="bi {{ $opt[1] }}" style="font-size:20px;display:block;margin-bottom:4px;color:{{ old('priority','normal')==$val ? $opt[2] : '#93c5fd' }}"></i>
-              <span style="font-size:11px;font-weight:700;color:{{ old('priority','normal')==$val ? $opt[2] : '#64748b' }}">{{ $opt[0] }}</span>
-            </div>
-          </label>
-          @endforeach
-        </div>
-      </div>
-
+      
       {{-- Fichier --}}
       <div class="section-block" style="border-bottom:none">
         <p class="section-label -file">
