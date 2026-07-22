@@ -1,12 +1,13 @@
 <?php
 
 namespace App\Providers;
+
 use App\Models\Document;
 use App\Observers\DocumentObserver;
-
 use App\Policies\DocumentPolicy;
 
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider;
+use Illuminate\Pagination\Paginator;
 
 class AppServiceProvider extends AuthServiceProvider
 {
@@ -18,7 +19,10 @@ class AppServiceProvider extends AuthServiceProvider
     {
         $this->registerPolicies();
 
-        // تسجيل Observer
+        // Bootstrap Pagination
+        Paginator::useBootstrapFive();
+
+        // Document Observer
         Document::observe(DocumentObserver::class);
     }
 }

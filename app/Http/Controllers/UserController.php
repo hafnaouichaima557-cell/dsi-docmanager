@@ -13,19 +13,36 @@ class UserController extends Controller
 {
     // diag 6 : قائمة المستخدمين
     public function index()
-    {
-        $users = User::with('roles')->latest()->paginate(10);
-        return view('users.index', compact('users'));
+{
+    $query = User::with('roles')->latest();
+
+    // Si c'est un responsable
+    if (auth()->user()->hasRole('responsable')) {
+
+        // Il voit uniquement les utilisateurs de son département
+        $query->where('department', auth()->user()->department);
+
+        // Il ne voit pas les administrateurs
+        $query->whereDoesntHave('roles', function ($q) {
+            $q->where('name', 'administrateur');
+        });
     }
 
-    // diag 6 : فورم إضافة مستخدم
-   public function create()
+    $users = $query->paginate(10);
+
+    return view('users.index', compact('users'));
+}
+// diag 6 : Formulaire d'ajout d'un utilisateur
+public function create()
 {
-    // Responsable : يمكنه إنشاء مستخدم عادي فقط
     if (auth()->user()->hasRole('responsable')) {
+
+        // Le responsable peut créer uniquement un utilisateur
         $roles = Role::where('name', 'utilisateur')->get();
+
     } else {
-        // Admin : يرى جميع الأدوار
+
+        // L'administrateur voit tous les rôles
         $roles = Role::all();
     }
 
