@@ -19,52 +19,68 @@ class UserController extends Controller
     }
 
     // diag 6 : فورم إضافة مستخدم
-    public function create()
-    {
+   public function create()
+{
+    // Responsable : يمكنه إنشاء مستخدم عادي فقط
+    if (auth()->user()->hasRole('responsable')) {
+        $roles = Role::where('name', 'utilisateur')->get();
+    } else {
+        // Admin : يرى جميع الأدوار
         $roles = Role::all();
-        return view('users.create', compact('roles'));
     }
 
+    return view('users.create', compact('roles'));
+}
     // diag 6 : حفظ مستخدم جديد
-    public function store(Request $request)
-    {
-        $request->validate([
-            'name'       => 'required|string|max:255',
-            'email'      => 'required|email|unique:users',
-            'password'   => 'required|min:8',
-            'department' => 'nullable|string',
-            'role'       => 'required|exists:roles,name',
-            'photo'      => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+   public function store(Request $request)
+{
+    $request->validate([
+        'name'       => 'required|string|max:255',
+        'email'      => 'required|email|unique:users',
+        'password'   => 'required|min:8',
+        'department' => 'nullable|string',
+        'role'       => 'required|exists:roles,name',
+        'photo'      => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+    ]);
+
+    // Si c'est un responsable
+    if (auth()->user()->hasRole('responsable')) {
+
+        // Il ne peut créer qu'un utilisateur simple
+        $request->merge([
+            'role' => 'utilisateur',
+            'department' => auth()->user()->department,
         ]);
-
-        $user = User::create([
-            'name'       => $request->name,
-            'email'      => $request->email,
-            'password'   => Hash::make($request->password),
-            'department' => $request->department,
-            'is_active'  => true,
-        ]);
-
-        // photo de profil (optionnelle)
-        if ($request->hasFile('photo')) {
-            $path = $request->file('photo')->store('avatars', 'public');
-            $user->update(['photo' => $path]);
-        }
-
-        // تعيين الرول — diag 6
-        $user->assignRole($request->role);
-
-        // تسجيل في الأوديت — diag 6
-        AuditLog::log(
-            action     : 'created',
-            module     : 'user',
-            description: 'Utilisateur créé : ' . $user->email,
-            model      : $user
-        );
-
-        return redirect()->route('users.index')
-                         ->with('success', 'Utilisateur créé avec succès');
     }
+
+    $user = User::create([
+        'name'       => $request->name,
+        'email'      => $request->email,
+        'password'   => Hash::make($request->password),
+        'department' => $request->department,
+        'is_active'  => true,
+    ]);
+
+    // Photo de profil
+    if ($request->hasFile('photo')) {
+        $path = $request->file('photo')->store('avatars', 'public');
+        $user->update(['photo' => $path]);
+    }
+
+    // Attribution du rôle
+    $user->assignRole($request->role);
+
+    // Audit
+    AuditLog::log(
+        action     : 'created',
+        module     : 'user',
+        description: 'Utilisateur créé : ' . $user->email,
+        model      : $user
+    );
+
+    return redirect()->route('users.index')
+                     ->with('success', 'Utilisateur créé avec succès');
+}
 
     // diag 7 : تعطيل مستخدم
     public function disable(Request $request, User $user)

@@ -81,24 +81,55 @@ Route::middleware(['auth'])->group(function () {
                 ->name('audit.index');
         });
 
-    /*
-    |--------------------------------------------------------------------------
-    | Gestion des utilisateurs
-    | Administrateur uniquement
-    |--------------------------------------------------------------------------
-    */
-    Route::middleware(['role:administrateur'])
-        ->prefix('admin')
-        ->group(function () {
+   /*
+|--------------------------------------------------------------------------
+| Gestion des utilisateurs
+|--------------------------------------------------------------------------
+*/
 
-            Route::resource('users', UserController::class);
+// ======================
+// Admin + Responsable
+// ======================
+Route::middleware(['role:administrateur|responsable'])
+    ->prefix('admin')
+    ->group(function () {
 
-            Route::patch('users/{user}/disable', [UserController::class, 'disable'])
-                ->name('users.disable');
+        Route::get('users', [UserController::class, 'index'])
+            ->name('users.index');
 
-            Route::patch('users/{user}/role', [UserController::class, 'updateRole'])
-                ->name('users.role');
-        });
+        Route::get('users/create', [UserController::class, 'create'])
+            ->name('users.create');
+
+        Route::post('users', [UserController::class, 'store'])
+            ->name('users.store');
+    });
+
+
+// ======================
+// Admin uniquement
+// ======================
+Route::middleware(['role:administrateur'])
+    ->prefix('admin')
+    ->group(function () {
+
+        Route::get('users/{user}', [UserController::class, 'show'])
+            ->name('users.show');
+
+        Route::get('users/{user}/edit', [UserController::class, 'edit'])
+            ->name('users.edit');
+
+        Route::put('users/{user}', [UserController::class, 'update'])
+            ->name('users.update');
+
+        Route::delete('users/{user}', [UserController::class, 'destroy'])
+            ->name('users.destroy');
+
+        Route::patch('users/{user}/disable', [UserController::class, 'disable'])
+            ->name('users.disable');
+
+        Route::patch('users/{user}/role', [UserController::class, 'updateRole'])
+            ->name('users.role');
+    });
 });
 
 require __DIR__.'/auth.php';
