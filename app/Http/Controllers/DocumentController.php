@@ -224,7 +224,8 @@ class DocumentController extends Controller
             return back()->with('error', 'Fichier introuvable.');
         }
 
-        return response()->file(storage_path('app/' . $version->file_path));
+       // return response()->file(storage_path('app/' . $version->file_path)); document return
+        return response()->file(Storage::disk('local')->path($version->file_path));
     }
 
     // حذف وثيقة
