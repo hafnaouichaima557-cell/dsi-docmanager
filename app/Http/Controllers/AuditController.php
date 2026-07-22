@@ -19,9 +19,18 @@ class AuditController extends Controller
         $query = AuditLog::with('user')->latest('performed_at');
 
         // Responsable : voit uniquement les logs de son département
+        // et ne voit jamais les logs des administrateurs
         if ($user->hasRole('responsable')) {
+
             $query->whereHas('user', function ($q) use ($user) {
+
+                // Même département
                 $q->where('department', $user->department);
+
+                // Exclure les administrateurs
+                $q->whereDoesntHave('roles', function ($role) {
+                    $role->where('name', 'administrateur');
+                });
             });
         }
 
@@ -32,12 +41,18 @@ class AuditController extends Controller
 
         // Filtre par utilisateur
         if ($request->filled('user_id')) {
+
             $query->where('user_id', $request->user_id);
 
-            // Empêcher un responsable de filtrer un utilisateur d'un autre département
             if ($user->hasRole('responsable')) {
+
                 $query->whereHas('user', function ($q) use ($user) {
+
                     $q->where('department', $user->department);
+
+                    $q->whereDoesntHave('roles', function ($role) {
+                        $role->where('name', 'administrateur');
+                    });
                 });
             }
         }
