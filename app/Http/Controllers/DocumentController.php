@@ -18,6 +18,15 @@ class DocumentController extends Controller
     public function index(Request $request)
     {
         $query = Document::with('creator', 'category')->latest();
+        $user = auth()->user();
+
+if ($user->hasRole('responsable') || $user->hasRole('utilisateur')) {
+
+    $query->whereHas('creator', function ($q) use ($user) {
+        $q->where('department', $user->department);
+    });
+
+}
 
         // بحث
         if ($request->filled('search')) {
