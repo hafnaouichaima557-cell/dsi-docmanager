@@ -24,9 +24,9 @@ use MoonShine\Laravel\Pages\LoginPage;
 use MoonShine\Laravel\Pages\ProfilePage;
 
 return [
-    'title' => env('MOONSHINE_TITLE', 'MoonShine'),
-    'logo' => '/vendor/moonshine/logo-small.svg',
-    'logo_small' => '/vendor/moonshine/logo-small.svg',
+    'title' => env('MOONSHINE_TITLE', 'DSI DocManager'),
+    'logo' => '/images/logo-icosnet.png',
+    'logo_small' => '/images/logo-icosnet.png',
 
     'favicons' => [
         'apple-touch' => '/vendor/moonshine/apple-touch-icon.png',
@@ -91,7 +91,7 @@ return [
 
     // Layout, palette, pages, forms
     'layout' => App\MoonShine\Layouts\MoonShineLayout::class,
-    'palette' => MoonShine\ColorManager\Palettes\PurplePalette::class,
+    'palette' => PurplePalette::class,
 
     'forms' => [
         'login' => LoginForm::class,
@@ -106,7 +106,7 @@ return [
     ],
 
     // Localizations
-    'locale' => 'en',
+    'locale' => 'fr',
     'locale_key' => ChangeLocale::KEY,
     'locales' => [
         // en

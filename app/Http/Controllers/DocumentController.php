@@ -53,11 +53,11 @@ class DocumentController extends Controller
             'title'       => 'required|string|max:255',
             'description' => 'nullable|string',
             'priority'    => 'nullable|in:low,normal,high,urgent',
-            'file'        => 'required|file|mimes:pdf,docx,xlsx|max:10240',
+            'file'        => 'required|file|mimes:pdf,docx,xlsx,doc,xls,pptx,ppt,png,jpg,jpeg,txt,csv,zip|max:10240',
         ], [
             'title.required' => 'Le titre est obligatoire.',
             'file.required'  => 'Veuillez joindre un fichier.',
-            'file.mimes'     => 'Le fichier doit être PDF, DOCX ou XLSX.',
+            'file.mimes'     => 'Type de fichier non autorisé. Formats acceptés : PDF, DOCX, XLSX, DOC, XLS, PPTX, PPT, PNG, JPG, TXT, CSV, ZIP.',
         ]);
 
         $document = Document::create([
@@ -123,7 +123,9 @@ class DocumentController extends Controller
             'title'       => 'required|string|max:255',
             'description' => 'nullable|string',
             'priority'    => 'nullable|in:low,normal,high,urgent',
-            'file'        => 'nullable|file|mimes:pdf,docx,xlsx|max:10240',
+            'file'        => 'nullable|file|mimes:pdf,docx,xlsx,doc,xls,pptx,ppt,png,jpg,jpeg,txt,csv,zip|max:10240',
+        ], [
+            'file.mimes' => 'Type de fichier non autorisé. Formats acceptés : PDF, DOCX, XLSX, DOC, XLS, PPTX, PPT, PNG, JPG, TXT, CSV, ZIP.',
         ]);
 
         $oldValues = $document->toArray();
@@ -213,7 +215,7 @@ class DocumentController extends Controller
                          ->with('success', 'Document publié avec succès');
     }
 
-    // عرض / فتح الملف (PDF, DOCX, XLSX) في المتصفح
+    // عرض / فتح الملف (PDF, DOCX, XLSX, etc.) في المتصفح
     public function voir(Document $document)
     {
         $version = $document->versions()->where('is_current', true)->first();
