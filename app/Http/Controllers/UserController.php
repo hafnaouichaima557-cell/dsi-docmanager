@@ -32,6 +32,22 @@ class UserController extends Controller
 
     return view('users.index', compact('users'));
 }
+// diag 6 : Formulaire d'ajout d'un utilisateur
+public function create()
+{
+    if (auth()->user()->hasRole('responsable')) {
+
+        // Le responsable peut créer uniquement un utilisateur
+        $roles = Role::where('name', 'utilisateur')->get();
+
+    } else {
+
+        // L'administrateur voit tous les rôles
+        $roles = Role::all();
+    }
+
+    return view('users.create', compact('roles'));
+}
     // diag 6 : حفظ مستخدم جديد
    public function store(Request $request)
 {
