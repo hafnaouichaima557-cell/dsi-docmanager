@@ -171,6 +171,24 @@
     .action-btn.view:hover  { border-color: var(--accent); }
     .action-btn.pdf:hover   { border-color: #178a4c; }
     .action-btn.edit:hover  { border-color: var(--slate-500); }
+
+    /* Icones type de fichier */
+    .filetype-icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        flex-shrink: 0;
+    }
+    .filetype-pdf   { background:#fde9e9; color:#c62828; }
+    .filetype-word  { background:var(--accent-100); color:#2258c9; }
+    .filetype-excel { background:#e6f7ee; color:#178a4c; }
+    .filetype-ppt   { background:#fff3e0; color:#b3670c; }
+    .filetype-image { background:#f3e8fd; color:#8a3fd1; }
+    .filetype-other { background:var(--slate-100); color:var(--slate-500); }
 </style>
 
 {{-- Header --}}
@@ -256,10 +274,40 @@
                         <span class="ref-badge">{{ $document->reference }}</span>
                     </td>
                     <td>
-                        <a href="{{ route('documents.show', $document) }}"
-                           class="text-decoration-none fw-medium text-dark">
-                            {{ Str::limit($document->title, 35) }}
-                        </a>
+                        @php
+                            $currentVersion = $document->versions->where('is_current', true)->first();
+                            $ext = strtolower($currentVersion->file_type ?? '');
+
+                            $fileTypes = [
+                                'pdf'  => ['bi-file-earmark-pdf-fill',   'filetype-pdf'],
+                                'doc'  => ['bi-file-earmark-word-fill',  'filetype-word'],
+                                'docx' => ['bi-file-earmark-word-fill',  'filetype-word'],
+                                'xls'  => ['bi-file-earmark-excel-fill', 'filetype-excel'],
+                                'xlsx' => ['bi-file-earmark-excel-fill', 'filetype-excel'],
+                                'ppt'  => ['bi-file-earmark-ppt-fill',   'filetype-ppt'],
+                                'pptx' => ['bi-file-earmark-ppt-fill',   'filetype-ppt'],
+                                'png'  => ['bi-file-earmark-image-fill','filetype-image'],
+                                'jpg'  => ['bi-file-earmark-image-fill','filetype-image'],
+                                'jpeg' => ['bi-file-earmark-image-fill','filetype-image'],
+                                'gif'  => ['bi-file-earmark-image-fill','filetype-image'],
+                                'webp' => ['bi-file-earmark-image-fill','filetype-image'],
+                                'heic' => ['bi-file-earmark-image-fill','filetype-image'],
+                                'heif' => ['bi-file-earmark-image-fill','filetype-image'],
+                                'odt'  => ['bi-file-earmark-word-fill',  'filetype-word'],
+                                'ods'  => ['bi-file-earmark-excel-fill', 'filetype-excel'],
+                            ];
+
+                            [$fileIcon, $fileClass] = $fileTypes[$ext] ?? ['bi-file-earmark-fill', 'filetype-other'];
+                        @endphp
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="filetype-icon {{ $fileClass }}" title="{{ strtoupper($ext) ?: 'Fichier' }}">
+                                <i class="bi {{ $fileIcon }}"></i>
+                            </span>
+                            <a href="{{ route('documents.show', $document) }}"
+                               class="text-decoration-none fw-medium text-dark">
+                                {{ Str::limit($document->title, 35) }}
+                            </a>
+                        </div>
                     </td>
                     <td class="text-muted">{{ $document->category->name ?? '—' }}</td>
                     <td>
