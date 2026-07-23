@@ -27,9 +27,11 @@
     .alert-error .err-line{display:flex;align-items:flex-start;gap:7px;padding:2px 0}
 
     .newuser-header{
-        display:flex;align-items:center;gap:14px;
+        display:flex;align-items:center;justify-content:space-between;
+        gap:14px;
         margin-bottom:1.75rem;
     }
+    .newuser-header-left{display:flex;align-items:center;gap:14px}
     .newuser-icon{
         width:48px;height:48px;border-radius:12px;flex-shrink:0;
         background:linear-gradient(135deg, var(--accent-light), var(--navy));
@@ -39,6 +41,15 @@
     .newuser-icon i{font-size:21px;color:#fff}
     .newuser-title{font-size:21px;font-weight:800;color:var(--navy);margin:0 0 2px}
     .newuser-subtitle{font-size:13px;color:var(--slate-500);margin:0}
+
+    .btn-back{
+        display:inline-flex;align-items:center;gap:7px;
+        padding:9px 16px;border-radius:9px;
+        background:#fff;border:1.5px solid var(--slate-300);color:var(--navy);
+        font-size:13px;font-weight:600;text-decoration:none;flex-shrink:0;
+        transition:background .12s ease, border-color .12s ease;
+    }
+    .btn-back:hover{background:var(--accent-100);border-color:var(--accent-200);color:var(--navy)}
 
     .newuser-card{
         background:#fff;border:1px solid var(--slate-300);border-radius:16px;
@@ -109,6 +120,7 @@
 
     @media (max-width:480px){
         .field-grid{grid-template-columns:1fr}
+        .newuser-header{flex-direction:column;align-items:flex-start}
     }
 
     .avatar-upload-row{display:flex;align-items:center;gap:16px;margin-bottom:1.1rem}
@@ -144,13 +156,18 @@
 
   {{-- Header --}}
   <div class="newuser-header">
-    <div class="newuser-icon">
-      <i class="bi bi-person-plus"></i>
+    <div class="newuser-header-left">
+      <div class="newuser-icon">
+        <i class="bi bi-person-plus"></i>
+      </div>
+      <div>
+        <h1 class="newuser-title">Nouvel utilisateur</h1>
+        <p class="newuser-subtitle">Remplissez les informations du nouveau compte</p>
+      </div>
     </div>
-    <div>
-      <h1 class="newuser-title">Nouvel utilisateur</h1>
-      <p class="newuser-subtitle">Remplissez les informations du nouveau compte</p>
-    </div>
+    <a href="{{ route('users.index') }}" class="btn-back">
+      <i class="bi bi-arrow-left"></i> Retour
+    </a>
   </div>
 
   {{-- Card --}}
@@ -247,8 +264,8 @@
             </option>
 
             <option value="Sécurité Réseaux"
-                {{ old('department') == 'Sécurité Réseaux' ? 'selected' : '' }}>
-                Sécurité Réseaux
+                {{ old('department') == 'Sécurité' ? 'selected' : '' }}>
+                Sécurité 
             </option>
         </select>
 

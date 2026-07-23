@@ -15,10 +15,11 @@
   .form-wrap{max-width:700px;margin:0 auto;padding:1.5rem 1rem}
 
   .form-header{
-    display:flex;align-items:center;gap:16px;
+    display:flex;align-items:center;justify-content:space-between;gap:16px;
     margin-bottom:1.75rem;padding-bottom:1.25rem;
     border-bottom:2px solid var(--accent-100);
   }
+  .form-header-left{display:flex;align-items:center;gap:16px}
   .form-header-icon{
     width:50px;height:50px;border-radius:14px;flex-shrink:0;
     background:linear-gradient(135deg, var(--accent-light), var(--navy));
@@ -28,6 +29,15 @@
   .form-header-icon i{font-size:22px;color:#fff}
   .form-header h1{font-size:21px;font-weight:800;color:var(--navy);margin:0 0 3px}
   .form-header p{font-size:13px;color:var(--slate-500);margin:0}
+
+  .btn-back{
+    display:inline-flex;align-items:center;gap:7px;
+    padding:9px 16px;border-radius:9px;flex-shrink:0;
+    background:#fff;border:1.5px solid var(--accent-200);color:var(--navy);
+    font-size:13px;font-weight:600;text-decoration:none;
+    transition:background .12s ease, border-color .12s ease;
+  }
+  .btn-back:hover{background:var(--accent-100);border-color:var(--accent-light);color:var(--navy)}
 
   .error-box{
     background:#fef2f2;border:1.5px solid #fecaca;border-radius:10px;
@@ -128,13 +138,18 @@
 
   {{-- Header --}}
   <div class="form-header">
-    <div class="form-header-icon">
-      <i class="bi bi-file-earmark-plus"></i>
+    <div class="form-header-left">
+      <div class="form-header-icon">
+        <i class="bi bi-file-earmark-plus"></i>
+      </div>
+      <div>
+        <h1>Ajouter document</h1>
+        <p>Remplissez les informations du document à créer</p>
+      </div>
     </div>
-    <div>
-      <h1>Ajouter document</h1>
-      <p>Remplissez les informations du document à créer</p>
-    </div>
+    <a href="{{ route('documents.index') }}" class="btn-back">
+      <i class="bi bi-arrow-left"></i> Retour
+    </a>
   </div>
 
   {{-- Card --}}
