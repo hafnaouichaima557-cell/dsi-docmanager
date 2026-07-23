@@ -170,7 +170,41 @@
     text-decoration: none;
 }
 .btn-voir:hover { background: #1a4fa0; color: #fff; }
+
+/* ===== TICKETS CHART CARD ===== */
+.tickets-card {
+    background: linear-gradient(135deg, #081038 0%, #b8bfe4 100%);
+    border-radius: 16px;
+    box-shadow: 0 2px 16px rgba(13,43,107,0.08);
+    overflow: hidden;
+    height: 100%;
+}
+.tickets-header {
+    padding: 16px 20px 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.tickets-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #e2e8f0;
+}
+.tickets-legend {
+    display: flex;
+    gap: 16px;
+    font-size: 11px;
+    color: #94a3b8;
+}
+.tickets-legend span { display: flex; align-items: center; gap: 6px; }
+.tickets-legend .dot { width: 10px; height: 3px; border-radius: 2px; display: inline-block; }
 </style>
+
+@php
+    $ticketsCreatedArr = $ticketsCreated ?? [24,32,48,55,45,52,68,60,52,58,63,65,68];
+    $ticketsSolvedArr  = $ticketsSolved  ?? [20,28,40,50,42,48,60,55,48,52,58,60,63];
+    $ticketsLabelsArr  = $ticketsLabels  ?? ['Jan','','Feb','','Mar','','Apr','','May','','Jun','','Jul'];
+@endphp
 
 {{-- KPI Cards --}}
 <div class="row g-3 mb-4">
@@ -236,22 +270,22 @@
     </div>
 </div>
 
-{{-- Donut + Top créateur + Recent Docs --}}
+{{-- Donut + Top créateur + Tickets Chart --}}
 <div class="row g-3 mb-3">
     <div class="col-lg-4">
-        <div class="section-card card h-100">
+        <div class="section-card card">
             <div class="section-header" style="background:linear-gradient(135deg,#0d2b6b,#1a4fa0);color:#fff;">
                 <span><i class="bi bi-pie-chart me-2" style="color:#fff"></i>Répartition</span>
             </div>
-            <div class="card-body d-flex align-items-center justify-content-center flex-column gap-3 py-4">
-                <div style="position:relative;width:165px;height:165px">
+            <div class="card-body d-flex flex-column gap-2 py-3">
+                <div style="position:relative;width:150px;height:150px;margin:auto">
                     <canvas id="donutChart"></canvas>
                     <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none">
                         <span style="font-size:30px;font-weight:900;color:#0d2b6b;line-height:1">{{ $totalDocuments }}</span>
                         <span style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:1.2px">total</span>
                     </div>
                 </div>
-                <div class="w-100 px-2">
+                <div class="w-100 px-2 mt-2">
                     @php
                         $legend = [
                             ['label'=>'Validés',     'color'=>'#059669', 'count'=>$approvedDocuments],
@@ -306,35 +340,17 @@
     </div>
 
     <div class="col-lg-8">
-        <div class="section-card card h-100">
-            <div class="section-header" style="background:linear-gradient(135deg,#0d2b6b,#1a4fa0);color:#fff;">
-                <span><i class="bi bi-clock-history me-2" style="color:#fff"></i>Derniers documents</span>
-                <a href="{{ route('documents.index') }}" class="btn-voir" style="background:rgba(255,255,255,0.15);color:#fff;">Voir tout →</a>
-            </div>
-            @if($recentDocuments->isEmpty())
-                <div class="card-body text-center text-muted py-5">
-                    <i class="bi bi-inbox" style="font-size:32px;color:#bfdbfe"></i>
-                    <p class="mt-2 mb-0" style="font-size:13px">Aucun document pour le moment</p>
+        <div class="tickets-card">
+            <div class="tickets-header">
+                <span class="tickets-title">Tickets Created vs Tickets Solved</span>
+                <div class="tickets-legend">
+                    <span><span class="dot" style="background:#f472e0"></span>Tickets Solved</span>
+                    <span><span class="dot" style="background:#22d3ee"></span>Tickets Created</span>
                 </div>
-            @else
-            <div class="card-body p-0">
-                @foreach($recentDocuments as $doc)
-                <a href="{{ route('documents.show', $doc) }}" class="doc-row">
-                    <div class="flex-grow-1 overflow-hidden">
-                        <p class="fw-semibold mb-0 text-truncate" style="font-size:13px;color:#0f172a">{{ $doc->title }}</p>
-                        <small style="color:#94a3b8;font-size:11px">{{ $doc->category->name ?? '—' }} · {{ $doc->creator->name ?? '—' }}</small>
-                    </div>
-                    <div class="d-flex align-items-center gap-3 ms-3 flex-shrink-0">
-                        @php
-                            $sl = ['draft'=>'Brouillon','submitted'=>'Soumis','under_review'=>'En relecture','approved'=>'Approuvé','published'=>'Publié','rejected'=>'Rejeté','disabled'=>'Désactivé'];
-                        @endphp
-                        <span class="status-pill pill-{{ $doc->status }}">{{ $sl[$doc->status] ?? $doc->status }}</span>
-                        <small style="color:#94a3b8;min-width:60px;text-align:right;font-size:11px">{{ $doc->created_at->format('d/m/Y') }}</small>
-                    </div>
-                </a>
-                @endforeach
             </div>
-            @endif
+            <div style="padding:10px 16px 16px 16px;height:280px">
+                <canvas id="ticketsChart"></canvas>
+            </div>
         </div>
     </div>
 </div>
@@ -408,6 +424,67 @@
                             return ' ' + labels[ctx.dataIndex] + ': ' + ctx.raw;
                         }
                     }
+                }
+            }
+        }
+    });
+
+    // ===== Tickets Created vs Tickets Solved =====
+    const ticketsCreated = {!! json_encode($ticketsCreatedArr) !!};
+    const ticketsSolved  = {!! json_encode($ticketsSolvedArr) !!};
+    const ticketsLabels  = {!! json_encode($ticketsLabelsArr) !!};
+
+    new Chart(document.getElementById('ticketsChart'), {
+        type: 'line',
+        data: {
+            labels: ticketsLabels,
+            datasets: [
+                {
+                    label: 'Tickets Created',
+                    data: ticketsCreated,
+                    borderColor: '#22d3ee',
+                    backgroundColor: 'rgba(34,211,238,0.08)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    pointHoverRadius: 5,
+                    fill: true,
+                },
+                {
+                    label: 'Tickets Solved',
+                    data: ticketsSolved,
+                    borderColor: '#f472e0',
+                    borderWidth: 2,
+                    borderDash: [4, 4],
+                    tension: 0.4,
+                    pointRadius: 0,
+                    pointHoverRadius: 5,
+                    fill: false,
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#6577a8',
+                    titleColor: '#e2e8f0',
+                    bodyColor: '#e2e8f0',
+                    borderColor: '#4a87dd',
+                    borderWidth: 1,
+                }
+            },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: { color: '#94a3b8', font: { size: 11 } }
+                },
+                y: {
+                    grid: { color: 'rgba(148,163,184,0.1)' },
+                    ticks: { color: '#94a3b8', font: { size: 11 }, stepSize: 20 }
                 }
             }
         }
