@@ -97,6 +97,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
 }
 .section-header i { color: #1a4fa0; }
 
@@ -234,7 +236,7 @@
     </div>
 </div>
 
-{{-- Donut + Recent Docs --}}
+{{-- Donut + Top créateur + Recent Docs --}}
 <div class="row g-3 mb-3">
     <div class="col-lg-4">
         <div class="section-card card h-100">
@@ -271,6 +273,34 @@
                     </div>
                     @endforeach
                 </div>
+            </div>
+        </div>
+
+        <div class="section-card card mt-3">
+            <div class="section-header" style="background:linear-gradient(135deg,#0d2b6b,#1a4fa0);color:#fff;">
+                <span><i class="bi bi-trophy me-2" style="color:#fff"></i>Top créateur</span>
+            </div>
+            <div class="card-body py-4">
+                @if($topUser)
+                <div class="d-flex align-items-center gap-3">
+                    <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#1a4fa0,#0d2b6b);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:18px;flex-shrink:0;">
+                        {{ strtoupper(substr($topUser->name, 0, 1)) }}
+                    </div>
+                    <div class="flex-grow-1">
+                        <p class="fw-semibold mb-0" style="font-size:14px;color:#0f172a">{{ $topUser->name }}</p>
+                        <small style="color:#94a3b8;font-size:11.5px">{{ $topUser->department ?? '—' }}</small>
+                    </div>
+                    <div class="text-end">
+                        <div style="font-size:22px;font-weight:900;color:#0d2b6b;line-height:1">{{ $topUser->documents_count }}</div>
+                        <small style="color:#94a3b8;font-size:10.5px">documents</small>
+                    </div>
+                </div>
+                @else
+                <div class="text-center text-muted py-2">
+                    <i class="bi bi-inbox" style="font-size:24px;color:#bfdbfe"></i>
+                    <p class="mt-2 mb-0" style="font-size:12.5px">Aucune donnée disponible</p>
+                </div>
+                @endif
             </div>
         </div>
     </div>
