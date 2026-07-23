@@ -210,11 +210,50 @@
       <div class="form-section">
         <p class="section-label"><i class="bi bi-building"></i> Affectation</p>
         <div class="field-grid">
-          <div>
-            <label class="field-label">Département</label>
-            <input type="text" name="department" value="{{ old('department') }}"
-              placeholder="DSI, RH, Finance…" class="field-input">
-          </div>
+         <div>
+    <label class="field-label">
+        Département <span class="field-required">*</span>
+    </label>
+
+    @if(auth()->user()->hasRole('responsable'))
+
+        <input type="text"
+               class="field-input"
+               value="{{ auth()->user()->department }}"
+               readonly>
+
+        <input type="hidden"
+               name="department"
+               value="{{ auth()->user()->department }}">
+
+    @else
+
+        <select name="department" class="field-input" required>
+            <option value="">-- Choisir un département --</option>
+
+            <option value="Développement"
+                {{ old('department') == 'Développement' ? 'selected' : '' }}>
+                Développement
+            </option>
+
+            <option value="Support"
+                {{ old('department') == 'Support' ? 'selected' : '' }}>
+                Support
+            </option>
+
+            <option value="Cloud"
+                {{ old('department') == 'Cloud' ? 'selected' : '' }}>
+                Cloud
+            </option>
+
+            <option value="Sécurité Réseaux"
+                {{ old('department') == 'Sécurité Réseaux' ? 'selected' : '' }}>
+                Sécurité Réseaux
+            </option>
+        </select>
+
+    @endif
+</div>
           <div>
             <label class="field-label">
               Rôle <span class="field-required">*</span>
