@@ -171,9 +171,9 @@
 }
 .btn-voir:hover { background: #1a4fa0; color: #fff; }
 
-/* ===== TICKETS CHART CARD ===== */
+/* ===== DEPARTMENT CHART CARD ===== */
 .tickets-card {
-    background: linear-gradient(135deg, #081038 0%, #b8bfe4 100%);
+    background: linear-gradient(135deg, #eaf2ff 0%, #dbe9ff 100%);
     border-radius: 16px;
     box-shadow: 0 2px 16px rgba(13,43,107,0.08);
     overflow: hidden;
@@ -188,22 +188,21 @@
 .tickets-title {
     font-size: 13px;
     font-weight: 700;
-    color: #e2e8f0;
+    color: #0d2b6b;
 }
 .tickets-legend {
     display: flex;
     gap: 16px;
     font-size: 11px;
-    color: #94a3b8;
+    color: #475569;
 }
 .tickets-legend span { display: flex; align-items: center; gap: 6px; }
 .tickets-legend .dot { width: 10px; height: 3px; border-radius: 2px; display: inline-block; }
 </style>
 
 @php
-    $ticketsCreatedArr = $ticketsCreated ?? [24,32,48,55,45,52,68,60,52,58,63,65,68];
-    $ticketsSolvedArr  = $ticketsSolved  ?? [20,28,40,50,42,48,60,55,48,52,58,60,63];
-    $ticketsLabelsArr  = $ticketsLabels  ?? ['Jan','','Feb','','Mar','','Apr','','May','','Jun','','Jul'];
+    $departmentLabelsArr = $departmentLabels ?? ['DSI', 'RH', 'Finance', 'Marketing'];
+    $departmentCountsArr = $departmentCounts ?? [10, 6, 4, 2];
 @endphp
 
 {{-- KPI Cards --}}
@@ -277,15 +276,15 @@
             <div class="section-header" style="background:linear-gradient(135deg,#0d2b6b,#1a4fa0);color:#fff;">
                 <span><i class="bi bi-pie-chart me-2" style="color:#fff"></i>Répartition</span>
             </div>
-            <div class="card-body d-flex flex-column gap-2 py-3">
-                <div style="position:relative;width:150px;height:150px;margin:auto">
+            <div class="card-body d-flex align-items-center justify-content-start flex-column gap-3 py-4">
+                <div style="position:relative;width:165px;height:165px">
                     <canvas id="donutChart"></canvas>
                     <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none">
                         <span style="font-size:30px;font-weight:900;color:#0d2b6b;line-height:1">{{ $totalDocuments }}</span>
                         <span style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:1.2px">total</span>
                     </div>
                 </div>
-                <div class="w-100 px-2 mt-2">
+                <div class="w-100 px-2">
                     @php
                         $legend = [
                             ['label'=>'Validés',     'color'=>'#059669', 'count'=>$approvedDocuments],
@@ -342,14 +341,10 @@
     <div class="col-lg-8">
         <div class="tickets-card">
             <div class="tickets-header">
-                <span class="tickets-title">Tickets Created vs Tickets Solved</span>
-                <div class="tickets-legend">
-                    <span><span class="dot" style="background:#f472e0"></span>Tickets Solved</span>
-                    <span><span class="dot" style="background:#22d3ee"></span>Tickets Created</span>
-                </div>
+                <span class="tickets-title">Documents par département</span>
             </div>
             <div style="padding:10px 16px 16px 16px;height:280px">
-                <canvas id="ticketsChart"></canvas>
+                <canvas id="departmentChart"></canvas>
             </div>
         </div>
     </div>
@@ -429,62 +424,48 @@
         }
     });
 
-    // ===== Tickets Created vs Tickets Solved =====
-    const ticketsCreated = {!! json_encode($ticketsCreatedArr) !!};
-    const ticketsSolved  = {!! json_encode($ticketsSolvedArr) !!};
-    const ticketsLabels  = {!! json_encode($ticketsLabelsArr) !!};
+    // ===== Documents par département =====
+    const departmentLabels = {!! json_encode($departmentLabelsArr) !!};
+    const departmentCounts = {!! json_encode($departmentCountsArr) !!};
+    const departmentColors = ['#1a4fa0', '#0ea5e9', '#3b82f6', '#38bdf8', '#2563eb', '#0284c7', '#60a5fa'];
 
-    new Chart(document.getElementById('ticketsChart'), {
-        type: 'line',
+    new Chart(document.getElementById('departmentChart'), {
+        type: 'bar',
         data: {
-            labels: ticketsLabels,
-            datasets: [
-                {
-                    label: 'Tickets Created',
-                    data: ticketsCreated,
-                    borderColor: '#22d3ee',
-                    backgroundColor: 'rgba(34,211,238,0.08)',
-                    borderWidth: 2,
-                    tension: 0.4,
-                    pointRadius: 0,
-                    pointHoverRadius: 5,
-                    fill: true,
-                },
-                {
-                    label: 'Tickets Solved',
-                    data: ticketsSolved,
-                    borderColor: '#f472e0',
-                    borderWidth: 2,
-                    borderDash: [4, 4],
-                    tension: 0.4,
-                    pointRadius: 0,
-                    pointHoverRadius: 5,
-                    fill: false,
-                }
-            ]
+            labels: departmentLabels,
+            datasets: [{
+                label: 'Documents',
+                data: departmentCounts,
+                backgroundColor: departmentLabels.map((_, i) => departmentColors[i % departmentColors.length]),
+                borderRadius: 8,
+                maxBarThickness: 46,
+            }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            interaction: { mode: 'index', intersect: false },
             plugins: {
                 legend: { display: false },
                 tooltip: {
-                    backgroundColor: '#6577a8',
-                    titleColor: '#e2e8f0',
-                    bodyColor: '#e2e8f0',
-                    borderColor: '#4a87dd',
+                    backgroundColor: '#0d2b6b',
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    borderColor: '#1a4fa0',
                     borderWidth: 1,
+                    callbacks: {
+                        label: function(ctx) { return ' ' + ctx.raw + ' documents'; }
+                    }
                 }
             },
             scales: {
                 x: {
                     grid: { display: false },
-                    ticks: { color: '#94a3b8', font: { size: 11 } }
+                    ticks: { color: '#334155', font: { size: 11, weight: '600' } }
                 },
                 y: {
-                    grid: { color: 'rgba(148,163,184,0.1)' },
-                    ticks: { color: '#94a3b8', font: { size: 11 }, stepSize: 20 }
+                    beginAtZero: true,
+                    grid: { color: 'rgba(13,43,107,0.08)' },
+                    ticks: { color: '#334155', font: { size: 11 }, precision: 0 }
                 }
             }
         }

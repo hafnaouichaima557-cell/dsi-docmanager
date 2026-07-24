@@ -13,11 +13,16 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // Requête des documents du département de l'utilisateur connecté
-        $documentsQuery = Document::query()
-            ->whereHas('creator', function ($q) {
-                $q->where('department', auth()->user()->department);
+        $user = auth()->user();
+
+        // Requête des documents : l'admin voit tout, les autres uniquement leur département
+        $documentsQuery = Document::query();
+
+        if (!$user->isAdmin()) {
+            $documentsQuery->whereHas('creator', function ($q) use ($user) {
+                $q->where('department', $user->department);
             });
+        }
 
         // Statistiques
         $totalDocuments = (clone $documentsQuery)->count();
@@ -58,43 +63,34 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        // Utilisateur le plus actif du département
-        $topUser = User::select('users.id', 'users.name', 'users.department')
+        // Utilisateur le plus actif (global pour l'admin, du département pour les autres)
+        $topUserQuery = User::select('users.id', 'users.name', 'users.department')
             ->selectRaw('COUNT(documents.id) as documents_count')
             ->join('documents', 'documents.created_by', '=', 'users.id')
-            ->where('users.department', auth()->user()->department)
             ->groupBy('users.id', 'users.name', 'users.department')
-            ->orderByDesc('documents_count')
-            ->first();
+            ->orderByDesc('documents_count');
 
-        // ===== Documents créés vs Documents traités (approuvés/publiés) par mois =====
-        // Remplace l'ancien graphique "Derniers documents" : on regarde les 7 derniers mois
-        $months = collect(range(6, 0))->map(function ($i) {
-            return Carbon::now()->subMonths($i)->startOfMonth();
-        });
+        if (!$user->isAdmin()) {
+            $topUserQuery->where('users.department', $user->department);
+        }
 
-        $baseQuery = Document::query()->whereHas('creator', function ($q) {
-            $q->where('department', auth()->user()->department);
-        });
+        $topUser = $topUserQuery->first();
 
-        $ticketsCreated = $months->map(function ($month) use ($baseQuery) {
-            return (clone $baseQuery)
-                ->whereYear('created_at', $month->year)
-                ->whereMonth('created_at', $month->month)
-                ->count();
+        // ===== Documents par département =====
+        // Nombre total de documents créés, groupés par département du créateur
+        $documentsByDepartment = User::select('users.department')
+            ->selectRaw('COUNT(documents.id) as total')
+            ->join('documents', 'documents.created_by', '=', 'users.id')
+            ->whereNull('documents.deleted_at')
+            ->groupBy('users.department')
+            ->orderByDesc('total')
+            ->get();
+
+        $departmentLabels = $documentsByDepartment->pluck('department')->map(function ($d) {
+            return $d ?: 'Non défini';
         })->values()->all();
 
-        $ticketsSolved = $months->map(function ($month) use ($baseQuery) {
-            return (clone $baseQuery)
-                ->whereIn('status', ['approved', 'published'])
-                ->whereYear('updated_at', $month->year)
-                ->whereMonth('updated_at', $month->month)
-                ->count();
-        })->values()->all();
-
-        $ticketsLabels = $months->map(function ($month) {
-            return ucfirst($month->translatedFormat('M'));
-        })->values()->all();
+        $departmentCounts = $documentsByDepartment->pluck('total')->values()->all();
 
         return view('dashboard', compact(
             'totalDocuments',
@@ -106,9 +102,8 @@ class DashboardController extends Controller
             'recentAuditLogs',
             'workflowSteps',
             'topUser',
-            'ticketsCreated',
-            'ticketsSolved',
-            'ticketsLabels'
+            'departmentLabels',
+            'departmentCounts'
         ));
     }
 }

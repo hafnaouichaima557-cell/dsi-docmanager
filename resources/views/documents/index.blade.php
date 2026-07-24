@@ -199,18 +199,30 @@
         </div>
         <div>
             <div class="page-title">Documents</div>
-            <div class="page-subtitle">Gestion des documents DSI</div>
+            <div class="page-subtitle">
+                Gestion des documents{{ isset($selectedDepartment) && $selectedDepartment ? ' - ' . $selectedDepartment : '' }}
+            </div>
         </div>
     </div>
-    <a href="{{ route('documents.create') }}" class="btn btn-accent">
-        <i class="bi bi-plus-lg me-1"></i> Nouveau document
-    </a>
+    <div class="d-flex align-items-center gap-2">
+        @if(auth()->user()->isAdmin() && isset($selectedDepartment) && $selectedDepartment)
+            <a href="{{ route('documents.index') }}" class="btn btn-filter">
+                <i class="bi bi-arrow-left me-1"></i> Retour aux départements
+            </a>
+        @endif
+        <a href="{{ route('documents.create') }}" class="btn btn-accent">
+            <i class="bi bi-plus-lg me-1"></i> Nouveau document
+        </a>
+    </div>
 </div>
 
 {{-- Filtres --}}
 <div class="card filters-card shadow-sm mb-4">
     <div class="card-body py-3">
         <form method="GET" action="{{ route('documents.index') }}" class="d-flex gap-3 align-items-center">
+            @if(isset($selectedDepartment) && $selectedDepartment && auth()->user()->isAdmin())
+                <input type="hidden" name="department" value="{{ $selectedDepartment }}">
+            @endif
             <div class="flex-grow-1">
                 <div class="input-group search-input-group">
                     <span class="input-group-text">

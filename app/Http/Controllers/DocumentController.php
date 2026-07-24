@@ -6,6 +6,7 @@ use App\Models\Document;
 use App\Models\DocumentVersion;
 use App\Models\DocumentCategory;
 use App\Models\AuditLog;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -17,16 +18,52 @@ class DocumentController extends Controller
     // قائمة الوثائق
     public function index(Request $request)
     {
-        $query = Document::with('creator', 'category')->latest();
         $user = auth()->user();
 
-if ($user->hasRole('responsable') || $user->hasRole('utilisateur')) {
+        // ===== Admin : affichage par département =====
+        // Si l'admin n'a pas encore choisi un département, on lui montre
+        // la liste des départements avec le nombre de documents de chacun.
+        if ($user->isAdmin() && !$request->filled('department')) {
 
-    $query->whereHas('creator', function ($q) use ($user) {
-        $q->where('department', $user->department);
-    });
+            $departments = User::select('department')
+                ->whereNotNull('department')
+                ->distinct()
+                ->pluck('department');
 
-}
+            $departmentsWithCount = $departments->map(function ($dept) {
+                $count = Document::whereHas('creator', function ($q) use ($dept) {
+                    $q->where('department', $dept);
+                })->count();
+
+                return [
+                    'name'  => $dept,
+                    'count' => $count,
+                ];
+            })->sortByDesc('count')->values();
+
+            return view('documents.departments', compact('departmentsWithCount'));
+        }
+
+        $query = Document::with('creator', 'category')->latest();
+
+        $selectedDepartment = null;
+
+        if ($user->hasRole('responsable') || $user->hasRole('utilisateur')) {
+            // Responsable / utilisateur : toujours filtré sur son propre département
+            $selectedDepartment = $user->department;
+
+            $query->whereHas('creator', function ($q) use ($user) {
+                $q->where('department', $user->department);
+            });
+
+        } elseif ($user->isAdmin() && $request->filled('department')) {
+            // Admin qui a choisi un département précis
+            $selectedDepartment = $request->department;
+
+            $query->whereHas('creator', function ($q) use ($selectedDepartment) {
+                $q->where('department', $selectedDepartment);
+            });
+        }
 
         // بحث
         if ($request->filled('search')) {
@@ -45,7 +82,7 @@ if ($user->hasRole('responsable') || $user->hasRole('utilisateur')) {
 
         $documents = $query->paginate(10)->withQueryString();
 
-        return view('documents.index', compact('documents'));
+        return view('documents.index', compact('documents', 'selectedDepartment'));
     }
 
     // فورم إضافة وثيقة
