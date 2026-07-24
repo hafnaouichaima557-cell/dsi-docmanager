@@ -12,6 +12,10 @@ use Illuminate\Support\Facades\DB;
 
 class WorkflowService
 {
+    public function __construct(
+        private NotificationDispatcher $notifier
+    ) {}
+
     public function submit(Document $document, array $steps): void
     {
         DB::transaction(function () use ($document, $steps) {
@@ -49,6 +53,13 @@ class WorkflowService
                     new DocumentPendingApproval($document, $firstStep)
                 );
             }
+
+            // Diffusion : responsables du département + admins
+            $this->notifier->documentEvent(
+                $document,
+                'submitted',
+                $firstStep->assignedUser ?? null
+            );
         });
     }
 
@@ -81,6 +92,14 @@ class WorkflowService
                         new DocumentPendingApproval($document, $nextStep)
                     );
                 }
+
+                // Diffusion : responsables du département + admins
+                $this->notifier->documentEvent(
+                    $document,
+                    'approved',
+                    $nextStep->assignedUser ?? null,
+                    $comment
+                );
             } else {
                 $document->update([
                     'status'      => 'approved',
@@ -94,6 +113,14 @@ class WorkflowService
                         new DocumentStatusChanged($document, 'under_review', 'approved', $comment)
                     );
                 }
+
+                // Diffusion : responsables du département + admins
+                $this->notifier->documentEvent(
+                    $document,
+                    'approved',
+                    $document->creator,
+                    $comment
+                );
             }
 
             AuditLog::log(
@@ -127,6 +154,14 @@ class WorkflowService
                 );
             }
 
+            // Diffusion : responsables du département + admins
+            $this->notifier->documentEvent(
+                $document,
+                'rejected',
+                $document->creator,
+                $comment
+            );
+
             AuditLog::log(
                 action     : 'rejected',
                 module     : 'workflow',
@@ -153,6 +188,9 @@ class WorkflowService
                     new DocumentStatusChanged($document, 'approved', 'published')
                 );
             }
+
+            // Diffusion : responsables du département + admins
+            $this->notifier->documentEvent($document, 'published', $document->creator);
 
             AuditLog::log(
                 action     : 'published',
@@ -183,6 +221,9 @@ class WorkflowService
                     new DocumentStatusChanged($document, $oldStatus, 'disabled')
                 );
             }
+
+            // Diffusion : responsables du département + admins
+            $this->notifier->documentEvent($document, 'disabled', $document->creator);
 
             AuditLog::log(
                 action     : 'disabled',

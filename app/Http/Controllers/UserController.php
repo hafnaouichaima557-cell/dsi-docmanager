@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\AuditLog;
+use App\Services\NotificationDispatcher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -11,6 +12,10 @@ use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
+    public function __construct(
+        private NotificationDispatcher $notifier
+    ) {}
+
     // diag 6 : قائمة المستخدمين
     public function index()
 {
@@ -95,6 +100,9 @@ public function create()
         model      : $user
     );
 
+    // Notification : responsables du département + admins
+    $this->notifier->userEvent($user, 'created');
+
     return redirect()->route('users.index')
                      ->with('success', 'Utilisateur créé avec succès');
 }
@@ -114,6 +122,9 @@ public function create()
             description: 'Utilisateur désactivé : ' . $user->email,
             model      : $user
         );
+
+        // Notification : responsables du département + admins
+        $this->notifier->userEvent($user, 'disabled');
 
         return redirect()->route('users.index')
                          ->with('success', 'Utilisateur désactivé');
@@ -140,6 +151,9 @@ public function create()
             oldValues  : ['role' => $oldRole],
             newValues  : ['role' => $request->role]
         );
+
+        // Notification : responsables du département + admins
+        $this->notifier->userEvent($user, 'role_changed', $oldRole . ' → ' . $request->role);
 
         return redirect()->route('users.index')
                          ->with('success', 'Rôle mis à jour');
@@ -175,6 +189,9 @@ public function create()
             $path = $request->file('photo')->store('avatars', 'public');
             $user->update(['photo' => $path]);
         }
+
+        // Notification : responsables du département + admins
+        $this->notifier->userEvent($user, 'updated');
 
         return redirect()->route('users.index')
                          ->with('success', 'Utilisateur mis à jour');

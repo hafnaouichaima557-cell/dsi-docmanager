@@ -7,6 +7,7 @@ use App\Models\DocumentVersion;
 use App\Models\DocumentCategory;
 use App\Models\AuditLog;
 use App\Models\User;
+use App\Services\NotificationDispatcher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -14,6 +15,10 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 class DocumentController extends Controller
 {
     use AuthorizesRequests;
+
+    public function __construct(
+        private NotificationDispatcher $notifier
+    ) {}
 
     // قائمة الوثائق
     public function index(Request $request)
@@ -141,6 +146,9 @@ class DocumentController extends Controller
             model      : $document
         );
 
+        // Notification : responsables du département + admins
+        $this->notifier->documentEvent($document, 'created');
+
         return redirect()->route('documents.show', $document)
                          ->with('success', 'Document créé avec succès');
     }
@@ -214,6 +222,9 @@ class DocumentController extends Controller
             newValues  : $document->fresh()->toArray()
         );
 
+        // Notification : créateur (si ce n'est pas lui qui modifie) + responsables + admins
+        $this->notifier->documentEvent($document, 'updated', $document->creator);
+
         return redirect()->route('documents.show', $document)
                          ->with('success', 'Document mis à jour');
     }
@@ -236,6 +247,9 @@ class DocumentController extends Controller
             model      : $document
         );
 
+        // Notification : créateur + responsables + admins
+        $this->notifier->documentEvent($document, 'disabled', $document->creator);
+
         return redirect()->route('documents.index')
                          ->with('success', 'Document désactivé');
     }
@@ -256,6 +270,9 @@ class DocumentController extends Controller
             description: 'Document publié : ' . $document->title,
             model      : $document
         );
+
+        // Notification : créateur + responsables + admins
+        $this->notifier->documentEvent($document, 'published', $document->creator);
 
         return redirect()->route('documents.show', $document)
                          ->with('success', 'Document publié avec succès');
