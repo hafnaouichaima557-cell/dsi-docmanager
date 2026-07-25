@@ -27,6 +27,15 @@
     .audit-title{font-size:21px;font-weight:800;color:var(--navy);margin:0 0 2px}
     .audit-subtitle{font-size:13px;color:var(--slate-500);margin:0}
 
+    .btn-back{
+        display:inline-flex;align-items:center;gap:7px;
+        padding:9px 16px;border-radius:9px;
+        background:var(--slate-100);border:1.5px solid var(--slate-300);color:var(--navy);
+        font-size:13px;font-weight:600;text-decoration:none;
+        transition:background .12s ease;
+    }
+    .btn-back:hover{background:var(--accent-100);border-color:var(--accent-light);color:var(--navy)}
+
     .audit-filters{
         background:#fff;border:1px solid var(--slate-300);border-radius:14px;
         padding:1.25rem 1.5rem;margin-bottom:1.25rem;position:relative;overflow:hidden;
@@ -152,9 +161,16 @@
       </div>
       <div>
         <h1 class="audit-title">Audit Logs</h1>
-        <p class="audit-subtitle">Historique des actions effectuées</p>
+        <p class="audit-subtitle">
+            Historique des actions effectuées{{ isset($selectedDepartment) && $selectedDepartment ? ' - ' . $selectedDepartment : '' }}
+        </p>
       </div>
     </div>
+    @if(auth()->user()->hasRole('administrateur') && isset($selectedDepartment) && $selectedDepartment)
+        <a href="{{ route('audit.index') }}" class="btn-back">
+            <i class="bi bi-arrow-left"></i> Retour aux départements
+        </a>
+    @endif
   </div>
 
   {{-- Stats --}}
@@ -198,6 +214,10 @@
   <div class="audit-filters">
     <form method="GET" action="{{ route('audit.index') }}" class="filters-row">
 
+      @if(isset($selectedDepartment) && $selectedDepartment && auth()->user()->hasRole('administrateur'))
+        <input type="hidden" name="department" value="{{ $selectedDepartment }}">
+      @endif
+
       <div class="filter-field">
         <label class="filter-label">Module</label>
         <select name="module" class="filter-input">
@@ -220,7 +240,7 @@
       </button>
 
       @if(request()->hasAny(['module','user_id','date']))
-      <a href="{{ route('audit.index') }}" class="btn-reset">
+      <a href="{{ route('audit.index', $selectedDepartment ?? null ? ['department' => $selectedDepartment] : []) }}" class="btn-reset">
         <i class="bi bi-x"></i> Reset
       </a>
       @endif
@@ -244,7 +264,7 @@
         @forelse($logs as $log)
         <tr>
           <td class="log-date">
-            {{ $log->performed_at ? $log->performed_at->format('d/m/Y H:i') : '—' }}
+            {{ $log->performed_at ? $log->performed_at->format('d/m/Y H:i:s') : '—' }}
           </td>
           <td>
             <div class="log-user">
@@ -294,6 +314,20 @@
           </td>
           <td class="log-desc">
             {{ $log->description ?? '—' }}
+            @if(!empty($log->old_values) || !empty($log->new_values))
+                <div style="margin-top:4px;font-size:11.5px;color:#94a3b8">
+                    @foreach(($log->new_values ?? []) as $field => $newVal)
+                        @php $oldVal = $log->old_values[$field] ?? null; @endphp
+                        @if($oldVal != $newVal && !is_array($newVal) && !is_array($oldVal))
+                            <div>
+                                <strong>{{ $field }}</strong> :
+                                <span style="text-decoration:line-through">{{ $oldVal }}</span>
+                                → <span style="color:#1d4ed8">{{ $newVal }}</span>
+                            </div>
+                        @endif
+                    @endforeach
+                </div>
+            @endif
           </td>
         </tr>
         @empty

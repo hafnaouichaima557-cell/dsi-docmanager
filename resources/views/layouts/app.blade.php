@@ -146,6 +146,15 @@
             transition: background 0.2s;
         }
 
+        .sidebar-user-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-grow: 1;
+            overflow: hidden;
+            text-decoration: none;
+        }
+
         .sidebar-user:hover { background: rgba(0,0,0,0.2); }
 
         .sidebar-avatar {
@@ -161,6 +170,13 @@
             font-size: 14px;
             flex-shrink: 0;
             box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+            overflow: hidden;
+        }
+
+        .sidebar-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .sidebar-user-name {
@@ -291,6 +307,7 @@
             background: var(--slate-100);
             border: 1px solid #ecf0f5;
             transition: background .15s ease;
+            text-decoration: none;
         }
         .profile-chip:hover { background: #eaedf2; }
 
@@ -306,6 +323,13 @@
             font-weight: 700;
             font-size: 11px;
             flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .profile-chip-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .profile-chip-name {
@@ -392,13 +416,19 @@
 
         {{-- User --}}
         <div class="sidebar-user">
-            <div class="sidebar-avatar">
-                {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-            </div>
-            <div class="flex-grow-1 overflow-hidden">
-                <div class="sidebar-user-name text-truncate">{{ auth()->user()->name }}</div>
-                <div class="sidebar-user-email text-truncate">{{ auth()->user()->email }}</div>
-            </div>
+            <a href="{{ route('profile.edit') }}" class="sidebar-user-link">
+                <div class="sidebar-avatar">
+                    @if(auth()->user()->photo)
+                        <img src="{{ asset('storage/' . auth()->user()->photo) }}" alt="{{ auth()->user()->name }}">
+                    @else
+                        {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                    @endif
+                </div>
+                <div class="flex-grow-1 overflow-hidden">
+                    <div class="sidebar-user-name text-truncate">{{ auth()->user()->name }}</div>
+                    <div class="sidebar-user-email text-truncate">{{ auth()->user()->email }}</div>
+                </div>
+            </a>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit" class="btn btn-link p-0 sidebar-logout-btn">
@@ -482,21 +512,29 @@
                 <div class="topbar-divider"></div>
 
                 {{-- Profil --}}
-                <div class="profile-chip">
+                <a href="{{ route('profile.edit') }}" class="profile-chip">
                     <div class="profile-chip-avatar">
-                        {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                        @if(auth()->user()->photo)
+                            <img src="{{ asset('storage/' . auth()->user()->photo) }}" alt="{{ auth()->user()->name }}">
+                        @else
+                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                        @endif
                     </div>
                     <div class="d-flex flex-column">
                         <span class="profile-chip-name">{{ auth()->user()->name }}</span>
                         <span class="profile-chip-role">{{ auth()->user()->getRoleNames()->first() ?? 'utilisateur' }}</span>
                     </div>
-                </div>
+                </a>
             </div>
         </div>
 
         {{-- Content --}}
         <div class="main-content">
-            @yield('content')
+            @hasSection('content')
+                @yield('content')
+            @else
+                {{ $slot ?? '' }}
+            @endif
         </div>
 
     </div>

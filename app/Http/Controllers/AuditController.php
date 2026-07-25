@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AuditLog;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class AuditController extends Controller
@@ -16,11 +17,39 @@ class AuditController extends Controller
             abort(403, 'Accès refusé.');
         }
 
+        // ===== Admin : affichage par département =====
+        // Si l'admin n'a pas encore choisi un département, on lui montre
+        // la liste des départements avec le nombre de logs de chacun.
+        if ($user->hasRole('administrateur') && !$request->filled('department')) {
+
+            $departments = User::select('department')
+                ->whereNotNull('department')
+                ->distinct()
+                ->pluck('department');
+
+            $departmentsWithCount = $departments->map(function ($dept) {
+                $count = AuditLog::whereHas('user', function ($q) use ($dept) {
+                    $q->where('department', $dept);
+                })->count();
+
+                return [
+                    'name'  => $dept,
+                    'count' => $count,
+                ];
+            })->sortByDesc('count')->values();
+
+            return view('audit.departments', compact('departmentsWithCount'));
+        }
+
         $query = AuditLog::with('user')->latest('performed_at');
+
+        $selectedDepartment = null;
 
         // Responsable : voit uniquement les logs de son département
         // et ne voit jamais les logs des administrateurs
         if ($user->hasRole('responsable')) {
+
+            $selectedDepartment = $user->department;
 
             $query->whereHas('user', function ($q) use ($user) {
 
@@ -31,6 +60,14 @@ class AuditController extends Controller
                 $q->whereDoesntHave('roles', function ($role) {
                     $role->where('name', 'administrateur');
                 });
+            });
+
+        } elseif ($user->hasRole('administrateur') && $request->filled('department')) {
+            // Admin qui a choisi un département précis
+            $selectedDepartment = $request->department;
+
+            $query->whereHas('user', function ($q) use ($selectedDepartment) {
+                $q->where('department', $selectedDepartment);
             });
         }
 
@@ -62,10 +99,10 @@ class AuditController extends Controller
             $query->whereDate('performed_at', $request->date);
         }
 
-        $logs = $query->paginate(20);
+        $logs = $query->paginate(20)->withQueryString();
 
         $modules = AuditLog::distinct()->pluck('module');
 
-        return view('audit.index', compact('logs', 'modules'));
+        return view('audit.index', compact('logs', 'modules', 'selectedDepartment'));
     }
 }
