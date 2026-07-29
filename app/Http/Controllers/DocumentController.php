@@ -20,16 +20,11 @@ class DocumentController extends Controller
         private NotificationDispatcher $notifier
     ) {}
 
-    // قائمة الوثائق
     public function index(Request $request)
     {
         $user = auth()->user();
 
-        // ===== Admin : affichage par département =====
-        // Si l'admin n'a pas encore choisi un département, on lui montre
-        // la liste des départements avec le nombre de documents de chacun.
         if ($user->isAdmin() && !$request->filled('department')) {
-
             $departments = User::select('department')
                 ->whereNotNull('department')
                 ->distinct()
@@ -39,38 +34,27 @@ class DocumentController extends Controller
                 $count = Document::whereHas('creator', function ($q) use ($dept) {
                     $q->where('department', $dept);
                 })->count();
-
-                return [
-                    'name'  => $dept,
-                    'count' => $count,
-                ];
+                return ['name' => $dept, 'count' => $count];
             })->sortByDesc('count')->values();
 
             return view('documents.departments', compact('departmentsWithCount'));
         }
 
         $query = Document::with('creator', 'category')->latest();
-
         $selectedDepartment = null;
 
         if ($user->hasRole('responsable') || $user->hasRole('utilisateur')) {
-            // Responsable / utilisateur : toujours filtré sur son propre département
             $selectedDepartment = $user->department;
-
             $query->whereHas('creator', function ($q) use ($user) {
                 $q->where('department', $user->department);
             });
-
         } elseif ($user->isAdmin() && $request->filled('department')) {
-            // Admin qui a choisi un département précis
             $selectedDepartment = $request->department;
-
             $query->whereHas('creator', function ($q) use ($selectedDepartment) {
                 $q->where('department', $selectedDepartment);
             });
         }
 
-        // بحث
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
@@ -80,7 +64,6 @@ class DocumentController extends Controller
             });
         }
 
-        // فلترة بالحالة
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
@@ -90,14 +73,12 @@ class DocumentController extends Controller
         return view('documents.index', compact('documents', 'selectedDepartment'));
     }
 
-    // فورم إضافة وثيقة
     public function create()
     {
         $categories = DocumentCategory::all();
         return view('documents.create', compact('categories'));
     }
 
-    // حفظ وثيقة جديدة
     public function store(Request $request)
     {
         $request->validate([
@@ -108,7 +89,7 @@ class DocumentController extends Controller
         ], [
             'title.required' => 'Le titre est obligatoire.',
             'file.required'  => 'Veuillez joindre un fichier.',
-            'file.mimes'     => 'Type de fichier non autorisé. Formats acceptés : PDF, DOCX, XLSX, DOC, XLS, PPTX, PPT, PNG, JPG, TXT, CSV, ZIP.',
+            'file.mimes'     => 'Type de fichier non autorisé.',
         ]);
 
         $document = Document::create([
@@ -120,12 +101,10 @@ class DocumentController extends Controller
             'category_id' => $request->category_id ?? null,
         ]);
 
-        // رفع الملف
         if ($request->hasFile('file')) {
             $file = $request->file('file');
             $path = $file->store('documents', 'local');
-
-            DocumentVersion::create([
+      DocumentVersion::create([
                 'document_id'    => $document->id,
                 'version_number' => 1,
                 'file_path'      => $path,
@@ -138,7 +117,6 @@ class DocumentController extends Controller
             ]);
         }
 
-        // تسجيل في الأوديت
         AuditLog::log(
             action     : 'created',
             module     : 'document',
@@ -146,21 +124,18 @@ class DocumentController extends Controller
             model      : $document
         );
 
-        // Notification : responsables du département + admins
         $this->notifier->documentEvent($document, 'created');
 
         return redirect()->route('documents.show', $document)
                          ->with('success', 'Document créé avec succès');
     }
 
-    // تفاصيل وثيقة
     public function show(Document $document)
     {
         $document->load('creator', 'category', 'versions', 'workflowSteps.assignedUser');
         return view('documents.show', compact('document'));
     }
 
-    // فورم تعديل
     public function edit(Document $document)
     {
         $this->authorize('update', $document);
@@ -168,7 +143,6 @@ class DocumentController extends Controller
         return view('documents.edit', compact('document', 'categories'));
     }
 
-    // حفظ التعديل
     public function update(Request $request, Document $document)
     {
         $this->authorize('update', $document);
@@ -178,8 +152,6 @@ class DocumentController extends Controller
             'description' => 'nullable|string',
             'priority'    => 'nullable|in:low,normal,high,urgent',
             'file'        => 'nullable|file|mimes:pdf,docx,xlsx,doc,xls,pptx,ppt,png,jpg,jpeg,txt,csv,zip|max:10240',
-        ], [
-            'file.mimes' => 'Type de fichier non autorisé. Formats acceptés : PDF, DOCX, XLSX, DOC, XLS, PPTX, PPT, PNG, JPG, TXT, CSV, ZIP.',
         ]);
 
         $oldValues = $document->toArray();
@@ -191,7 +163,6 @@ class DocumentController extends Controller
             'status'      => 'under_review',
         ]);
 
-        // نسخة جديدة
         if ($request->hasFile('file')) {
             $file    = $request->file('file');
             $version = $document->versions()->count() + 1;
@@ -222,14 +193,12 @@ class DocumentController extends Controller
             newValues  : $document->fresh()->toArray()
         );
 
-        // Notification : créateur (si ce n'est pas lui qui modifie) + responsables + admins
         $this->notifier->documentEvent($document, 'updated', $document->creator);
 
         return redirect()->route('documents.show', $document)
                          ->with('success', 'Document mis à jour');
     }
 
-    // تعطيل وثيقة
     public function disable(Request $request, Document $document)
     {
         $this->authorize('disable', $document);
@@ -246,15 +215,12 @@ class DocumentController extends Controller
             description: 'Document désactivé : ' . $document->title,
             model      : $document
         );
-
-        // Notification : créateur + responsables + admins
-        $this->notifier->documentEvent($document, 'disabled', $document->creator);
+ $this->notifier->documentEvent($document, 'disabled', $document->creator);
 
         return redirect()->route('documents.index')
                          ->with('success', 'Document désactivé');
     }
 
-    // نشر وثيقة
     public function publish(Request $request, Document $document)
     {
         $this->authorize('publish', $document);
@@ -271,14 +237,12 @@ class DocumentController extends Controller
             model      : $document
         );
 
-        // Notification : créateur + responsables + admins
         $this->notifier->documentEvent($document, 'published', $document->creator);
 
         return redirect()->route('documents.show', $document)
                          ->with('success', 'Document publié avec succès');
     }
 
-    // عرض / فتح الملف (PDF, DOCX, XLSX, etc.) في المتصفح
     public function voir(Document $document)
     {
         $version = $document->versions()->where('is_current', true)->first();
@@ -287,11 +251,18 @@ class DocumentController extends Controller
             return back()->with('error', 'Fichier introuvable.');
         }
 
-       // return response()->file(storage_path('app/' . $version->file_path)); document return
         return response()->file(Storage::disk('local')->path($version->file_path));
     }
 
-    // حذف وثيقة
+    public function voirVersion(DocumentVersion $version)
+    {
+        if (!Storage::disk('local')->exists($version->file_path)) {
+            return back()->with('error', 'Fichier introuvable pour cette version.');
+        }
+
+        return response()->file(Storage::disk('local')->path($version->file_path));
+    }
+
     public function destroy(Document $document)
     {
         $this->authorize('delete', $document);

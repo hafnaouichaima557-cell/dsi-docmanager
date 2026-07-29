@@ -4,6 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Connexion — Doc Flow</title>
+
+    {{-- Favicon icosnet (remplace l'icone Laravel par defaut dans l'onglet du navigateur) --}}
+    <link rel="icon" type="image/png" href="{{ asset('images/logo-icosnet.png') }}">
+    <link rel="shortcut icon" type="image/png" href="{{ asset('images/logo-icosnet.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/logo-icosnet.png') }}">
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     <style>
@@ -120,7 +126,7 @@
             box-shadow: 0 0 0 3px rgba(255,255,255,0.1) !important;
             color: #fff !important;
         }
-.input-icon {
+        .input-icon {
             background: rgba(255,255,255,0.1) !important;
             border: 1px solid rgba(255,255,255,0.25) !important;
             border-right: none !important;
@@ -167,6 +173,28 @@
             text-align: center;
             margin-top: 24px;
         }
+
+        /* Logo box (fallback si l'image ne charge pas) */
+        .logo-box {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 12px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #4f8ef7, #0d2b6b);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 20px rgba(79,142,247,0.4);
+        }
+        .logo-box img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        .logo-box i {
+            color: #fff;
+            font-size: 28px;
+        }
     </style>
 </head>
 <body>
@@ -195,9 +223,12 @@
 
     {{-- Logo --}}
     <div class="text-center mb-4">
-        <img src="{{ asset('images/logo-icosnet.png') }}"
-             alt="icosnet" height="40"
-             onerror="this.style.display='none'" class="mb-3">
+        <div class="logo-box">
+            <img src="{{ asset('images/logo-icosnet.png') }}"
+                 alt="icosnet"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <i class="bi bi-file-earmark-text" style="display:none;"></i>
+        </div>
         <h2 class="login-title">Doc Flow</h2>
         <p class="login-subtitle">Direction des Systèmes d'Information — icosnet</p>
     </div>
@@ -222,7 +253,7 @@
                     placeholder="vous@icosnet.dz" autofocus>
             </div>
         </div>
-<div class="mb-4">
+        <div class="mb-4">
             <label class="form-label">Mot de passe</label>
             <div class="input-group">
                 <span class="input-group-text input-icon">

@@ -11,13 +11,7 @@ use MoonShine\Contracts\UI\FieldContract;
 use MoonShine\Laravel\QueryTags\QueryTag;
 use MoonShine\UI\Components\Metrics\Wrapped\Metric;
 use MoonShine\UI\Fields\ID;
-use MoonShine\UI\Fields\Text;
-use MoonShine\UI\Fields\Textarea;
-use MoonShine\UI\Fields\Number;
-use MoonShine\UI\Fields\Email;
-use MoonShine\UI\Fields\Image;
-use MoonShine\UI\Fields\Date;
-use App\MoonShine\Resources\User\App\Models\UserResource;
+use App\MoonShine\Resources\User\UserResource;
 use MoonShine\Support\ListOf;
 use Throwable;
 
@@ -36,24 +30,6 @@ class UserIndexPage extends IndexPage
     {
         return [
             ID::make(),
-             Text::make('Name', 'name')
-            ->sortable(),
-
-        Email::make('Email', 'email')
-            ->sortable(),
-
-        Text::make('Department', 'department'),
-
-        Image::make('Avatar', 'avatar'),
-
-        Text::make('Active', 'is_active'),
-
-        Date::make('Last Login', 'last_login_at'),
-
-        Date::make('Created At', 'created_at')
-            ->sortable(),
-
-        Date::make('Updated At', 'updated_at'),
         ];
     }
 
