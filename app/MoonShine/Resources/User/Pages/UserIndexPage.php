@@ -11,6 +11,9 @@ use MoonShine\Contracts\UI\FieldContract;
 use MoonShine\Laravel\QueryTags\QueryTag;
 use MoonShine\UI\Components\Metrics\Wrapped\Metric;
 use MoonShine\UI\Fields\ID;
+use MoonShine\UI\Fields\Text;
+use MoonShine\UI\Fields\Email;
+use MoonShine\UI\Fields\Select;
 use App\MoonShine\Resources\User\UserResource;
 use MoonShine\Support\ListOf;
 use Throwable;
@@ -30,6 +33,12 @@ class UserIndexPage extends IndexPage
     {
         return [
             ID::make(),
+            Text::make('Nom', 'name'),
+        Email::make('Email', 'email'),
+        Select::make('Département', 'department')->options([
+            'DSI' => 'DSI',
+            'RH'  => 'RH',
+        ]),
         ];
     }
 

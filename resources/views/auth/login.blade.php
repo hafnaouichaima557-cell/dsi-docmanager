@@ -175,21 +175,22 @@
         }
 
         /* Logo box (fallback si l'image ne charge pas) */
-        .logo-box {
-            width: 64px;
-            height: 64px;
-            margin: 0 auto 12px;
-            border-radius: 16px;
-            background: linear-gradient(135deg, #4f8ef7, #0d2b6b);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 8px 20px rgba(79,142,247,0.4);
-        }
+     .logo-box {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 12px;
+    border-radius: 16px;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overFlow: hidden;
+}
         .logo-box img {
             max-width: 100%;
             max-height: 100%;
-            object-fit: contain;
+            object-fit: cover;
+            border-radius: 16px;
         }
         .logo-box i {
             color: #fff;
