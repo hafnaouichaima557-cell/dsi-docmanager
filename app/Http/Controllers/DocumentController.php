@@ -36,9 +36,7 @@ class DocumentController extends Controller
                 ->pluck('department');
 
             $departmentsWithCount = $departments->map(function ($dept) {
-                $count = Document::whereHas('creator', function ($q) use ($dept) {
-                    $q->where('department', $dept);
-                })->count();
+                $count = Document::where('department', $dept)->count();
 
                 return [
                     'name'  => $dept,
@@ -57,17 +55,13 @@ class DocumentController extends Controller
             // Responsable / utilisateur : toujours filtré sur son propre département
             $selectedDepartment = $user->department;
 
-            $query->whereHas('creator', function ($q) use ($user) {
-                $q->where('department', $user->department);
-            });
+            $query->where('department', $user->department);
 
         } elseif ($user->isAdmin() && $request->filled('department')) {
             // Admin qui a choisi un département précis
             $selectedDepartment = $request->department;
 
-            $query->whereHas('creator', function ($q) use ($selectedDepartment) {
-                $q->where('department', $selectedDepartment);
-            });
+            $query->where('department', $selectedDepartment);
         }
 
         // بحث
@@ -91,10 +85,17 @@ class DocumentController extends Controller
     }
 
     // فورم إضافة وثيقة
-    public function create()
+    public function create(Request $request)
     {
         $categories = DocumentCategory::all();
-        return view('documents.create', compact('categories'));
+
+        // Département cible : celui choisi par l'admin (depuis l'URL),
+        // sinon le département de l'utilisateur connecté
+        $targetDepartment = auth()->user()->isAdmin() && $request->filled('department')
+            ? $request->department
+            : auth()->user()->department;
+
+        return view('documents.create', compact('categories', 'targetDepartment'));
     }
 
     // حفظ وثيقة جديدة
@@ -111,6 +112,12 @@ class DocumentController extends Controller
             'file.mimes'     => 'Type de fichier non autorisé. Formats acceptés : PDF, DOCX, XLSX, DOC, XLS, PPTX, PPT, PNG, JPG, TXT, CSV, ZIP.',
         ]);
 
+        // Département du document : celui choisi par l'admin (si fourni),
+        // sinon le département de l'utilisateur connecté
+        $department = auth()->user()->isAdmin() && $request->filled('department')
+            ? $request->department
+            : auth()->user()->department;
+
         $document = Document::create([
             'title'       => $request->title,
             'description' => $request->description,
@@ -118,6 +125,7 @@ class DocumentController extends Controller
             'created_by'  => auth()->id(),
             'status'      => 'draft',
             'category_id' => $request->category_id ?? null,
+            'department'  => $department,
         ]);
 
         // رفع الملف

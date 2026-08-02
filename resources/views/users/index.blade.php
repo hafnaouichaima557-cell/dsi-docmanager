@@ -254,8 +254,6 @@
                 @method('PATCH')
                 <select name="role" class="role-select">
                   <option value="utilisateur" {{ $user->hasRole('utilisateur') ? 'selected' : '' }}>Utilisateur</option>
-                  <option value="redacteur" {{ $user->hasRole('redacteur') ? 'selected' : '' }}>Rédacteur</option>
-                  <option value="validateur" {{ $user->hasRole('validateur') ? 'selected' : '' }}>Validateur</option>
                   <option value="responsable" {{ $user->hasRole('responsable') ? 'selected' : '' }}>Responsable</option>
                   <option value="administrateur" {{ $user->hasRole('administrateur') ? 'selected' : '' }}>Admin</option>
                 </select>

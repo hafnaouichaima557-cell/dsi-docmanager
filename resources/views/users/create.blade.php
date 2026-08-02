@@ -263,9 +263,13 @@
                 Cloud
             </option>
 
-            <option value="Sécurité Réseaux"
+            <option value="Sécurité"
                 {{ old('department') == 'Sécurité' ? 'selected' : '' }}>
                 Sécurité 
+            </option>
+            <option value="Réseaux"
+                {{ old('department') == 'Réseaux' ? 'selected' : '' }}>
+                Réseaux 
             </option>
         </select>
 
