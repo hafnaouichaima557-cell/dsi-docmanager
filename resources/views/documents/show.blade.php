@@ -93,6 +93,12 @@
     .version-item.is-current .version-icon{background:var(--accent-200);color:var(--accent)}
     .badge-current{background:var(--accent);color:#fff;font-size:10px;font-weight:700;border-radius:999px;padding:2px 8px}
     .badge-count{background:var(--accent);color:#fff;font-size:10.5px;font-weight:700;border-radius:999px;padding:2px 8px;margin-left:4px}
+    .version-voir-btn{
+        width:30px;height:30px;border-radius:8px;border:1px solid var(--slate-300);background:#fff;
+        display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--accent);
+        transition:background .15s ease, border-color .15s ease;
+    }
+    .version-voir-btn:hover{background:var(--accent-100);border-color:var(--accent-light);color:var(--accent)}
 </style>
 
 <div class="container-fluid px-4 py-4">
@@ -102,6 +108,15 @@
     <div class="alert alert-success alert-dismissible fade show mb-4 border-0 rounded-3" role="alert"
          style="background:rgba(34,197,94,0.1);border-left:4px solid #22c55e !important;color:#166534;">
         <i class="bi bi-check-circle-fill me-2"></i>{{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    @endif
+
+    {{-- Error Alert --}}
+    @if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show mb-4 border-0 rounded-3" role="alert"
+         style="background:rgba(239,68,68,0.1);border-left:4px solid #ef4444 !important;color:#991b1b;">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ session('error') }}
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
     @endif
@@ -358,6 +373,12 @@
                         <span class="text-muted" style="font-size:.7rem;white-space:nowrap;">
                             {{ $version->file_size_formatted ?? '' }}
                         </span>
+                        <a href="{{ route('documents.voir.version', $version) }}"
+                           target="_blank"
+                           class="version-voir-btn"
+                           title="Voir cette version">
+                            <i class="bi bi-eye"></i>
+                        </a>
                     </div>
                     @endforeach
                 </div>

@@ -38,7 +38,9 @@ Route::middleware(['auth'])->group(function () {
         ->name('documents.publish');
 
     Route::get('documents/{document}/voir', [DocumentController::class, 'voir'])
-        ->name('documents.voir');
+       ->name('documents.voir');
+    Route::get('documents/version/{version}/voir', [DocumentController::class, 'voirVersion'])
+     ->name('documents.voir.version');
 
     // Workflow
     Route::get('/workflow', [WorkflowController::class, 'index'])

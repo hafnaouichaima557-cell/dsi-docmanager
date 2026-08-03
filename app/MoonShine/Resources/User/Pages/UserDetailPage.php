@@ -8,7 +8,7 @@ use MoonShine\Laravel\Pages\Crud\DetailPage;
 use MoonShine\Contracts\UI\ComponentContract;
 use MoonShine\UI\Components\Table\TableBuilder;
 use MoonShine\Contracts\UI\FieldContract;
-use App\MoonShine\Resources\User\App\Models\UserResource;
+use App\MoonShine\Resources\User\UserResource;
 use MoonShine\Support\ListOf;
 use MoonShine\UI\Fields\ID;
 use Throwable;
