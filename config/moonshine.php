@@ -15,7 +15,7 @@ use MoonShine\Crud\Forms\FiltersForm;
 use MoonShine\Crud\Forms\LoginForm;
 use MoonShine\Laravel\Exceptions\MoonShineNotFoundException;
 use MoonShine\Laravel\Http\Middleware\Authenticate;
-use MoonShine\Laravel\Http\Middleware\ChangeLocale;
+// use MoonShine\Laravel\Http\Middleware\ChangeLocale;
 use MoonShine\Laravel\Layouts\AppLayout;
 use MoonShine\Laravel\Models\MoonshineUser;
 use MoonShine\Laravel\Pages\Dashboard;
@@ -24,9 +24,9 @@ use MoonShine\Laravel\Pages\LoginPage;
 use MoonShine\Laravel\Pages\ProfilePage;
 
 return [
-    'title' => env('MOONSHINE_TITLE', 'DSI DocManager'),
-    'logo' => '/images/logo-icosnet.png',
-    'logo_small' => '/images/logo-icosnet.png',
+    'title' => env('MOONSHINE_TITLE', 'MoonShine'),
+    'logo' => '/vendor/moonshine/logo-small.svg',
+    'logo_small' => '/vendor/moonshine/logo-small.svg',
 
     'favicons' => [
         'apple-touch' => '/vendor/moonshine/apple-touch-icon.png',
@@ -62,7 +62,7 @@ return [
         ShareErrorsFromSession::class,
         VerifyCsrfToken::class,
         SubstituteBindings::class,
-        ChangeLocale::class,
+       // ChangeLocale::class,
     ],
 
     // Storage
@@ -91,7 +91,7 @@ return [
 
     // Layout, palette, pages, forms
     'layout' => App\MoonShine\Layouts\MoonShineLayout::class,
-    'palette' => PurplePalette::class,
+    'palette' => MoonShine\ColorManager\Palettes\PurplePalette::class,
 
     'forms' => [
         'login' => LoginForm::class,
@@ -106,8 +106,9 @@ return [
     ],
 
     // Localizations
-    'locale' => 'fr',
-    'locale_key' => ChangeLocale::KEY,
+    'locale' => 'en',
+    //'locale_key' => ChangeLocale::KEY,
+    'locale_key' => 'locale',
     'locales' => [
         // en
     ],
