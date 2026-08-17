@@ -11,7 +11,9 @@ use MoonShine\Contracts\UI\FieldContract;
 use App\MoonShine\Resources\Document\DocumentResource;
 use MoonShine\Support\ListOf;
 use MoonShine\UI\Fields\ID;
-
+use MoonShine\UI\Fields\Text;
+use MoonShine\UI\Fields\Textarea;
+use MoonShine\UI\Fields\Number;
 use Throwable;
 
 

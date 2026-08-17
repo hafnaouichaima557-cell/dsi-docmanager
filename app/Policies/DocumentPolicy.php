@@ -7,19 +7,25 @@ use App\Models\User;
 
 class DocumentPolicy
 {
-    // كل مستخدم مسجل يقدر يشوف
+    // كل مستخدم مسجل يقدر يشوف قائمة الوثائق
+    public function viewAny(User $user): bool
+    {
+        return true;
+    }
+
+    // كل مستخدم مسجل يقدر يشوف وثيقة
     public function view(User $user, Document $document): bool
     {
         return true;
     }
 
-    // كل مستخدم يقدر يخلق وثيقة
+    // كل مستخدم يقدر ينشئ وثيقة
     public function create(User $user): bool
     {
         return true;
     }
 
-    // diag 2 : فقط صاحب الوثيقة أو admin
+    // فقط صاحب الوثيقة أو admin أو responsable
     public function update(User $user, Document $document): bool
     {
         return $user->id === $document->created_by
@@ -27,21 +33,18 @@ class DocumentPolicy
             || $user->isResponsable();
     }
 
-    // diag 3 : فقط responsable أو admin
     public function disable(User $user, Document $document): bool
     {
         return $user->isAdmin()
             || $user->isResponsable();
     }
 
-    // diag 5 : فقط responsable أو admin
     public function publish(User $user, Document $document): bool
     {
         return ($user->isAdmin() || $user->isResponsable())
             && $document->canBePublished();
     }
 
-    // فقط admin يحذف
     public function delete(User $user, Document $document): bool
     {
         return $user->isAdmin();

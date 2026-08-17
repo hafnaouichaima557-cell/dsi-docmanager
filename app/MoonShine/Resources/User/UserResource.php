@@ -1,8 +1,6 @@
 <?php
 declare(strict_types=1);
-
 namespace App\MoonShine\Resources\User;
-
 use App\Models\User;
 use App\MoonShine\Resources\User\Pages\UserIndexPage;
 use App\MoonShine\Resources\User\Pages\UserFormPage;
@@ -13,6 +11,7 @@ use MoonShine\UI\Fields\Text;
 use MoonShine\UI\Fields\Email;
 use MoonShine\UI\Fields\Password;
 use MoonShine\UI\Fields\Select;
+use MoonShine\Support\Enums\Ability;
 
 class UserResource extends ModelResource
 {
@@ -40,5 +39,15 @@ class UserResource extends ModelResource
                 'RH'  => 'RH',
             ]),
         ];
+    }
+
+    // Lecture seule : bloque create/update/delete, autorise seulement la vue
+    protected function isCan(Ability $ability): bool
+    {
+        if (in_array($ability, [Ability::CREATE, Ability::UPDATE, Ability::DELETE, Ability::MASS_DELETE], true)) {
+            return false;
+        }
+
+        return true;
     }
 }

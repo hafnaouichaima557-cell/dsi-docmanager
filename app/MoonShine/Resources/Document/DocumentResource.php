@@ -12,6 +12,7 @@ use App\MoonShine\Resources\Document\Pages\DocumentDetailPage;
 
 use MoonShine\Laravel\Resources\ModelResource;
 use MoonShine\Contracts\Core\PageContract;
+use MoonShine\Support\Enums\Ability;
 
 /**
  * @extends ModelResource<Document, DocumentIndexPage, DocumentFormPage, DocumentDetailPage>
@@ -21,7 +22,7 @@ class DocumentResource extends ModelResource
     protected string $model = Document::class;
 
     protected string $title = 'Documents';
-    
+
     /**
      * @return list<class-string<PageContract>>
      */
@@ -32,5 +33,15 @@ class DocumentResource extends ModelResource
             DocumentFormPage::class,
             DocumentDetailPage::class,
         ];
+    }
+
+    // Lecture seule : bloque create/update/delete, autorise seulement la vue
+    protected function isCan(Ability $ability): bool
+    {
+        if (in_array($ability, [Ability::CREATE, Ability::UPDATE, Ability::DELETE, Ability::MASS_DELETE], true)) {
+            return false;
+        }
+
+        return true;
     }
 }

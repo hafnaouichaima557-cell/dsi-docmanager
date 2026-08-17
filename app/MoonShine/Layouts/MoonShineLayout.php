@@ -4,21 +4,33 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Layouts;
 
+use App\MoonShine\Pages\Dashboard;
+use App\MoonShine\Pages\Workflow;
+
+use App\MoonShine\Resources\Document\DocumentResource;
+use App\MoonShine\Resources\Notification\NotificationResource;
+
 use MoonShine\Laravel\Layouts\AppLayout;
+
 use MoonShine\ColorManager\Palettes\PurplePalette;
-use MoonShine\ColorManager\ColorManager;
 use MoonShine\Contracts\ColorManager\ColorManagerContract;
 use MoonShine\Contracts\ColorManager\PaletteContract;
-use App\MoonShine\Resources\User\UserResource;
+
+use MoonShine\MenuManager\MenuGroup;
 use MoonShine\MenuManager\MenuItem;
+
+use MoonShine\UI\Components\Layout\Logo;
 
 final class MoonShineLayout extends AppLayout
 {
     /**
-     * @var null|class-string<PaletteContract>
+     * Palette MoonShine
      */
     protected ?string $palette = PurplePalette::class;
 
+    /**
+     * Assets
+     */
     protected function assets(): array
     {
         return [
@@ -26,21 +38,96 @@ final class MoonShineLayout extends AppLayout
         ];
     }
 
+    /**
+     * Logo icosnet
+     */
+    protected function getLogoComponent(): Logo
+    {
+        return Logo::make(
+            '/admin',
+            '/images/logo-icosnet.png',
+            '/images/logo-icosnet.png',
+            'icosnet - Doc Flow'
+        );
+    }
+
+    /**
+     * Menu principal
+     */
     protected function menu(): array
     {
         return [
-            ...parent::menu(),
-            MenuItem::make(UserResource::class, 'Users'),
+            /*
+            |--------------------------------------------------------------------------
+            | Dashboard
+            |--------------------------------------------------------------------------
+            */
+
+            MenuItem::make(
+                Dashboard::class,
+                'Dashboard'
+            ),
+
+            /*
+            |--------------------------------------------------------------------------
+            | Documents
+            |--------------------------------------------------------------------------
+            */
+
+            MenuItem::make(
+                DocumentResource::class,
+                'Documents'
+            ),
+
+            /*
+            |--------------------------------------------------------------------------
+            | Workflow
+            |--------------------------------------------------------------------------
+            | Page واحدة فقط
+            */
+
+            MenuItem::make(
+                Workflow::class,
+                'Workflow'
+            ),
+
+            /*
+            |--------------------------------------------------------------------------
+            | Notifications
+            |--------------------------------------------------------------------------
+            */
+
+            MenuItem::make(
+                NotificationResource::class,
+                'Notifications'
+            ),
         ];
     }
 
     /**
-     * @param ColorManager $colorManager
+     * Footer menu
+     * نخليه فارغ
      */
-    protected function colors(ColorManagerContract $colorManager): void
+    protected function getFooterMenu(): array
     {
-        parent::colors($colorManager);
+        return [];
+    }
 
-        // $colorManager->primary('#00000');
+    /**
+     * Copyright
+     * نحيو Made with ❤️ by CutCode
+     */
+    protected function getFooterCopyright(): string
+    {
+        return '';
+    }
+
+    /**
+     * Couleurs
+     */
+    protected function colors(
+        ColorManagerContract $colorManager
+    ): void {
+        parent::colors($colorManager);
     }
 }

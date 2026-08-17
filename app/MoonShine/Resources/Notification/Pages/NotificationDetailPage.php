@@ -2,35 +2,30 @@
 
 declare(strict_types=1);
 
-namespace App\MoonShine\Resources\Workflow\Pages;
+namespace App\MoonShine\Resources\Notification\Pages;
 
-use MoonShine\Laravel\Pages\Crud\FormPage;
+use MoonShine\Laravel\Pages\Crud\DetailPage;
 use MoonShine\Contracts\UI\ComponentContract;
-use MoonShine\Contracts\UI\FormBuilderContract;
-use MoonShine\UI\Components\FormBuilder;
+use MoonShine\UI\Components\Table\TableBuilder;
 use MoonShine\Contracts\UI\FieldContract;
-use MoonShine\Contracts\Core\TypeCasts\DataWrapperContract;
-use App\MoonShine\Resources\Workflow\App\Models\WorkflowResource;
+use App\MoonShine\Resources\Notification\NotificationResource;
 use MoonShine\Support\ListOf;
 use MoonShine\UI\Fields\ID;
-use MoonShine\UI\Components\Layout\Box;
 use Throwable;
 
 
 /**
- * @extends FormPage<WorkflowResource>
+ * @extends DetailPage<NotificationResource>
  */
-class WorkflowFormPage extends FormPage
+class NotificationDetailPage extends DetailPage
 {
     /**
-     * @return list<ComponentContract|FieldContract>
+     * @return list<FieldContract>
      */
     protected function fields(): iterable
     {
         return [
-            Box::make([
-                ID::make(),
-            ]),
+            ID::make(),
         ];
     }
 
@@ -39,22 +34,12 @@ class WorkflowFormPage extends FormPage
         return parent::buttons();
     }
 
-    protected function formButtons(): ListOf
-    {
-        return parent::formButtons();
-    }
-
-    protected function rules(DataWrapperContract $item): array
-    {
-        return [];
-    }
-
     /**
-     * @param  FormBuilder  $component
+     * @param  TableBuilder  $component
      *
-     * @return FormBuilder
+     * @return TableBuilder
      */
-    protected function modifyFormComponent(FormBuilderContract $component): FormBuilderContract
+    protected function modifyDetailComponent(ComponentContract $component): ComponentContract
     {
         return $component;
     }
