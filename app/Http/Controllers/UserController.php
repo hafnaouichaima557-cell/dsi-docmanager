@@ -112,9 +112,6 @@ public function create()
     {
         $user->update(['is_active' => false]);
 
-        // إلغاء كل sessions — diag 7
-        $user->tokens()->delete();
-
         // تسجيل في الأوديت — diag 7
         AuditLog::log(
             action     : 'disabled',

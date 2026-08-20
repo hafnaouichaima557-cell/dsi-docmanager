@@ -178,7 +178,6 @@
                             <tr>
                                 <th>Titre</th>
                                 <th>Statut</th>
-                                <th>Priorité</th>
                                 <th>Date</th>
                             </tr>
                         </thead>
@@ -191,7 +190,6 @@
                                         {{ $doc->status }}
                                     </span>
                                 </td>
-                                <td>{{ $doc->priority }}</td>
                                 <td class="doc-date">{{ $doc->created_at->format('d/m/Y') }}</td>
                             </tr>
                             @endforeach

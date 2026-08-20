@@ -323,6 +323,16 @@
                     </form>
                     @endif
 
+                    @if(auth()->user()->isAdmin() && in_array($document->status, ['draft', 'submitted', 'under_review', 'rejected']))
+                    <form action="{{ route('workflow.quick-approve', $document) }}" method="POST"
+                          onsubmit="return confirm('Valider et publier ce document directement ?')">
+                        @csrf
+                        <button type="submit" class="btn-action" style="background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;box-shadow:0 6px 14px -6px rgba(22,163,74,0.45)">
+                            <i class="bi bi-lightning-charge-fill"></i>Valider et publier
+                        </button>
+                    </form>
+                    @endif
+
                     @can('publish', $document)
                     <form action="{{ route('documents.publish', $document) }}" method="POST">
                         @csrf
