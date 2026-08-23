@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Services\NotificationDispatcher;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -12,6 +13,10 @@ use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
+    public function __construct(
+        private NotificationDispatcher $notifier
+    ) {}
+
     /**
      * Display the user's profile form.
      */
@@ -27,23 +32,41 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->safe()->except('photo'));
+        $user = $request->user();
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        $user->fill($request->safe()->except('photo'));
+
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
         }
+
+        $photoChanged = false;
 
         // Photo de profil (optionnelle) — remplace l'ancienne si une nouvelle est envoyée
         if ($request->hasFile('photo')) {
-            if ($request->user()->photo) {
-                Storage::disk('public')->delete($request->user()->photo);
+            if ($user->photo) {
+                Storage::disk('public')->delete($user->photo);
             }
 
             $path = $request->file('photo')->store('avatars', 'public');
-            $request->user()->photo = $path;
+            $user->photo = $path;
+            $photoChanged = true;
         }
 
-        $request->user()->save();
+        $changedFields = collect($user->getDirty())->keys()
+            ->reject(fn ($field) => in_array($field, ['email_verified_at']))
+            ->values();
+
+        if ($photoChanged) {
+            $changedFields->push('photo');
+        }
+
+        $user->save();
+
+        // Notification : responsables du département + admins
+        if ($changedFields->isNotEmpty()) {
+            $this->notifier->userEvent($user, 'updated', $changedFields->implode(', '));
+        }
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }

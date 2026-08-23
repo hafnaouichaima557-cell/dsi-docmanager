@@ -18,6 +18,7 @@ class Document extends Model
         'created_by',
         'status',
         'priority',
+        'department',
         'current_step',
         'submitted_at',
         'approved_at',

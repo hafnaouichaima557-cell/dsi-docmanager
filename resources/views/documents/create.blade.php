@@ -107,6 +107,13 @@
     padding:3px 9px;border-radius:999px;text-transform:none;letter-spacing:0;font-weight:700;
   }
 
+  .dept-info{
+    display:inline-flex;align-items:center;gap:7px;
+    font-size:12.5px;font-weight:700;color:var(--accent);
+    background:var(--accent-100);border:1.5px solid var(--accent-200);
+    padding:6px 13px;border-radius:999px;margin-bottom:1.15rem;
+  }
+
   .actions-bar{
     padding:1.3rem 1.85rem;background:linear-gradient(135deg, var(--accent-100), #f5f9ff);
     display:flex;align-items:center;gap:12px;
@@ -157,9 +164,21 @@
     <form action="{{ route('documents.store') }}" method="POST" enctype="multipart/form-data">
       @csrf
 
+      {{-- Département cible : celui choisi par l'admin (ou le sien s'il n'est pas admin) --}}
+      @isset($targetDepartment)
+        <input type="hidden" name="department" value="{{ $targetDepartment }}">
+      @endisset
+
       {{-- Informations --}}
       <div class="section-block">
         <p class="section-label -info"><i class="bi bi-info-circle"></i> Informations générales</p>
+
+        @isset($targetDepartment)
+        <span class="dept-info">
+          <i class="bi bi-building"></i> Ce document sera créé dans le département : {{ $targetDepartment }}
+        </span>
+        @endisset
+
         <div class="field-group">
           <div class="field">
             <label class="field-label">Titre <span class="required-star">*</span></label>

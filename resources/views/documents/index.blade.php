@@ -210,7 +210,7 @@
                 <i class="bi bi-arrow-left me-1"></i> Retour aux départements
             </a>
         @endif
-        <a href="{{ route('documents.create') }}" class="btn btn-accent">
+        <a href="{{ route('documents.create', isset($selectedDepartment) && $selectedDepartment ? ['department' => $selectedDepartment] : []) }}" class="btn btn-accent">
             <i class="bi bi-plus-lg me-1"></i> Nouveau document
         </a>
     </div>
