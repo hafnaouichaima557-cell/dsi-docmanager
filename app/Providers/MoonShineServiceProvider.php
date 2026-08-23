@@ -16,6 +16,7 @@ use App\MoonShine\Resources\User\UserResource;
 use App\MoonShine\Resources\WorkflowHistory\WorkflowHistoryResource;
 use App\MoonShine\Resources\Notification\NotificationResource;
 use App\MoonShine\Pages\Workflow;
+use App\MoonShine\Resources\AuditLog\AuditLogResource;
 
 class MoonShineServiceProvider extends ServiceProvider
 {
@@ -34,6 +35,7 @@ class MoonShineServiceProvider extends ServiceProvider
                 UserResource::class,
                 WorkflowHistoryResource::class,
                 NotificationResource::class,
+                AuditLogResource::class,
             ])
             ->pages([
                 ...$core->getConfig()->getPages(),

@@ -20,6 +20,7 @@ use MoonShine\MenuManager\MenuGroup;
 use MoonShine\MenuManager\MenuItem;
 
 use MoonShine\UI\Components\Layout\Logo;
+use App\MoonShine\Resources\AuditLog\AuditLogResource;
 
 final class MoonShineLayout extends AppLayout
 {
@@ -101,6 +102,7 @@ final class MoonShineLayout extends AppLayout
                 NotificationResource::class,
                 'Notifications'
             ),
+            MenuItem::make(AuditLogResource::class, 'AuditLogs'),
         ];
     }
 
