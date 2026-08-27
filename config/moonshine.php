@@ -62,7 +62,7 @@ return [
         ShareErrorsFromSession::class,
         VerifyCsrfToken::class,
         SubstituteBindings::class,
-       // ChangeLocale::class,
+        // ChangeLocale::class,
     ],
 
     // Storage

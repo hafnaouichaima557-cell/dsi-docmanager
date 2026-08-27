@@ -34,13 +34,16 @@ class DocumentActivity extends Notification
         ];
 
         $label = $labels[$this->action] ?? $this->action;
+        $actorName = auth()->user()->name ?? 'Système';
 
         return [
             'document_id'    => $this->document->id,
             'document_title' => $this->document->title,
             'action'         => $this->action,
             'comment'        => $this->comment,
-            'message'        => 'Document ' . $label . ' : ' . $this->document->title,
+            'actor_name'     => $actorName,
+            'message'        => $actorName . ' a ' . $label . ' le document : ' . $this->document->title
+                                 . ($this->comment ? ' — ' . $this->comment : ''),
         ];
     }
 

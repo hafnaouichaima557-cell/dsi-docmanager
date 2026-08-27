@@ -46,14 +46,36 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/workflow', [WorkflowController::class, 'index'])
         ->name('workflow.index');
 
+    Route::get('/workflow/validation', [WorkflowController::class, 'pendingValidation'])
+        ->name('workflow.validation');
+
     Route::post('documents/{document}/submit', [WorkflowController::class, 'submit'])
         ->name('workflow.submit');
+
+    Route::post('documents/{document}/submit-department', [WorkflowController::class, 'submitDepartment'])
+        ->name('workflow.submit-department');
+
+    Route::post('workflow/steps/{step}/validate-department', [WorkflowController::class, 'validateDepartmentStep'])
+        ->name('workflow.validate-department');
+
+    Route::post('workflow/steps/{step}/validate-responsable', [WorkflowController::class, 'validateResponsableStep'])
+        ->name('workflow.validate-responsable');
+
+    Route::post('workflow/steps/{step}/reject-department', [WorkflowController::class, 'rejectDepartmentStep'])
+        ->name('workflow.reject-department');
+
+    Route::post('workflow/steps/{step}/reject-responsable', [WorkflowController::class, 'rejectResponsableStep'])
+        ->name('workflow.reject-responsable');
 
     Route::post('workflow/steps/{step}/approve', [WorkflowController::class, 'approve'])
         ->name('workflow.approve');
 
     Route::post('workflow/steps/{step}/reject', [WorkflowController::class, 'reject'])
         ->name('workflow.reject');
+
+    // Validation rapide (admin uniquement) : approuve + publie en un clic
+    Route::post('documents/{document}/quick-approve', [WorkflowController::class, 'quickApprove'])
+        ->name('workflow.quick-approve');
 
     // Notifications
     Route::get('/notifications', function () {
@@ -83,55 +105,53 @@ Route::middleware(['auth'])->group(function () {
                 ->name('audit.index');
         });
 
-   /*
-|--------------------------------------------------------------------------
-| Gestion des utilisateurs
-|--------------------------------------------------------------------------
-*/
+    /*
+    |--------------------------------------------------------------------------
+    | Gestion des utilisateurs
+    |--------------------------------------------------------------------------
+    */
 
-// ======================
-// Admin + Responsable
-// ======================
-Route::middleware(['role:administrateur|responsable'])
-    ->prefix('admin')
-    ->group(function () {
+    // ======================
+    // Admin + Responsable
+    // ======================
+    Route::middleware(['role:administrateur|responsable'])
+        ->prefix('admin')
+        ->group(function () {
 
-        Route::get('users', [UserController::class, 'index'])
-            ->name('users.index');
+            Route::get('users', [UserController::class, 'index'])
+                ->name('users.index');
 
-        Route::get('users/create', [UserController::class, 'create'])
-            ->name('users.create');
+            Route::get('users/create', [UserController::class, 'create'])
+                ->name('users.create');
 
-        Route::post('users', [UserController::class, 'store'])
-            ->name('users.store');
-    });
+            Route::post('users', [UserController::class, 'store'])
+                ->name('users.store');
+
+            Route::get('users/{user}', [UserController::class, 'show'])
+                ->name('users.show');
+Route::patch('users/{user}/disable', [UserController::class, 'disable'])
+                ->name('users.disable');
+Route::patch('users/{user}/role', [UserController::class, 'updateRole'])
+                ->name('users.role');
+        });
 
 
-// ======================
-// Admin uniquement
-// ======================
-Route::middleware(['role:administrateur'])
-    ->prefix('admin')
-    ->group(function () {
+    // ======================
+    // Admin uniquement
+    // ======================
+    Route::middleware(['role:administrateur'])
+        ->prefix('admin')
+        ->group(function () {
 
-        Route::get('users/{user}', [UserController::class, 'show'])
-            ->name('users.show');
+            Route::get('users/{user}/edit', [UserController::class, 'edit'])
+                ->name('users.edit');
 
-        Route::get('users/{user}/edit', [UserController::class, 'edit'])
-            ->name('users.edit');
+            Route::put('users/{user}', [UserController::class, 'update'])
+                ->name('users.update');
 
-        Route::put('users/{user}', [UserController::class, 'update'])
-            ->name('users.update');
-
-        Route::delete('users/{user}', [UserController::class, 'destroy'])
-            ->name('users.destroy');
-
-        Route::patch('users/{user}/disable', [UserController::class, 'disable'])
-            ->name('users.disable');
-
-        Route::patch('users/{user}/role', [UserController::class, 'updateRole'])
-            ->name('users.role');
-    });
+            Route::delete('users/{user}', [UserController::class, 'destroy'])
+                ->name('users.destroy');
+        });
 });
 
 require __DIR__.'/auth.php';

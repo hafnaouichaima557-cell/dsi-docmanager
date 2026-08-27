@@ -2,25 +2,22 @@
 
 declare(strict_types=1);
 
-namespace App\MoonShine\Resources\Document\Pages;
+namespace App\MoonShine\Resources\AuditLog\Pages;
 
 use MoonShine\Laravel\Pages\Crud\DetailPage;
 use MoonShine\Contracts\UI\ComponentContract;
 use MoonShine\UI\Components\Table\TableBuilder;
 use MoonShine\Contracts\UI\FieldContract;
-use App\MoonShine\Resources\Document\DocumentResource;
+use App\MoonShine\Resources\AuditLog\AuditLogResource;
 use MoonShine\Support\ListOf;
 use MoonShine\UI\Fields\ID;
-use MoonShine\UI\Fields\Text;
-use MoonShine\UI\Fields\Textarea;
-use MoonShine\UI\Fields\Number;
 use Throwable;
 
 
 /**
- * @extends DetailPage<DocumentResource>
+ * @extends DetailPage<AuditLogResource>
  */
-class DocumentDetailPage extends DetailPage
+class AuditLogDetailPage extends DetailPage
 {
     /**
      * @return list<FieldContract>
@@ -29,18 +26,6 @@ class DocumentDetailPage extends DetailPage
     {
         return [
             ID::make(),
-                Text::make('Title', 'title'),
-        Text::make('Reference', 'reference'),
-        Textarea::make('Description', 'description'),
-
-        Number::make('Category ID', 'category_id'),
-        Number::make('Created By', 'created_by'),
-
-        Text::make('Status', 'status'),
-        Text::make('Priority', 'priority'),
-
-        Number::make('Current Step', 'current_step'),
-            
         ];
     }
 

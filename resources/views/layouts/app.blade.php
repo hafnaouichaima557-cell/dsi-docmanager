@@ -385,9 +385,16 @@
             </a>
 
             <a href="{{ route('workflow.index') }}"
-               class="sidebar-link {{ request()->routeIs('workflow.*') ? 'active' : '' }}">
+               class="sidebar-link {{ request()->routeIs('workflow.index') || request()->routeIs('workflow.submit*') ? 'active' : '' }}">
                 <i class="bi bi-arrow-repeat"></i> Workflow
             </a>
+
+            @if(auth()->user()->hasRole('responsable') || auth()->user()->isAdmin())
+            <a href="{{ route('workflow.validation') }}"
+               class="sidebar-link {{ request()->routeIs('workflow.validation') ? 'active' : '' }}">
+                <i class="bi bi-shield-check"></i> Validation
+            </a>
+            @endif
 
             <a href="{{ route('notifications.index') }}"
                class="sidebar-link {{ request()->routeIs('notifications.*') ? 'active' : '' }}">

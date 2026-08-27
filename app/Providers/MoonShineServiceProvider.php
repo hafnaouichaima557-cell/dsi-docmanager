@@ -11,10 +11,12 @@ use MoonShine\Laravel\DependencyInjection\MoonShineConfigurator;
 use App\MoonShine\Resources\MoonShineUser\MoonShineUserResource;
 use App\MoonShine\Resources\MoonShineUserRole\MoonShineUserRoleResource;
 use App\MoonShine\Resources\Document\DocumentResource;
-use App\MoonShine\Resources\Workflow\App\Models\WorkflowResource;
-use App\MoonShine\Resources\WorkflowStep\App\Models\WorkflowStepResource;
-use App\MoonShine\Resources\User\App\Models\UserResource;
+use App\MoonShine\Resources\WorkflowStep\WorkflowStepResource;
+use App\MoonShine\Resources\User\UserResource;
 use App\MoonShine\Resources\WorkflowHistory\WorkflowHistoryResource;
+use App\MoonShine\Resources\Notification\NotificationResource;
+use App\MoonShine\Pages\Workflow;
+use App\MoonShine\Resources\AuditLog\AuditLogResource;
 
 class MoonShineServiceProvider extends ServiceProvider
 {
@@ -25,16 +27,19 @@ class MoonShineServiceProvider extends ServiceProvider
     {
         $core
             ->resources([
-                MoonShineUserResource::class,
-                MoonShineUserRoleResource::class,
+                // MoonShineUserResource::class,
+                // MoonShineUserRoleResource::class,
                 DocumentResource::class,
                 // WorkflowResource::class,
                 WorkflowStepResource::class,
                 UserResource::class,
                 WorkflowHistoryResource::class,
+                NotificationResource::class,
+                AuditLogResource::class,
             ])
             ->pages([
                 ...$core->getConfig()->getPages(),
+                Workflow::class,
             ])
         ;
     }

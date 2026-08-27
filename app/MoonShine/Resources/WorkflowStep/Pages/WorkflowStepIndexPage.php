@@ -12,13 +12,12 @@ use MoonShine\Laravel\QueryTags\QueryTag;
 use MoonShine\UI\Components\Metrics\Wrapped\Metric;
 use MoonShine\UI\Fields\ID;
 use MoonShine\UI\Fields\Text;
-use MoonShine\UI\Fields\Textarea;
+
 use MoonShine\UI\Fields\Number;
-use MoonShine\UI\Fields\Email;
-use MoonShine\UI\Fields\Image;
+
 use MoonShine\UI\Fields\Date;
-use MoonShine\UI\Fields\DateTime;
-use App\MoonShine\Resources\WorkflowStep\App\Models\WorkflowStepResource;
+
+use App\MoonShine\Resources\WorkflowStep\WorkflowStepResource;
 use MoonShine\Support\ListOf;
 use Throwable;
 
@@ -36,28 +35,20 @@ class WorkflowStepIndexPage extends IndexPage
     protected function fields(): iterable
     {
         return [
-            ID::make(),
-             Number::make('Document ID', 'document_id'),
 
-        Number::make('Step Order', 'step_order'),
+        ID::make(),
 
-        Text::make('Step Name', 'step_name'),
+       Text::make('Document', 'document.title'),
+      Number::make('Ordre', 'step_order'),
+      Text::make('Étape', 'step_name'),
+      Text::make('Responsable', 'assignedUser.name'),
+      Text::make('Statut', 'status'),
+      Text::make('Commentaire', 'comment'),
+      Date::make('Date d\'action', 'acted_at'),
+      Date::make('Deadline', 'deadline'),
 
-        Number::make('Assigned To', 'assigned_to'),
-
-        Text::make('Status', 'status'),
-
-        Text::make('Comment', 'comment'),
-
-        Date::make('Acted At', 'acted_at'),
-
-        Date::make('Deadline', 'deadline'),
-
-        Date::make('Created At', 'created_at'),
-
-        Date::make('Updated At', 'updated_at'),
-        ];
-    }
+    ];
+}
 
     /**
      * @return ListOf<ActionButtonContract>

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\MoonShine\Resources\Workflow\Pages;
+namespace App\MoonShine\Resources\Notification\Pages;
 
 use MoonShine\Laravel\Pages\Crud\FormPage;
 use MoonShine\Contracts\UI\ComponentContract;
@@ -10,7 +10,7 @@ use MoonShine\Contracts\UI\FormBuilderContract;
 use MoonShine\UI\Components\FormBuilder;
 use MoonShine\Contracts\UI\FieldContract;
 use MoonShine\Contracts\Core\TypeCasts\DataWrapperContract;
-use App\MoonShine\Resources\Workflow\App\Models\WorkflowResource;
+use App\MoonShine\Resources\Notification\NotificationResource;
 use MoonShine\Support\ListOf;
 use MoonShine\UI\Fields\ID;
 use MoonShine\UI\Components\Layout\Box;
@@ -18,9 +18,9 @@ use Throwable;
 
 
 /**
- * @extends FormPage<WorkflowResource>
+ * @extends FormPage<NotificationResource>
  */
-class WorkflowFormPage extends FormPage
+class NotificationFormPage extends FormPage
 {
     /**
      * @return list<ComponentContract|FieldContract>

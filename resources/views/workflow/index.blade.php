@@ -70,15 +70,32 @@
     .badge-wf-approved    {background:#e6f7ee;color:#178a4c}
     .badge-wf-rejected    {background:#fde9e9;color:#c62828}
 
-    .btn-wf-approve{
+    .btn-wf-voir{
+        display:inline-flex;align-items:center;justify-content:center;
+        width:32px;height:32px;border-radius:8px;
+        border:1.5px solid var(--slate-300);background:#fff;color:var(--accent);
+        transition:background .15s ease, border-color .15s ease;
+        flex-shrink:0;
+    }
+    .btn-wf-voir:hover{background:var(--accent-100);border-color:var(--accent-light);color:var(--accent)}
+
+    .btn-wf-approve, .btn-wf-validate-dept, .btn-wf-validate-resp{
         display:inline-flex;align-items:center;gap:5px;
         padding:6px 13px;border-radius:8px;border:none;
-        background:linear-gradient(135deg,#22b06b,#178a4c);
         color:#fff;font-size:12px;font-weight:700;
-        box-shadow:0 4px 10px -3px rgba(23,138,76,0.4);
         transition:filter .15s ease, transform .15s ease;
     }
-    .btn-wf-approve:hover{filter:brightness(1.06);transform:translateY(-1px);color:#fff}
+    .btn-wf-approve, .btn-wf-validate-resp{
+        background:linear-gradient(135deg,#22b06b,#178a4c);
+        box-shadow:0 4px 10px -3px rgba(23,138,76,0.4);
+    }
+    .btn-wf-validate-dept{
+        background:linear-gradient(135deg,#0ea5e9,#0284c7);
+        box-shadow:0 4px 10px -3px rgba(2,132,199,0.4);
+    }
+    .btn-wf-approve:hover, .btn-wf-validate-dept:hover, .btn-wf-validate-resp:hover{
+        filter:brightness(1.06);transform:translateY(-1px);color:#fff;
+    }
 
     .btn-wf-reject{
         display:inline-flex;align-items:center;gap:5px;
@@ -162,6 +179,26 @@
             </thead>
             <tbody>
                 @forelse($steps as $step)
+                @php
+                    $doc = $step->document;
+                    $sameDept = $doc && auth()->user()->department && $doc->department
+                        && strtolower(trim(auth()->user()->department)) === strtolower(trim($doc->department));
+
+                    $canManualAct = $step->status === 'in_progress' && auth()->id() === $step->assigned_to;
+
+                    $canValidateDept = $doc
+                        && $step->step_order == 1
+                        && $step->status === 'in_progress'
+                        && is_null($step->assigned_to)
+                        && $sameDept
+                        && auth()->id() !== $doc->created_by;
+
+                    $canValidateResp = $doc
+                        && $step->step_order == 2
+                        && $step->status === 'in_progress'
+                        && is_null($step->assigned_to)
+                        && (auth()->user()->isAdmin() || (auth()->user()->hasRole('responsable') && $sameDept));
+                @endphp
                 <tr class="row-{{ $step->status }}">
                     <td class="ps-3">
                         <a href="{{ route('documents.show', $step->document) }}"
@@ -183,8 +220,14 @@
                         {{ $step->deadline ? $step->deadline->format('d/m/Y') : '—' }}
                     </td>
                     <td>
-                        @if($step->status === 'in_progress')
                         <div class="d-flex gap-2 align-items-center">
+                            @if($doc)
+                            <a href="{{ route('documents.show', $doc) }}" class="btn-wf-voir" title="Voir le document" target="_blank">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            @endif
+
+                            @if($canManualAct)
                             <form action="{{ route('workflow.approve', $step) }}" method="POST">
                                 @csrf
                                 <button type="submit" class="btn-wf-approve">
@@ -193,15 +236,43 @@
                             </form>
                             <form action="{{ route('workflow.reject', $step) }}" method="POST" class="d-flex gap-2">
                                 @csrf
-                                <input type="text" name="comment" placeholder="Raison..." class="reject-input">
+                                <input type="text" name="comment" placeholder="Raison..." class="reject-input" required>
                                 <button type="submit" class="btn-wf-reject">
                                     <i class="bi bi-x"></i> Rejeter
                                 </button>
                             </form>
+                            @elseif($canValidateDept)
+                            <form action="{{ route('workflow.validate-department', $step) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn-wf-validate-dept">
+                                    <i class="bi bi-check"></i> Valider
+                                </button>
+                            </form>
+                            <form action="{{ route('workflow.reject-department', $step) }}" method="POST" class="d-flex gap-2">
+                                @csrf
+                                <input type="text" name="comment" placeholder="Raison..." class="reject-input" required>
+                                <button type="submit" class="btn-wf-reject">
+                                    <i class="bi bi-x"></i> Rejeter
+                                </button>
+                            </form>
+                            @elseif($canValidateResp)
+                            <form action="{{ route('workflow.validate-responsable', $step) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn-wf-validate-resp">
+                                    <i class="bi bi-check2-all"></i> Validation
+                                </button>
+                            </form>
+                            <form action="{{ route('workflow.reject-responsable', $step) }}" method="POST" class="d-flex gap-2">
+                                @csrf
+                                <input type="text" name="comment" placeholder="Raison..." class="reject-input" required>
+                                <button type="submit" class="btn-wf-reject">
+                                    <i class="bi bi-x"></i> Rejeter
+                                </button>
+                            </form>
+                            @else
+                            <span class="text-muted">—</span>
+                            @endif
                         </div>
-                        @else
-                        <span class="text-muted">—</span>
-                        @endif
                     </td>
                 </tr>
                 @empty

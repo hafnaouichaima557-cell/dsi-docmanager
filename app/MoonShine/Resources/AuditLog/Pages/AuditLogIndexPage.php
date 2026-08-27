@@ -2,23 +2,27 @@
 
 declare(strict_types=1);
 
-namespace App\MoonShine\Resources\Workflow\Pages;
+namespace App\MoonShine\Resources\AuditLog\Pages;
 
-use MoonShine\Laravel\Pages\Crud\DetailPage;
+use MoonShine\Laravel\Pages\Crud\IndexPage;
 use MoonShine\Contracts\UI\ComponentContract;
 use MoonShine\UI\Components\Table\TableBuilder;
 use MoonShine\Contracts\UI\FieldContract;
-use App\MoonShine\Resources\Workflow\App\Models\WorkflowResource;
-use MoonShine\Support\ListOf;
+use MoonShine\Laravel\QueryTags\QueryTag;
+use MoonShine\UI\Components\Metrics\Wrapped\Metric;
 use MoonShine\UI\Fields\ID;
+use App\MoonShine\Resources\AuditLog\AuditLogResource;
+use MoonShine\Support\ListOf;
 use Throwable;
 
 
 /**
- * @extends DetailPage<WorkflowResource>
+ * @extends IndexPage<AuditLogResource>
  */
-class WorkflowDetailPage extends DetailPage
+class AuditLogIndexPage extends IndexPage
 {
+    protected bool $isLazy = true;
+
     /**
      * @return list<FieldContract>
      */
@@ -29,9 +33,36 @@ class WorkflowDetailPage extends DetailPage
         ];
     }
 
+    /**
+     * @return ListOf<ActionButtonContract>
+     */
     protected function buttons(): ListOf
     {
         return parent::buttons();
+    }
+
+    /**
+     * @return list<FieldContract>
+     */
+    protected function filters(): iterable
+    {
+        return [];
+    }
+
+    /**
+     * @return list<QueryTag>
+     */
+    protected function queryTags(): array
+    {
+        return [];
+    }
+
+    /**
+     * @return list<Metric>
+     */
+    protected function metrics(): array
+    {
+        return [];
     }
 
     /**
@@ -39,7 +70,7 @@ class WorkflowDetailPage extends DetailPage
      *
      * @return TableBuilder
      */
-    protected function modifyDetailComponent(ComponentContract $component): ComponentContract
+    protected function modifyListComponent(ComponentContract $component): ComponentContract
     {
         return $component;
     }
