@@ -40,28 +40,36 @@ class LoginRequest extends FormRequest
      */
     public function authenticate(): void
     {
+        // Vérification du nombre de tentatives
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+        // Tentative de connexion
+        if (! Auth::attempt(
+            $this->only('email', 'password'),
+            $this->boolean('remember')
+        )) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
+                'email' => 'Adresse email ou mot de passe incorrect.',
             ]);
         }
 
-        // ✅ تحقق من is_active
+        // Récupération de l'utilisateur connecté
         $user = Auth::user();
 
-        if (! $user->is_active) {
+        // Vérification du compte actif
+        if (! $user || ! $user->is_active) {
             Auth::logout();
+
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'email' => 'هاد الحساب موقوف. تواصل مع المسؤول.',
+                'email' => 'Ce compte est désactivé. Contactez l’administrateur.',
             ]);
         }
 
+        // Connexion réussie
         RateLimiter::clear($this->throttleKey());
     }
 
@@ -72,19 +80,23 @@ class LoginRequest extends FormRequest
      */
     public function ensureIsNotRateLimited(): void
     {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+        if (! RateLimiter::tooManyAttempts(
+            $this->throttleKey(),
+            5
+        )) {
             return;
         }
 
         event(new Lockout($this));
 
-        $seconds = RateLimiter::availableIn($this->throttleKey());
+        $seconds = RateLimiter::availableIn(
+            $this->throttleKey()
+        );
 
         throw ValidationException::withMessages([
-            'email' => trans('auth.throttle', [
-                'seconds' => $seconds,
-                'minutes' => ceil($seconds / 60),
-            ]),
+            'email' => 'Trop de tentatives. Réessayez dans '
+                . $seconds
+                . ' secondes.',
         ]);
     }
 
@@ -93,6 +105,10 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
+        return Str::transliterate(
+            Str::lower($this->string('email'))
+            . '|'
+            . $this->ip()
+        );
     }
 }

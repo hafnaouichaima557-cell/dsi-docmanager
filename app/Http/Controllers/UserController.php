@@ -138,8 +138,7 @@ public function create()
 
         // تغيير الرول — diag 8
         $user->syncRoles($request->role);
-
-        // تسجيل في الأوديت — diag 8
+// تسجيل في الأوديت — diag 8
         AuditLog::log(
             action     : 'role_changed',
             module     : 'user',

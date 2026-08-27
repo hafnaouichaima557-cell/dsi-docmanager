@@ -16,10 +16,16 @@ class WorkflowController extends Controller
         private NotificationDispatcher $notifier
     ) {}
 
+    // Compare 2 departments sans tenir compte de la casse (ex: "DSI" === "dsi")
+    private function sameDepartment(?string $a, ?string $b): bool
+    {
+        return $a !== null && $b !== null && strtolower(trim($a)) === strtolower(trim($b));
+    }
+
     // قائمة الـ workflow
     public function index()
     {
-        $steps = \App\Models\WorkflowStep::with(['document', 'assignedUser'])
+        $steps = WorkflowStep::with(['document', 'assignedUser'])
                     ->where('status', 'in_progress')
                     ->whereHas('document', function ($query) {
                         $query->where('created_by', '!=', auth()->id());
@@ -29,7 +35,28 @@ class WorkflowController extends Controller
         return view('workflow.index', compact('steps'));
     }
 
-    // diag 2 : تبعث الوثيقة للworkflow
+    // Page dédiée : documents en attente de validation finale (responsable/admin uniquement)
+    public function pendingValidation()
+    {
+        $user = auth()->user();
+        abort_unless($user->hasRole('responsable') || $user->isAdmin(), 403);
+
+        $query = WorkflowStep::with(['document', 'document.creator'])
+                    ->where('step_order', 2)
+                    ->where('status', 'in_progress');
+
+        if (!$user->isAdmin()) {
+            $query->whereHas('document', function ($q) use ($user) {
+                $q->whereRaw('LOWER(department) = ?', [strtolower(trim($user->department ?? ''))]);
+            });
+        }
+
+        $steps = $query->latest()->paginate(10);
+
+        return view('workflow.validation', compact('steps'));
+    }
+
+    // diag 2 : تبعث الوثيقة للworkflow (manuel, khtwa b khtwa)
     public function submit(Request $request, Document $document)
     {
         $request->validate([
@@ -49,7 +76,95 @@ class WorkflowController extends Controller
                          ->with('success', 'Document soumis pour validation');
     }
 
-    // diag 2 : قبول خطوة
+    // Bouton "Soumettre au workflow" (circuit département automatique)
+    public function submitDepartment(Document $document)
+    {
+        if (!$document->canBeSubmitted()) {
+            return back()->with('error', 'Ce document ne peut pas être soumis.');
+        }
+
+        $this->workflowService->submitDepartmentWorkflow($document);
+
+        return redirect()->route('documents.show', $document)
+                         ->with('success', 'Document soumis au circuit de validation.');
+    }
+
+    // Validation #1 — n'importe qui nfes department (comparaison insensible à la casse), machi creator
+    public function validateDepartmentStep(Request $request, WorkflowStep $step)
+    {
+        $user = auth()->user();
+        $document = $step->document;
+
+        abort_unless($step->step_order == 1, 403);
+        abort_unless($step->status === 'in_progress', 403, 'Étape déjà traitée.');
+        abort_unless($this->sameDepartment($user->department, $document->department), 403, 'Département différent.');
+        abort_unless($user->id !== $document->created_by, 403, 'Vous ne pouvez pas valider votre propre document.');
+
+        $this->workflowService->approve($step, $request->comment);
+
+        return back()->with('success', 'Document validé, en attente de validation responsable.');
+    }
+
+    // Validation #2 — Admin (tous départements) ou Responsable DU MÊME département.
+    // Ne publie PAS automatiquement : redirige vers la fiche du document où
+    // le bouton "Publier" devient disponible (canBePublished() == true).
+    public function validateResponsableStep(Request $request, WorkflowStep $step)
+    {
+        $user = auth()->user();
+        $document = $step->document;
+
+        abort_unless($step->step_order == 2, 403);
+        abort_unless($step->status === 'in_progress', 403, 'Étape déjà traitée.');
+
+        $isSameDeptResponsable = $user->hasRole('responsable') && $this->sameDepartment($user->department, $document->department);
+
+        abort_unless($user->isAdmin() || $isSameDeptResponsable, 403);
+
+        $this->workflowService->approve($step, $request->comment);
+
+        return redirect()->route('documents.show', $document)
+                         ->with('success', 'Document validé. Vous pouvez maintenant le publier.');
+    }
+
+    // Rejet à l'étape département (step 1)
+    public function rejectDepartmentStep(Request $request, WorkflowStep $step)
+    {
+        $request->validate(['comment' => 'required|string|max:500']);
+
+        $user = auth()->user();
+        $document = $step->document;
+
+        abort_unless($step->step_order == 1, 403);
+        abort_unless($step->status === 'in_progress', 403, 'Étape déjà traitée.');
+        abort_unless($this->sameDepartment($user->department, $document->department), 403, 'Département différent.');
+        abort_unless($user->id !== $document->created_by, 403, 'Vous ne pouvez pas rejeter votre propre document.');
+
+        $this->workflowService->reject($step, $request->comment);
+
+        return back()->with('success', 'Document rejeté.');
+    }
+
+    // Rejet à l'étape responsable (step 2)
+    public function rejectResponsableStep(Request $request, WorkflowStep $step)
+    {
+        $request->validate(['comment' => 'required|string|max:500']);
+
+        $user = auth()->user();
+        $document = $step->document;
+
+        abort_unless($step->step_order == 2, 403);
+        abort_unless($step->status === 'in_progress', 403, 'Étape déjà traitée.');
+
+        $isSameDeptResponsable = $user->hasRole('responsable') && $this->sameDepartment($user->department, $document->department);
+
+        abort_unless($user->isAdmin() || $isSameDeptResponsable, 403);
+
+        $this->workflowService->reject($step, $request->comment);
+
+        return back()->with('success', 'Document rejeté.');
+    }
+
+    // diag 2 : قبول خطوة (manuel)
     public function approve(Request $request, WorkflowStep $step)
     {
         $request->validate([
@@ -107,7 +222,6 @@ class WorkflowController extends Controller
 
         $oldStatus = $document->status;
 
-        // Étape de workflow symbolique, assignée à l'admin lui-même, déjà approuvée
         $step = WorkflowStep::create([
             'document_id' => $document->id,
             'step_order'  => 1,
@@ -136,7 +250,6 @@ class WorkflowController extends Controller
 
         $this->notifier->documentEvent($document, 'approved', $document->creator);
 
-        // Publication immédiate à la suite de la validation
         $this->workflowService->publish($document);
 
         return redirect()->route('documents.show', $document)

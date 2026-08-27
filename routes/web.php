@@ -46,8 +46,26 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/workflow', [WorkflowController::class, 'index'])
         ->name('workflow.index');
 
+    Route::get('/workflow/validation', [WorkflowController::class, 'pendingValidation'])
+        ->name('workflow.validation');
+
     Route::post('documents/{document}/submit', [WorkflowController::class, 'submit'])
         ->name('workflow.submit');
+
+    Route::post('documents/{document}/submit-department', [WorkflowController::class, 'submitDepartment'])
+        ->name('workflow.submit-department');
+
+    Route::post('workflow/steps/{step}/validate-department', [WorkflowController::class, 'validateDepartmentStep'])
+        ->name('workflow.validate-department');
+
+    Route::post('workflow/steps/{step}/validate-responsable', [WorkflowController::class, 'validateResponsableStep'])
+        ->name('workflow.validate-responsable');
+
+    Route::post('workflow/steps/{step}/reject-department', [WorkflowController::class, 'rejectDepartmentStep'])
+        ->name('workflow.reject-department');
+
+    Route::post('workflow/steps/{step}/reject-responsable', [WorkflowController::class, 'rejectResponsableStep'])
+        ->name('workflow.reject-responsable');
 
     Route::post('workflow/steps/{step}/approve', [WorkflowController::class, 'approve'])
         ->name('workflow.approve');
@@ -111,11 +129,9 @@ Route::middleware(['auth'])->group(function () {
 
             Route::get('users/{user}', [UserController::class, 'show'])
                 ->name('users.show');
-
-            Route::patch('users/{user}/disable', [UserController::class, 'disable'])
+Route::patch('users/{user}/disable', [UserController::class, 'disable'])
                 ->name('users.disable');
-
-            Route::patch('users/{user}/role', [UserController::class, 'updateRole'])
+Route::patch('users/{user}/role', [UserController::class, 'updateRole'])
                 ->name('users.role');
         });
 

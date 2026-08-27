@@ -6,6 +6,7 @@ use App\Models\Document;
 use App\Models\WorkflowStep;
 use App\Models\WorkflowHistory;
 use App\Models\AuditLog;
+use App\Models\User;
 use App\Notifications\DocumentStatusChanged;
 use App\Notifications\DocumentPendingApproval;
 use Illuminate\Support\Facades\DB;
@@ -63,6 +64,56 @@ class WorkflowService
         });
     }
 
+    public function submitDepartmentWorkflow(Document $document): void
+    {
+        DB::transaction(function () use ($document) {
+
+            $firstStep = WorkflowStep::create([
+                'document_id' => $document->id,
+                'step_order'  => 1,
+                'step_name'   => 'Validation département',
+                'assigned_to' => null,
+                'status'      => 'in_progress',
+            ]);
+
+            WorkflowStep::create([
+                'document_id' => $document->id,
+                'step_order'  => 2,
+                'step_name'   => 'Validation responsable',
+                'assigned_to' => null,
+                'status'      => 'pending',
+            ]);
+
+            $document->update([
+                'status'       => 'submitted',
+                'current_step' => 1,
+                'submitted_at' => now(),
+            ]);
+
+            $this->logHistory($document, 'submitted', 'draft', 'submitted');
+
+            AuditLog::log(
+                action     : 'submitted',
+                module     : 'workflow',
+                description: 'Document soumis au circuit département : ' . $document->title,
+                model      : $document
+            );
+
+            // Notifier tous les autres utilisateurs du même département
+            // (ils sont tous éligibles à valider l'étape 1, pas un seul assigné)
+            $departmentUsers = User::where('department', $document->department)
+                ->where('id', '!=', $document->created_by)
+                ->get();
+
+            foreach ($departmentUsers as $deptUser) {
+                $deptUser->notify(new DocumentPendingApproval($document, $firstStep));
+            }
+
+            // Diffusion : responsables du département + admins
+            $this->notifier->documentEvent($document, 'submitted');
+        });
+    }
+
     public function approve(WorkflowStep $step, ?string $comment = null): void
     {
         DB::transaction(function () use ($step, $comment) {
@@ -86,7 +137,7 @@ class WorkflowService
                 ]);
                 $this->logHistory($document, 'approved_step', 'under_review', 'under_review');
 
-                // notification للمسؤول عن الخطوة الجاية
+                // notification للمسؤول عن الخطوة الجاية (إن كانت معينة)
                 if ($nextStep->assignedUser) {
                     $nextStep->assignedUser->notify(
                         new DocumentPendingApproval($document, $nextStep)

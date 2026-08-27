@@ -7,7 +7,9 @@ use App\Models\DocumentVersion;
 use App\Models\DocumentCategory;
 use App\Models\AuditLog;
 use App\Models\User;
+use App\Notifications\DocumentActivity;
 use App\Services\NotificationDispatcher;
+use App\Services\WorkflowService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -17,7 +19,8 @@ class DocumentController extends Controller
     use AuthorizesRequests;
 
     public function __construct(
-        private NotificationDispatcher $notifier
+        private NotificationDispatcher $notifier,
+        private WorkflowService $workflowService
     ) {}
 
     public function index(Request $request)
@@ -48,7 +51,7 @@ class DocumentController extends Controller
         if ($user->hasRole('responsable') || $user->hasRole('utilisateur')) {
             $selectedDepartment = $user->department;
 
-            $query->where('department', $user->department);
+            $query->where('department', $selectedDepartment);
 
         } elseif ($user->isAdmin() && $request->filled('department')) {
             $selectedDepartment = $request->department;
@@ -67,6 +70,8 @@ class DocumentController extends Controller
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);
+        } else {
+            $query->where('status', 'published');
         }
 
         $documents = $query->paginate(10)->withQueryString();
@@ -79,8 +84,6 @@ class DocumentController extends Controller
     {
         $categories = DocumentCategory::all();
 
-        // Département cible : celui choisi par l'admin (depuis l'URL),
-        // sinon le département de l'utilisateur connecté
         $targetDepartment = auth()->user()->isAdmin() && $request->filled('department')
             ? $request->department
             : auth()->user()->department;
@@ -101,8 +104,6 @@ class DocumentController extends Controller
             'file.mimes'     => 'Type de fichier non autorisé.',
         ]);
 
-        // Département du document : celui choisi par l'admin (si fourni),
-        // sinon le département de l'utilisateur connecté
         $department = auth()->user()->isAdmin() && $request->filled('department')
             ? $request->department
             : auth()->user()->department;
@@ -160,6 +161,13 @@ class DocumentController extends Controller
         return view('documents.edit', compact('document', 'categories'));
     }
 
+    /**
+     * Modification d'un document : après enregistrement, le document
+     * repart intégralement dans le circuit de validation (étape département
+     * puis étape responsable). Si le modificateur n'est pas le créateur du
+     * document, le créateur reçoit une notification explicite l'informant
+     * que son document a été modifié par quelqu'un d'autre.
+     */
     public function update(Request $request, Document $document)
     {
         $this->authorize('update', $document);
@@ -172,12 +180,12 @@ class DocumentController extends Controller
         ]);
 
         $oldValues = $document->toArray();
+        $isEditedByOtherThanCreator = auth()->id() !== $document->created_by;
 
         $document->update([
             'title'       => $request->title,
             'description' => $request->description,
             'priority'    => $request->priority ?? $document->priority,
-            'status'      => 'under_review',
         ]);
 
         if ($request->hasFile('file')) {
@@ -210,10 +218,19 @@ class DocumentController extends Controller
             newValues  : $document->fresh()->toArray()
         );
 
-        $this->notifier->documentEvent($document, 'updated', $document->creator);
+        // Si quelqu'un d'autre que le créateur a modifié le document,
+        // on le notifie explicitement (ex: "Somia a modifié le document : rapport")
+        if ($isEditedByOtherThanCreator && $document->creator) {
+            $document->creator->notify(new DocumentActivity($document, 'updated'));
+        }
+
+        // On efface les anciennes étapes (ex: step "rejected") et on relance
+        // un circuit de validation complet : département puis responsable.
+        $document->workflowSteps()->delete();
+        $this->workflowService->submitDepartmentWorkflow($document->fresh());
 
         return redirect()->route('documents.show', $document)
-                         ->with('success', 'Document mis à jour');
+                         ->with('success', 'Document mis à jour et resoumis pour validation');
     }
 
     public function disable(Request $request, Document $document)
