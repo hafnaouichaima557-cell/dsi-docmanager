@@ -37,11 +37,12 @@ class DocumentStatusChanged extends Notification
         ];
 
         $newLabel = $statusLabels[$this->newStatus] ?? $this->newStatus;
+        $actorName = auth()->user()->name ?? 'Système';
 
         return (new MailMessage)
             ->subject('Document ' . $newLabel . ' : ' . $this->document->title)
             ->greeting('Bonjour ' . $notifiable->name . ',')
-            ->line('Le statut du document "' . $this->document->title . '" a changé.')
+            ->line($actorName . ' a changé le statut du document "' . $this->document->title . '".')
             ->line('Nouveau statut : ' . $newLabel)
             ->when($this->comment, fn($mail) =>
                 $mail->line('Commentaire : ' . $this->comment)
@@ -53,13 +54,17 @@ class DocumentStatusChanged extends Notification
     // تسجيل في قاعدة البيانات
     public function toDatabase(object $notifiable): array
     {
+        $actorName = auth()->user()->name ?? 'Système';
+
         return [
             'document_id'   => $this->document->id,
             'document_title'=> $this->document->title,
             'old_status'    => $this->oldStatus,
             'new_status'    => $this->newStatus,
             'comment'       => $this->comment,
-            'message'       => 'Statut changé : ' . $this->oldStatus . ' → ' . $this->newStatus,
+            'actor_name'    => $actorName,
+            'message'       => $actorName . ' : statut changé (' . $this->oldStatus . ' → ' . $this->newStatus . ') pour "' . $this->document->title . '"'
+                                . ($this->comment ? ' — ' . $this->comment : ''),
         ];
     }
 

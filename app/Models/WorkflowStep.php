@@ -23,8 +23,9 @@ class WorkflowStep extends Model
     protected function casts(): array
     {
         return [
-            'acted_at' => 'datetime',
-            'deadline' => 'datetime',
+            'step_order' => 'integer',
+            'acted_at'   => 'datetime',
+            'deadline'   => 'datetime',
         ];
     }
 

@@ -72,30 +72,22 @@
                             @enderror
                         </div>
 
-                        {{-- Catégorie + Priorité --}}
-                        <div class="row g-3 mb-3">
-                            <div class="col-sm-6">
-                                <label class="form-label fw-semibold small">Catégorie</label>
-                                <select name="category_id" class="form-select rounded-3">
-                                    <option value="">-- Choisir une catégorie --</option>
-                                    @foreach($categories as $category)
-                                        <option value="{{ $category->id }}"
-                                            {{ old('category_id', $document->category_id) == $category->id ? 'selected' : '' }}>
-                                            {{ $category->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-sm-6">
-                                <label class="form-label fw-semibold small">Priorité</label>
-                                <select name="priority" class="form-select rounded-3">
-                                    <option value="low"    {{ old('priority', $document->priority) == 'low'    ? 'selected' : '' }}>🟢 Faible</option>
-                                    <option value="normal" {{ old('priority', $document->priority) == 'normal' ? 'selected' : '' }}>🔵 Normale</option>
-                                    <option value="high"   {{ old('priority', $document->priority) == 'high'   ? 'selected' : '' }}>🟠 Haute</option>
-                                    <option value="urgent" {{ old('priority', $document->priority) == 'urgent' ? 'selected' : '' }}>🔴 Urgente</option>
-                                </select>
-                            </div>
+                        {{-- Catégorie --}}
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold small">Catégorie</label>
+                            <select name="category_id" class="form-select rounded-3">
+                                <option value="">-- Choisir une catégorie --</option>
+                                @foreach($categories as $category)
+                                    <option value="{{ $category->id }}"
+                                        {{ old('category_id', $document->category_id) == $category->id ? 'selected' : '' }}>
+                                        {{ $category->name }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
+
+                        {{-- La priorité conserve sa valeur actuelle en base (champ retiré du formulaire) --}}
+                        <input type="hidden" name="priority" value="{{ $document->priority }}">
 
                         {{-- Divider --}}
                         <hr class="my-4 opacity-25">

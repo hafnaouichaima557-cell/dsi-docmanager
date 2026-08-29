@@ -268,7 +268,7 @@
                                 <p class="small mb-0 mt-1 fst-italic text-muted">"{{ $step->comment }}"</p>
                                 @endif
                             </div>
-                            {{-- Actions workflow --}}
+                            {{-- Actions workflow (manuel : assigné directement) --}}
                             @if($step->status === 'in_progress' && auth()->id() === $step->assigned_to)
                             <div class="d-flex gap-2 ms-auto">
                                 <form action="{{ route('workflow.approve', $step) }}" method="POST">
@@ -283,6 +283,36 @@
                                         class="form-control form-control-sm rounded-3" style="width:120px;">
                                     <button type="submit" class="btn btn-sm rounded-3" style="background:#fff;color:var(--red);border:1.5px solid #f6c6c6;font-weight:700">
                                         <i class="bi bi-x-lg me-1"></i>Rejeter
+                                    </button>
+                                </form>
+                            </div>
+                            @endif
+
+                            {{-- Validation département : n'importe qui nfes department, machi creator --}}
+                            @if($step->step_order === 1
+                                && $step->status === 'in_progress'
+                                && $document->creator
+                                && auth()->user()->department === $document->creator->department
+                                && auth()->id() !== $document->created_by)
+                            <div class="d-flex gap-2 ms-auto">
+                                <form action="{{ route('workflow.validate-department', $step) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm rounded-3" style="background:linear-gradient(135deg,#0ea5e9,#0284c7);color:#fff;border:none;font-weight:700">
+                                        <i class="bi bi-check-lg me-1"></i>Valider
+                                    </button>
+                                </form>
+                            </div>
+                            @endif
+
+                            {{-- Validation responsable : GHIR responsable/admin --}}
+                            @if($step->step_order === 2
+                                && $step->status === 'in_progress'
+                                && (auth()->user()->hasRole('responsable') || auth()->user()->isAdmin()))
+                            <div class="d-flex gap-2 ms-auto">
+                                <form action="{{ route('workflow.validate-responsable', $step) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm rounded-3" style="background:linear-gradient(135deg,#22b06b,#178a4c);color:#fff;border:none;font-weight:700">
+                                        <i class="bi bi-check2-all me-1"></i>Validation
                                     </button>
                                 </form>
                             </div>
@@ -313,12 +343,20 @@
                     @endcan
 
                     @if($document->canBeSubmitted())
-                    <form action="{{ route('workflow.submit', $document) }}" method="POST">
+                    <form action="{{ route('workflow.submit-department', $document) }}" method="POST">
                         @csrf
-                        <input type="hidden" name="steps[0][name]" value="Validation">
-                        <input type="hidden" name="steps[0][user_id]" value="{{ auth()->id() }}">
                         <button type="submit" class="btn-action btn-soumettre">
-                            <i class="bi bi-send"></i>Soumettre
+                            <i class="bi bi-send"></i>Soumettre au workflow
+                        </button>
+                    </form>
+                    @endif
+
+                    @if(auth()->user()->isAdmin() && in_array($document->status, ['draft', 'submitted', 'under_review', 'rejected']))
+                    <form action="{{ route('workflow.quick-approve', $document) }}" method="POST"
+                          onsubmit="return confirm('Valider et publier ce document directement ?')">
+                        @csrf
+                        <button type="submit" class="btn-action" style="background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;box-shadow:0 6px 14px -6px rgba(22,163,74,0.45)">
+                            <i class="bi bi-lightning-charge-fill"></i>Valider et publier
                         </button>
                     </form>
                     @endif
