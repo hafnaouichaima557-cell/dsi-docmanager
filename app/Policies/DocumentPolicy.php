@@ -7,12 +7,6 @@ use App\Models\User;
 
 class DocumentPolicy
 {
-    // Compare 2 departments sans tenir compte de la casse (ex: "DSI" === "dsi")
-    private function sameDepartment(?string $a, ?string $b): bool
-    {
-        return $a !== null && $b !== null && strtolower(trim($a)) === strtolower(trim($b));
-    }
-
     // كل مستخدم مسجل يقدر يشوف قائمة الوثائق
     public function viewAny(User $user): bool
     {
@@ -31,13 +25,12 @@ class DocumentPolicy
         return true;
     }
 
-    // صاحب الوثيقة، admin، responsable، أو أي مستخدم من نفس القسم (département)
+    // فقط صاحب الوثيقة، admin، أو responsable — machi n'importe qui من نفس القسم
     public function update(User $user, Document $document): bool
     {
         return $user->id === $document->created_by
             || $user->isAdmin()
-            || $user->isResponsable()
-            || $this->sameDepartment($user->department, $document->department);
+            || $user->isResponsable();
     }
 
     public function disable(User $user, Document $document): bool
