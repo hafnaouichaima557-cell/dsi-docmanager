@@ -25,12 +25,10 @@ class DocumentPolicy
         return true;
     }
 
-    // فقط صاحب الوثيقة، admin، أو responsable — machi n'importe qui من نفس القسم
+    // فقط صاحب الوثيقة يقدر يعدلها
     public function update(User $user, Document $document): bool
     {
-        return $user->id === $document->created_by
-            || $user->isAdmin()
-            || $user->isResponsable();
+        return $user->id === $document->created_by;
     }
 
     public function disable(User $user, Document $document): bool

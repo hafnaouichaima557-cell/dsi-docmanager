@@ -200,21 +200,6 @@
                             </p>
                         </div>
                         <div class="col-sm-6 info-item">
-                            <p class="label">Priorité</p>
-                            @php
-                                $prioConfig = [
-                                    'low'    => ['label'=>'Faible',  'class'=>'badge-priority-low',    'icon'=>'bi-arrow-down-circle'],
-                                    'normal' => ['label'=>'Normal',  'class'=>'badge-priority-normal',  'icon'=>'bi-dash-circle'],
-                                    'high'   => ['label'=>'Haute',   'class'=>'badge-priority-high',    'icon'=>'bi-arrow-up-circle'],
-                                    'urgent' => ['label'=>'Urgent',  'class'=>'badge-priority-urgent',  'icon'=>'bi-exclamation-circle-fill'],
-                                ];
-                                $pc = $prioConfig[$document->priority] ?? ['label'=>ucfirst($document->priority),'class'=>'badge-priority-normal','icon'=>'bi-dash-circle'];
-                            @endphp
-                            <p class="value {{ $pc['class'] }}">
-                                <i class="bi {{ $pc['icon'] }} me-1"></i>{{ $pc['label'] }}
-                            </p>
-                        </div>
-                        <div class="col-sm-6 info-item">
                             <p class="label">Créé le</p>
                             <p class="value">{{ $document->created_at->format('d/m/Y à H:i') }}</p>
                         </div>
