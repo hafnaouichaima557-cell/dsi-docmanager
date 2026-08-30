@@ -22,16 +22,33 @@ class WorkflowController extends Controller
         return $a !== null && $b !== null && strtolower(trim($a)) === strtolower(trim($b));
     }
 
-    // قائمة الـ workflow
+    // قائمة الـ workflow — chaque utilisateur ne voit QUE les documents de son
+    // propre département (l'administrateur voit tous les départements).
+    // Les étapes "Validation responsable" du circuit département (step_order 2,
+    // sans utilisateur assigné) n'apparaissent PAS ici : elles vivent uniquement
+    // sur la page dédiée "Validation".
     public function index()
     {
-        $steps = WorkflowStep::with(['document', 'assignedUser'])
+        $user = auth()->user();
+
+        $query = WorkflowStep::with(['document', 'assignedUser'])
                     ->where('status', 'in_progress')
-                    ->whereHas('document', function ($query) {
-                        $query->where('created_by', '!=', auth()->id());
+                    ->where(function ($q) {
+                        $q->where('step_order', '!=', 2)
+                          ->orWhereNotNull('assigned_to');
                     })
-                    ->latest()
-                    ->paginate(10);
+                    ->whereHas('document', function ($q) use ($user) {
+                        $q->where('created_by', '!=', $user->id);
+                    });
+
+        if (!$user->isAdmin()) {
+            $query->whereHas('document', function ($q) use ($user) {
+                $q->whereRaw('LOWER(department) = ?', [strtolower(trim($user->department ?? ''))]);
+            });
+        }
+
+        $steps = $query->latest()->paginate(10);
+
         return view('workflow.index', compact('steps'));
     }
 
@@ -106,8 +123,6 @@ class WorkflowController extends Controller
     }
 
     // Validation #2 — Admin (tous départements) ou Responsable DU MÊME département.
-    // Ne publie PAS automatiquement : redirige vers la fiche du document où
-    // le bouton "Publier" devient disponible (canBePublished() == true).
     public function validateResponsableStep(Request $request, WorkflowStep $step)
     {
         $user = auth()->user();

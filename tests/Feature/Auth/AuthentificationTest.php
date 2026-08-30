@@ -29,7 +29,7 @@ class AuthTest extends TestCase
         ]);
 
         $response->assertRedirect('/dashboard');
-        $this->assertAuthenticatedAs($user);
+        $this->assertAuthentificatedAs($user);
     }
 
     public function test_user_cannot_login_with_wrong_password(): void
@@ -56,7 +56,7 @@ class AuthTest extends TestCase
         $this->assertGuest();
     }
 
-    public function test_dashboard_requires_authentication(): void
+    public function test_dashboard_requires_authentification(): void
     {
         $response = $this->get('/dashboard');
         $response->assertRedirect('/login');

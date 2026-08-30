@@ -56,12 +56,18 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        // Workflow
-        $workflowSteps = WorkflowStep::with('document', 'assignedUser')
-            ->where('status', 'in_progress')
-            ->latest()
-            ->take(5)
-            ->get();
+        // Workflow en cours : uniquement les documents du département de l'utilisateur
+        // (l'administrateur voit tous les départements)
+        $workflowStepsQuery = WorkflowStep::with('document', 'assignedUser')
+            ->where('status', 'in_progress');
+
+        if (!$user->isAdmin()) {
+            $workflowStepsQuery->whereHas('document', function ($q) use ($user) {
+                $q->whereRaw('LOWER(department) = ?', [strtolower(trim($user->department ?? ''))]);
+            });
+        }
+
+        $workflowSteps = $workflowStepsQuery->latest()->take(5)->get();
 
         // Utilisateur le plus actif (global pour l'admin, du département pour les autres)
         $topUserQuery = User::select('users.id', 'users.name', 'users.department')
@@ -77,7 +83,6 @@ class DashboardController extends Controller
         $topUser = $topUserQuery->first();
 
         // ===== Documents par département =====
-        // Nombre total de documents créés, groupés par département du créateur
         $documentsByDepartment = User::select('users.department')
             ->selectRaw('COUNT(documents.id) as total')
             ->join('documents', 'documents.created_by', '=', 'users.id')
