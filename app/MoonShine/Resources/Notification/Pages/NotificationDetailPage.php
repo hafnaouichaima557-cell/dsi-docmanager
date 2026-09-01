@@ -4,19 +4,16 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Resources\Notification\Pages;
 
-use MoonShine\Laravel\Pages\Crud\DetailPage;
-use MoonShine\Contracts\UI\ComponentContract;
-use MoonShine\UI\Components\Table\TableBuilder;
-use MoonShine\Contracts\UI\FieldContract;
 use App\MoonShine\Resources\Notification\NotificationResource;
+
+use MoonShine\Contracts\UI\FieldContract;
+use MoonShine\Laravel\Pages\Crud\DetailPage;
 use MoonShine\Support\ListOf;
+
+use MoonShine\UI\Fields\Date;
 use MoonShine\UI\Fields\ID;
-use Throwable;
+use MoonShine\UI\Fields\Text;
 
-
-/**
- * @extends DetailPage<NotificationResource>
- */
 class NotificationDetailPage extends DetailPage
 {
     /**
@@ -26,54 +23,47 @@ class NotificationDetailPage extends DetailPage
     {
         return [
             ID::make(),
+
+            Text::make(
+                'Type',
+                'type_label'
+            ),
+
+            Text::make(
+                'Message',
+                'message_label'
+            ),
+
+            Text::make(
+                'Destinataire',
+                'notifiable.name'
+            ),
+
+            Text::make(
+                'Statut',
+                'read_at',
+                fn ($item) => $item->read_at
+                    ? 'Lue'
+                    : 'Non lue'
+            ),
+
+            Date::make(
+                'Lue le',
+                'read_at'
+            )->withTime(),
+
+            Date::make(
+                'Créée le',
+                'created_at'
+            )->withTime(),
         ];
     }
 
+    /**
+     * Boutons de la page détail.
+     */
     protected function buttons(): ListOf
     {
         return parent::buttons();
-    }
-
-    /**
-     * @param  TableBuilder  $component
-     *
-     * @return TableBuilder
-     */
-    protected function modifyDetailComponent(ComponentContract $component): ComponentContract
-    {
-        return $component;
-    }
-
-    /**
-     * @return list<ComponentContract>
-     * @throws Throwable
-     */
-    protected function topLayer(): array
-    {
-        return [
-            ...parent::topLayer()
-        ];
-    }
-
-    /**
-     * @return list<ComponentContract>
-     * @throws Throwable
-     */
-    protected function mainLayer(): array
-    {
-        return [
-            ...parent::mainLayer()
-        ];
-    }
-
-    /**
-     * @return list<ComponentContract>
-     * @throws Throwable
-     */
-    protected function bottomLayer(): array
-    {
-        return [
-            ...parent::bottomLayer()
-        ];
     }
 }

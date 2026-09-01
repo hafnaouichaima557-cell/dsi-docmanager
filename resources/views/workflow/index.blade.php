@@ -190,8 +190,7 @@
                         && $step->step_order == 1
                         && $step->status === 'in_progress'
                         && is_null($step->assigned_to)
-                        && $sameDept
-                        && auth()->id() !== $doc->created_by;
+                        && $sameDept;
 
                     $canValidateResp = $doc
                         && $step->step_order == 2

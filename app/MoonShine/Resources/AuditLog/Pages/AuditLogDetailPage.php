@@ -5,75 +5,68 @@ declare(strict_types=1);
 namespace App\MoonShine\Resources\AuditLog\Pages;
 
 use MoonShine\Laravel\Pages\Crud\DetailPage;
-use MoonShine\Contracts\UI\ComponentContract;
-use MoonShine\UI\Components\Table\TableBuilder;
-use MoonShine\Contracts\UI\FieldContract;
-use App\MoonShine\Resources\AuditLog\AuditLogResource;
-use MoonShine\Support\ListOf;
+
+use MoonShine\UI\Fields\Date;
 use MoonShine\UI\Fields\ID;
-use Throwable;
+use MoonShine\UI\Fields\Text;
 
-
-/**
- * @extends DetailPage<AuditLogResource>
- */
 class AuditLogDetailPage extends DetailPage
 {
     /**
-     * @return list<FieldContract>
+     * Détails de l'opération
      */
     protected function fields(): iterable
     {
         return [
             ID::make(),
+
+            Text::make(
+                'Utilisateur',
+                'user.name'
+            ),
+
+            Text::make(
+                'Action',
+                'action',
+                function ($item) {
+                    return match ($item->action) {
+                        'created' => 'Création',
+                        'updated' => 'Modification',
+                        'deleted' => 'Suppression',
+                        'approved' => 'Approbation',
+                        'rejected' => 'Rejet',
+                        'submitted' => 'Soumission',
+                        default => ucfirst(
+                            str_replace('_', ' ', $item->action ?? '')
+                        ),
+                    };
+                }
+            ),
+
+            Text::make(
+                'Module',
+                'module'
+            ),
+
+            Text::make(
+                'Description',
+                'description'
+            ),
+
+            Text::make(
+                'Adresse IP',
+                'ip_address'
+            ),
+
+            Date::make(
+                'Date de l’action',
+                'performed_at'
+            )->withTime(),
         ];
     }
 
-    protected function buttons(): ListOf
+    public function getTitle(): string
     {
-        return parent::buttons();
-    }
-
-    /**
-     * @param  TableBuilder  $component
-     *
-     * @return TableBuilder
-     */
-    protected function modifyDetailComponent(ComponentContract $component): ComponentContract
-    {
-        return $component;
-    }
-
-    /**
-     * @return list<ComponentContract>
-     * @throws Throwable
-     */
-    protected function topLayer(): array
-    {
-        return [
-            ...parent::topLayer()
-        ];
-    }
-
-    /**
-     * @return list<ComponentContract>
-     * @throws Throwable
-     */
-    protected function mainLayer(): array
-    {
-        return [
-            ...parent::mainLayer()
-        ];
-    }
-
-    /**
-     * @return list<ComponentContract>
-     * @throws Throwable
-     */
-    protected function bottomLayer(): array
-    {
-        return [
-            ...parent::bottomLayer()
-        ];
+        return 'Détail de l’audit';
     }
 }

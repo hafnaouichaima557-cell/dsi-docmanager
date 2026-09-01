@@ -7,27 +7,24 @@ namespace App\MoonShine\Layouts;
 use App\MoonShine\Pages\Dashboard;
 use App\MoonShine\Pages\Workflow;
 
+use App\MoonShine\Palettes\DocFlowPalette;
+
+use App\MoonShine\Resources\AuditLog\AuditLogResource;
 use App\MoonShine\Resources\Document\DocumentResource;
 use App\MoonShine\Resources\Notification\NotificationResource;
+use App\MoonShine\Resources\User\UserResource;
 
 use MoonShine\Laravel\Layouts\AppLayout;
-
-use MoonShine\ColorManager\Palettes\PurplePalette;
-use MoonShine\Contracts\ColorManager\ColorManagerContract;
-use MoonShine\Contracts\ColorManager\PaletteContract;
-
-use MoonShine\MenuManager\MenuGroup;
 use MoonShine\MenuManager\MenuItem;
-
+use MoonShine\UI\Components\Layout\Favicon;
 use MoonShine\UI\Components\Layout\Logo;
-use App\MoonShine\Resources\AuditLog\AuditLogResource;
 
 final class MoonShineLayout extends AppLayout
 {
     /**
-     * Palette MoonShine
+     * Palette personnalisée Doc Flow
      */
-    protected ?string $palette = PurplePalette::class;
+    protected ?string $palette = DocFlowPalette::class;
 
     /**
      * Assets
@@ -53,62 +50,64 @@ final class MoonShineLayout extends AppLayout
     }
 
     /**
+     * Favicon icosnet
+     */
+    protected function getFaviconComponent(): Favicon
+    {
+        return parent::getFaviconComponent()->customAssets([
+            'apple-touch' => '/images/logo-icosnet.png',
+            '32' => '/images/logo-icosnet.png',
+            '16' => '/images/logo-icosnet.png',
+            'safari-pinned-tab' => '/images/logo-icosnet.png',
+        ]);
+    }
+
+    /**
      * Menu principal
      */
     protected function menu(): array
     {
         return [
-            /*
-            |--------------------------------------------------------------------------
-            | Dashboard
-            |--------------------------------------------------------------------------
-            */
-
             MenuItem::make(
                 Dashboard::class,
-                'Dashboard'
+                'Dashboard',
+                'squares-2x2'
             ),
-
-            /*
-            |--------------------------------------------------------------------------
-            | Documents
-            |--------------------------------------------------------------------------
-            */
 
             MenuItem::make(
                 DocumentResource::class,
-                'Documents'
+                'Documents',
+                'document-text'
             ),
-
-            /*
-            |--------------------------------------------------------------------------
-            | Workflow
-            |--------------------------------------------------------------------------
-            | Page واحدة فقط
-            */
 
             MenuItem::make(
                 Workflow::class,
-                'Workflow'
+                'Workflow',
+                'arrow-path'
             ),
 
-            /*
-            |--------------------------------------------------------------------------
-            | Notifications
-            |--------------------------------------------------------------------------
-            */
+            MenuItem::make(
+                UserResource::class,
+                'Utilisateurs',
+                'users'
+            ),
 
             MenuItem::make(
                 NotificationResource::class,
-                'Notifications'
+                'Notifications',
+                'bell'
             ),
-            MenuItem::make(AuditLogResource::class, 'AuditLogs'),
+
+            MenuItem::make(
+                AuditLogResource::class,
+                'Audit',
+                'clipboard-document-list'
+            ),
         ];
     }
 
     /**
-     * Footer menu
-     * نخليه فارغ
+     * Footer vide
      */
     protected function getFooterMenu(): array
     {
@@ -116,20 +115,10 @@ final class MoonShineLayout extends AppLayout
     }
 
     /**
-     * Copyright
-     * نحيو Made with ❤️ by CutCode
+     * Supprimer le copyright MoonShine
      */
     protected function getFooterCopyright(): string
     {
         return '';
-    }
-
-    /**
-     * Couleurs
-     */
-    protected function colors(
-        ColorManagerContract $colorManager
-    ): void {
-        parent::colors($colorManager);
     }
 }

@@ -112,8 +112,8 @@
 
                             <input type="file" name="file"
                                 class="form-control rounded-3 @error('file') is-invalid @enderror"
-                                accept=".pdf,.docx,.xlsx">
-                            <div class="form-text">Formats acceptés : PDF, DOCX, XLSX — max 10 MB</div>
+                                accept=".pdf,.docx,.xlsx,.doc,.xls,.pptx,.ppt,.png,.jpg,.jpeg,.txt,.csv,.zip">
+                            <div class="form-text">Formats acceptés : PDF, DOCX, XLSX, Images (PNG/JPG)... — max 10 MB</div>
                             @error('file')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
