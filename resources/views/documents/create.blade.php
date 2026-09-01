@@ -217,14 +217,14 @@
         </p>
         <span class="badge-required" style="margin:-1rem 0 1.15rem;display:inline-block">obligatoire</span>
         <label id="fzone" class="dropzone">
-          <input type="file" name="file" accept=".pdf,.docx,.xlsx"
+          <input type="file" name="file" accept=".pdf,.docx,.xlsx,.doc,.xls,.pptx,.ppt,.png,.jpg,.jpeg,.txt,.csv,.zip"
             style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%"
             onchange="handleFile(this)">
           <i class="bi bi-cloud-upload" id="ficon" style="font-size:32px;color:#93c5fd;display:block;margin-bottom:8px"></i>
           <p id="flabel" style="font-size:13px;color:#1e3a5f;font-weight:500;margin:0">
             Glissez votre fichier ici ou <strong>cliquez pour parcourir</strong>
           </p>
-          <small style="font-size:11px;color:#93c5fd">PDF, DOCX, XLSX — max 10 MB</small>
+          <small style="font-size:11px;color:#93c5fd">PDF, DOCX, XLSX, Images (PNG/JPG)... — max 10 MB</small>
         </label>
       </div>
 

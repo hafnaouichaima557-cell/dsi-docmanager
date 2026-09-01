@@ -22,11 +22,9 @@ class WorkflowController extends Controller
         return $a !== null && $b !== null && strtolower(trim($a)) === strtolower(trim($b));
     }
 
-    // قائمة الـ workflow — chaque utilisateur ne voit QUE les documents de son
-    // propre département (l'administrateur voit tous les départements).
-    // Les étapes "Validation responsable" du circuit département (step_order 2,
-    // sans utilisateur assigné) n'apparaissent PAS ici : elles vivent uniquement
-    // sur la page dédiée "Validation".
+    // قائمة الـ workflow — chaque utilisateur voit les documents de son
+    // propre département (l'administrateur voit tous les départements),
+    // y compris ses propres documents.
     public function index()
     {
         $user = auth()->user();
@@ -36,9 +34,6 @@ class WorkflowController extends Controller
                     ->where(function ($q) {
                         $q->where('step_order', '!=', 2)
                           ->orWhereNotNull('assigned_to');
-                    })
-                    ->whereHas('document', function ($q) use ($user) {
-                        $q->where('created_by', '!=', $user->id);
                     });
 
         if (!$user->isAdmin()) {
@@ -52,7 +47,8 @@ class WorkflowController extends Controller
         return view('workflow.index', compact('steps'));
     }
 
-    // Page dédiée : documents en attente de validation finale (responsable/admin uniquement)
+    // Page dédiée : documents en attente de validation finale (responsable/admin uniquement),
+    // y compris leurs propres documents.
     public function pendingValidation()
     {
         $user = auth()->user();
@@ -106,7 +102,8 @@ class WorkflowController extends Controller
                          ->with('success', 'Document soumis au circuit de validation.');
     }
 
-    // Validation #1 — n'importe qui nfes department (comparaison insensible à la casse), machi creator
+    // Validation #1 — n'importe qui nfes department (comparaison insensible à la casse),
+    // y compris le créateur du document si c'est un responsable/admin.
     public function validateDepartmentStep(Request $request, WorkflowStep $step)
     {
         $user = auth()->user();
@@ -115,14 +112,14 @@ class WorkflowController extends Controller
         abort_unless($step->step_order == 1, 403);
         abort_unless($step->status === 'in_progress', 403, 'Étape déjà traitée.');
         abort_unless($this->sameDepartment($user->department, $document->department), 403, 'Département différent.');
-        abort_unless($user->id !== $document->created_by, 403, 'Vous ne pouvez pas valider votre propre document.');
 
         $this->workflowService->approve($step, $request->comment);
 
         return back()->with('success', 'Document validé, en attente de validation responsable.');
     }
 
-    // Validation #2 — Admin (tous départements) ou Responsable DU MÊME département.
+    // Validation #2 — Admin (tous départements) ou Responsable DU MÊME département,
+    // y compris sur leur propre document.
     public function validateResponsableStep(Request $request, WorkflowStep $step)
     {
         $user = auth()->user();
@@ -152,7 +149,6 @@ class WorkflowController extends Controller
         abort_unless($step->step_order == 1, 403);
         abort_unless($step->status === 'in_progress', 403, 'Étape déjà traitée.');
         abort_unless($this->sameDepartment($user->department, $document->department), 403, 'Département différent.');
-        abort_unless($user->id !== $document->created_by, 403, 'Vous ne pouvez pas rejeter votre propre document.');
 
         $this->workflowService->reject($step, $request->comment);
 

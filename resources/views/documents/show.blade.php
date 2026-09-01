@@ -273,12 +273,11 @@
                             </div>
                             @endif
 
-                            {{-- Validation département : n'importe qui nfes department, machi creator --}}
+                            {{-- Validation département : n'importe qui nfes department --}}
                             @if($step->step_order === 1
                                 && $step->status === 'in_progress'
                                 && $document->creator
-                                && auth()->user()->department === $document->creator->department
-                                && auth()->id() !== $document->created_by)
+                                && auth()->user()->department === $document->creator->department)
                             <div class="d-flex gap-2 ms-auto">
                                 <form action="{{ route('workflow.validate-department', $step) }}" method="POST">
                                     @csrf
