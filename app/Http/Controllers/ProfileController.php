@@ -6,8 +6,6 @@ use App\Http\Requests\ProfileUpdateRequest;
 use App\Services\NotificationDispatcher;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
@@ -29,16 +27,14 @@ class ProfileController extends Controller
 
     /**
      * Update the user's profile information.
+     * Seuls le nom et la photo de profil peuvent être modifiés
+     * (mot de passe et suppression de compte désactivés).
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
         $user = $request->user();
 
-        $user->fill($request->safe()->except('photo'));
-
-        if ($user->isDirty('email')) {
-            $user->email_verified_at = null;
-        }
+        $user->name = $request->validated('name');
 
         $photoChanged = false;
 
@@ -53,9 +49,7 @@ class ProfileController extends Controller
             $photoChanged = true;
         }
 
-        $changedFields = collect($user->getDirty())->keys()
-            ->reject(fn ($field) => in_array($field, ['email_verified_at']))
-            ->values();
+        $changedFields = collect($user->getDirty())->keys()->values();
 
         if ($photoChanged) {
             $changedFields->push('photo');
@@ -68,31 +62,6 @@ class ProfileController extends Controller
             $this->notifier->userEvent($user, 'updated', $changedFields->implode(', '));
         }
 
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
-    }
-
-    /**
-     * Delete the user's account.
-     */
-    public function destroy(Request $request): RedirectResponse
-    {
-        $request->validateWithBag('userDeletion', [
-            'password' => ['required', 'current_password'],
-        ]);
-
-        $user = $request->user();
-
-        if ($user->photo) {
-            Storage::disk('public')->delete($user->photo);
-        }
-
-        Auth::logout();
-
-        $user->forceDelete();
-
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return Redirect::to('/');
+        return redirect()->route('profile.edit')->with('status', 'profile-updated');
     }
 }

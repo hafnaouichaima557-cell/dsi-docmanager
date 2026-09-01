@@ -80,6 +80,7 @@
         display:flex;align-items:center;justify-content:center;
         color:#fff;font-size:13.5px;font-weight:700;
         box-shadow:0 3px 8px -2px rgba(29,78,216,0.4);
+        overflow:hidden;
     }
     .user-name{font-weight:700;color:var(--navy);font-size:14px}
     .user-email{font-size:12px;color:var(--slate-500);margin-top:1px}
@@ -201,7 +202,11 @@
           <td>
             <div class="user-cell">
               <div class="user-avatar">
-                {{ strtoupper(substr($user->name, 0, 1)) }}
+                @if($user->photo)
+                  <img src="{{ Storage::url($user->photo) }}" alt="{{ $user->name }}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">
+                @else
+                  {{ strtoupper(substr($user->name, 0, 1)) }}
+                @endif
               </div>
               <div>
                 <div class="user-name">{{ $user->name }}</div>

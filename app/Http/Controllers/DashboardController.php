@@ -16,12 +16,12 @@ class DashboardController extends Controller
         $user = auth()->user();
 
         // Requête des documents : l'admin voit tout, les autres uniquement leur département
+        // (basé sur le département du DOCUMENT lui-même, pas celui du créateur —
+        // un document peut avoir été créé par un admin pour un autre département).
         $documentsQuery = Document::query();
 
         if (!$user->isAdmin()) {
-            $documentsQuery->whereHas('creator', function ($q) use ($user) {
-                $q->where('department', $user->department);
-            });
+            $documentsQuery->whereRaw('LOWER(department) = ?', [strtolower(trim($user->department ?? ''))]);
         }
 
         // Statistiques
@@ -83,13 +83,18 @@ class DashboardController extends Controller
         $topUser = $topUserQuery->first();
 
         // ===== Documents par département =====
-        $documentsByDepartment = User::select('users.department')
-            ->selectRaw('COUNT(documents.id) as total')
-            ->join('documents', 'documents.created_by', '=', 'users.id')
-            ->whereNull('documents.deleted_at')
-            ->groupBy('users.department')
-            ->orderByDesc('total')
-            ->get();
+        // Basé sur le département du DOCUMENT (pas du créateur).
+        // Pour un utilisateur non-admin, on ne montre que son propre département.
+        $deptQuery = Document::select('department')
+            ->selectRaw('COUNT(*) as total')
+            ->whereNull('deleted_at')
+            ->groupBy('department');
+
+        if (!$user->isAdmin()) {
+            $deptQuery->whereRaw('LOWER(department) = ?', [strtolower(trim($user->department ?? ''))]);
+        }
+
+        $documentsByDepartment = $deptQuery->orderByDesc('total')->get();
 
         $departmentLabels = $documentsByDepartment->pluck('department')->map(function ($d) {
             return $d ?: 'Non défini';
