@@ -7,8 +7,7 @@ namespace App\MoonShine\Resources\Notification\Pages;
 use App\MoonShine\Resources\Notification\NotificationResource;
 
 use MoonShine\Laravel\Pages\Crud\IndexPage;
-use MoonShine\Contracts\UI\FieldContract;
-use MoonShine\Support\ListOf;
+
 use MoonShine\UI\Fields\Text;
 use MoonShine\UI\Fields\Date;
 
@@ -17,29 +16,42 @@ use MoonShine\UI\Fields\Date;
  */
 class NotificationIndexPage extends IndexPage
 {
-    /**
-     * @return list<FieldContract>
-     */
     protected function fields(): iterable
     {
         return [
-            Text::make('Type', 'type_label'),
+            Text::make(
+                'Notification',
+                'message_label'
+            ),
 
-            Text::make('Message', 'message_label'),
+            Text::make(
+                'Type',
+                'type_label'
+            ),
 
-            Text::make('Destinataire', 'recipient_name'),
+            Text::make(
+                'Destinataire',
+                'recipient_name'
+            ),
 
-            Text::make('Statut', 'status_label'),
+            Text::make(
+                'État',
+                'status_label'
+            )->badge(
+                function ($status) {
+                    return match ($status) {
+                        'Lue' => 'success',
+                        'Non lue' => 'warning',
+                        default => 'gray',
+                    };
+                }
+            ),
 
-            Date::make('Lue le', 'read_at'),
-
-            Date::make('Créée le', 'created_at'),
+            Date::make(
+                'Date',
+                'created_at'
+            )->withTime(),
         ];
-    }
-
-    protected function buttons(): ListOf
-    {
-        return parent::buttons();
     }
 
     protected function filters(): iterable
