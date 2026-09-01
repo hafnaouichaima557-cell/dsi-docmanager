@@ -34,7 +34,7 @@ class DocumentPolicy
     public function disable(User $user, Document $document): bool
     {
         return $user->isAdmin()
-            || $user->isResponsable();
+          ||   $user->isResponsable();
     }
 
     public function publish(User $user, Document $document): bool

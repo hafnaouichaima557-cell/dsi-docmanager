@@ -19,13 +19,14 @@ return new class extends Migration
         });
 
         // Backfill : pour les documents existants, on prend le département du créateur
-       DB::table('documents')
-    ->whereNull('department')
-    ->update([
-        'department' => DB::raw(
-            '(SELECT department FROM users WHERE users.id = documents.created_by)'
-        ),
-    ]);
+        DB::table('documents')
+            ->whereNull('department')
+            ->update([
+                'department' => DB::raw(
+                    '(SELECT department FROM users WHERE users.id = documents.created_by)'
+                ),
+            ]);
+    }
 
     /**
      * Reverse the migrations.
