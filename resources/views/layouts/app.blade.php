@@ -454,10 +454,6 @@
             {{-- Breadcrumb --}}
             <div class="d-flex align-items-center gap-2 flex-shrink-0">
                 <span class="breadcrumb-tag">icosnet</span>
-                <i class="bi bi-chevron-right text-muted" style="font-size:10px"></i>
-                <span class="breadcrumb-current">
-                    <span class="dot"></span> DSI DocManager
-                </span>
             </div>
 
             {{-- Recherche globale --}}

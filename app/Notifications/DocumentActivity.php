@@ -4,6 +4,7 @@ namespace App\Notifications;
 
 use App\Models\Document;
 use Illuminate\Bus\Queueable;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class DocumentActivity extends Notification
@@ -18,7 +19,7 @@ class DocumentActivity extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return ['database', 'mail'];
     }
 
     public function toDatabase(object $notifiable): array
@@ -50,5 +51,35 @@ class DocumentActivity extends Notification
     public function toArray(object $notifiable): array
     {
         return $this->toDatabase($notifiable);
+    }
+
+    public function toMail(object $notifiable): MailMessage
+    {
+        $labels = [
+            'created'   => 'créé',
+            'updated'   => 'modifié',
+            'submitted' => 'soumis',
+            'approved'  => 'approuvé',
+            'rejected'  => 'rejeté',
+            'published' => 'publié',
+            'disabled'  => 'désactivé',
+        ];
+
+        $label = $labels[$this->action] ?? $this->action;
+        $actorName = auth()->user()->name ?? 'Système';
+
+        $mail = (new MailMessage)
+            ->subject('DSI DocManager — Document ' . $label . ' : ' . $this->document->title)
+            ->greeting('Bonjour ' . $notifiable->name . ',')
+            ->line($actorName . ' a ' . $label . ' le document : ' . $this->document->title);
+
+        if ($this->comment) {
+            $mail->line('Commentaire : ' . $this->comment);
+        }
+
+        $mail->action('Voir le document', route('documents.show', $this->document))
+             ->line('Merci d\'utiliser DSI DocManager.');
+
+        return $mail;
     }
 }

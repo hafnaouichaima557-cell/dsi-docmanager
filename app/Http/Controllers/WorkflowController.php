@@ -22,9 +22,8 @@ class WorkflowController extends Controller
         return $a !== null && $b !== null && strtolower(trim($a)) === strtolower(trim($b));
     }
 
-    // قائمة الـ workflow — chaque utilisateur voit les documents de son
-    // propre département (l'administrateur voit tous les départements),
-    // y compris ses propres documents.
+    // قائمة الـ workflow — un utilisateur simple ne voit pas son propre document.
+    // Admin et responsable voient (et peuvent valider) leurs propres documents.
     public function index()
     {
         $user = auth()->user();
@@ -35,6 +34,12 @@ class WorkflowController extends Controller
                         $q->where('step_order', '!=', 2)
                           ->orWhereNotNull('assigned_to');
                     });
+
+        if (!$user->isAdmin() && !$user->hasRole('responsable')) {
+            $query->whereHas('document', function ($q) use ($user) {
+                $q->where('created_by', '!=', $user->id);
+            });
+        }
 
         if (!$user->isAdmin()) {
             $query->whereHas('document', function ($q) use ($user) {
@@ -47,8 +52,7 @@ class WorkflowController extends Controller
         return view('workflow.index', compact('steps'));
     }
 
-    // Page dédiée : documents en attente de validation finale (responsable/admin uniquement),
-    // y compris leurs propres documents.
+    // Page dédiée : documents en attente de validation finale (responsable/admin uniquement)
     public function pendingValidation()
     {
         $user = auth()->user();
@@ -103,7 +107,7 @@ class WorkflowController extends Controller
     }
 
     // Validation #1 — n'importe qui nfes department (comparaison insensible à la casse),
-    // y compris le créateur du document si c'est un responsable/admin.
+    // sauf le créateur du document (sauf s'il est admin ou responsable).
     public function validateDepartmentStep(Request $request, WorkflowStep $step)
     {
         $user = auth()->user();
@@ -112,6 +116,12 @@ class WorkflowController extends Controller
         abort_unless($step->step_order == 1, 403);
         abort_unless($step->status === 'in_progress', 403, 'Étape déjà traitée.');
         abort_unless($this->sameDepartment($user->department, $document->department), 403, 'Département différent.');
+
+        $isOwnDocButNotPrivileged = $user->id === $document->created_by
+            && !$user->isAdmin()
+            && !$user->hasRole('responsable');
+
+        abort_if($isOwnDocButNotPrivileged, 403, 'Vous ne pouvez pas valider votre propre document.');
 
         $this->workflowService->approve($step, $request->comment);
 
@@ -149,6 +159,12 @@ class WorkflowController extends Controller
         abort_unless($step->step_order == 1, 403);
         abort_unless($step->status === 'in_progress', 403, 'Étape déjà traitée.');
         abort_unless($this->sameDepartment($user->department, $document->department), 403, 'Département différent.');
+
+        $isOwnDocButNotPrivileged = $user->id === $document->created_by
+            && !$user->isAdmin()
+            && !$user->hasRole('responsable');
+
+        abort_if($isOwnDocButNotPrivileged, 403, 'Vous ne pouvez pas rejeter votre propre document.');
 
         $this->workflowService->reject($step, $request->comment);
 
