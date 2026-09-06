@@ -186,11 +186,17 @@
 
                     $canManualAct = $step->status === 'in_progress' && auth()->id() === $step->assigned_to;
 
+                    $isOwnDocButNotPrivileged = $doc
+                        && auth()->id() === $doc->created_by
+                        && !auth()->user()->isAdmin()
+                        && !auth()->user()->hasRole('responsable');
+
                     $canValidateDept = $doc
                         && $step->step_order == 1
                         && $step->status === 'in_progress'
                         && is_null($step->assigned_to)
-                        && $sameDept;
+                        && $sameDept
+                        && !$isOwnDocButNotPrivileged;
 
                     $canValidateResp = $doc
                         && $step->step_order == 2

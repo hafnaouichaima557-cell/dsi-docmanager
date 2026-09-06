@@ -4,6 +4,7 @@ namespace App\Notifications;
 
 use App\Models\User;
 use Illuminate\Bus\Queueable;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class UserActivity extends Notification
@@ -18,7 +19,7 @@ class UserActivity extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return ['database', 'mail'];
     }
 
     public function toDatabase(object $notifiable): array
@@ -49,5 +50,31 @@ class UserActivity extends Notification
     public function toArray(object $notifiable): array
     {
         return $this->toDatabase($notifiable);
+    }
+
+    public function toMail(object $notifiable): MailMessage
+    {
+        $labels = [
+            'created'      => 'créé',
+            'updated'      => 'modifié',
+            'disabled'     => 'désactivé',
+            'role_changed' => 'rôle modifié',
+        ];
+
+        $label = $labels[$this->action] ?? $this->action;
+
+        $mail = (new MailMessage)
+            ->subject('DSI DocManager — Utilisateur ' . $label . ' : ' . $this->targetUser->name)
+            ->greeting('Bonjour ' . $notifiable->name . ',')
+            ->line('Utilisateur ' . $label . ' : ' . $this->targetUser->name);
+
+        if ($this->extra) {
+            $mail->line('Détails : ' . $this->extra);
+        }
+
+        $mail->action('Voir les utilisateurs', route('users.index'))
+             ->line('Merci d\'utiliser DSI DocManager.');
+
+        return $mail;
     }
 }
