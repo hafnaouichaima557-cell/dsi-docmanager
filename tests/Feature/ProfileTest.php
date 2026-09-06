@@ -4,11 +4,23 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class ProfileTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Les rôles doivent exister en base avant qu'on puisse les assigner.
+        // Si un RoleSeeder existe déjà et tourne automatiquement, cette
+        // partie ne fait rien de mal (firstOrCreate évite les doublons).
+        Role::firstOrCreate(['name' => 'administrateur', 'guard_name' => 'web']);
+        Role::firstOrCreate(['name' => 'responsable', 'guard_name' => 'web']);
+    }
 
     public function test_profile_page_is_displayed(): void
     {
@@ -24,6 +36,7 @@ class ProfileTest extends TestCase
     public function test_profile_information_can_be_updated(): void
     {
         $user = User::factory()->create();
+        $user->assignRole('administrateur');
 
         $response = $this
             ->actingAs($user)
@@ -46,6 +59,7 @@ class ProfileTest extends TestCase
     public function test_email_verification_status_is_unchanged_when_the_email_address_is_unchanged(): void
     {
         $user = User::factory()->create();
+        $user->assignRole('administrateur');
 
         $response = $this
             ->actingAs($user)
@@ -64,6 +78,7 @@ class ProfileTest extends TestCase
     public function test_user_can_delete_their_account(): void
     {
         $user = User::factory()->create();
+        $user->assignRole('administrateur');
 
         $response = $this
             ->actingAs($user)
@@ -82,6 +97,7 @@ class ProfileTest extends TestCase
     public function test_correct_password_must_be_provided_to_delete_account(): void
     {
         $user = User::factory()->create();
+        $user->assignRole('administrateur');
 
         $response = $this
             ->actingAs($user)
@@ -93,6 +109,53 @@ class ProfileTest extends TestCase
         $response
             ->assertSessionHasErrorsIn('userDeletion', 'password')
             ->assertRedirect('/profile');
+
+        $this->assertNotNull($user->fresh());
+    }
+
+    /**
+     * Un utilisateur simple (sans rôle admin/responsable) ne peut PAS
+     * modifier son email — seul le nom et la photo sont modifiables.
+     */
+    public function test_simple_user_cannot_edit_email(): void
+    {
+        $user = User::factory()->create();
+        // Aucun rôle assigné volontairement : utilisateur simple
+
+        $originalEmail = $user->email;
+
+        $response = $this
+            ->actingAs($user)
+            ->patch('/profile', [
+                'name' => 'Test User',
+                'email' => 'nouveau@example.com',
+            ]);
+
+        $response
+            ->assertSessionHasNoErrors()
+            ->assertRedirect('/profile');
+
+        $user->refresh();
+
+        $this->assertSame('Test User', $user->name);
+        $this->assertSame($originalEmail, $user->email);
+    }
+
+    /**
+     * Un utilisateur simple ne peut pas supprimer son compte :
+     * cette action est réservée à l'admin et au responsable.
+     */
+    public function test_simple_user_cannot_delete_their_account(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this
+            ->actingAs($user)
+            ->delete('/profile', [
+                'password' => 'password',
+            ]);
+
+        $response->assertForbidden();
 
         $this->assertNotNull($user->fresh());
     }

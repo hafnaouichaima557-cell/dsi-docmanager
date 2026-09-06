@@ -76,6 +76,17 @@ class AuditController extends Controller
             $query->where('module', $request->module);
         }
 
+        // Filtre par action (une seule action, ex: created / updated)
+        if ($request->filled('action')) {
+            $query->where('action', $request->action);
+        }
+
+        // Filtre par groupe d'actions (ex: deleted, disabled, rejected)
+        if ($request->filled('actions')) {
+            $actionsArray = explode(',', $request->actions);
+            $query->whereIn('action', $actionsArray);
+        }
+
         // Filtre par utilisateur
         if ($request->filled('user_id')) {
 

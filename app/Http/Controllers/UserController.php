@@ -127,9 +127,11 @@ public function create()
                          ->with('success', 'Utilisateur désactivé');
     }
 
-    // diag 8 : تعديل الرول
+    // diag 8 : تعديل الرول — réservé à l'administrateur uniquement
     public function updateRole(Request $request, User $user)
     {
+        abort_unless(auth()->user()->isAdmin(), 403, "Seul l'administrateur peut modifier les rôles.");
+
         $request->validate([
             'role' => 'required|exists:roles,name',
         ]);

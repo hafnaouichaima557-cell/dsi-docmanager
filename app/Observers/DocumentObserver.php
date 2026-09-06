@@ -7,30 +7,13 @@ use App\Models\AuditLog;
 
 class DocumentObserver
 {
-    // كي تتخلق وثيقة جديدة
-    public function created(Document $document): void
-    {
-        AuditLog::log(
-            action     : 'created',
-            module     : 'document',
-            description: 'Document créé : ' . $document->title,
-            model      : $document,
-            newValues  : $document->toArray()
-        );
-    }
-
-    // كي تتبدل وثيقة
-    public function updated(Document $document): void
-    {
-        AuditLog::log(
-            action     : 'updated',
-            module     : 'document',
-            description: 'Document modifié : ' . $document->title,
-            model      : $document,
-            oldValues  : $document->getOriginal(),
-            newValues  : $document->getDirty()
-        );
-    }
+    // Les événements de création (created) et modification (updated) ne sont PAS
+    // journalisés automatiquement ici : chaque action métier significative
+    // (création via le formulaire, mise à jour manuelle, soumission au workflow,
+    // approbation, rejet, publication, désactivation...) enregistre déjà elle-même
+    // une entrée d'audit précise et explicite dans son propre contrôleur/service.
+    // Journaliser aussi ici créerait des doublons et des entrées "modifié"
+    // trompeuses à chaque changement de statut interne (ex: passage en workflow).
 
     // كي تتحذف وثيقة (soft delete)
     public function deleted(Document $document): void

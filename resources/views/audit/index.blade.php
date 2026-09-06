@@ -128,10 +128,21 @@
         background:#fff;border:1px solid var(--slate-300);border-radius:14px;
         padding:1.1rem 1.3rem;position:relative;overflow:hidden;
         box-shadow:0 1px 3px rgba(15,23,42,0.04);
+        transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease;
     }
     .stat-card::before{
         content:"";position:absolute;top:0;left:0;right:0;height:3px;
         background:linear-gradient(90deg, var(--accent-light), var(--navy));
+    }
+    a.stat-card{cursor:pointer}
+    a.stat-card:hover{
+        transform:translateY(-2px);
+        box-shadow:0 8px 20px -8px rgba(15,23,42,0.18);
+        border-color:var(--accent-light);
+    }
+    a.stat-card.active-filter{
+        border-color:var(--accent-light);
+        box-shadow:0 0 0 2px var(--accent-200);
     }
     .stat-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
     .stat-icon{
@@ -175,39 +186,50 @@
 
   {{-- Stats --}}
   <div class="audit-stats">
-    <div class="stat-card">
+
+    {{-- Total : reset les filtres action/actions mais garde le département --}}
+    <a href="{{ route('audit.index', request()->only('department')) }}"
+       class="stat-card {{ !request()->filled('action') && !request()->filled('actions') ? 'active-filter' : '' }}">
       <div class="stat-top">
         <div class="stat-icon"><i class="bi bi-clipboard-data"></i></div>
       </div>
       <div class="stat-value">{{ $logs->total() }}</div>
       <div class="stat-label">Actions au total</div>
-    </div>
+    </a>
+
     @php
       $pageCreated = $logs->where('action','created')->count();
       $pageUpdated = $logs->where('action','updated')->count();
       $pageDeleted = $logs->whereIn('action',['deleted','disabled','rejected'])->count();
     @endphp
-    <div class="stat-card">
+
+    <a href="{{ route('audit.index', array_merge(request()->only('department'), ['action' => 'created'])) }}"
+       class="stat-card {{ request('action') == 'created' ? 'active-filter' : '' }}">
       <div class="stat-top">
         <div class="stat-icon green"><i class="bi bi-plus-circle"></i></div>
       </div>
       <div class="stat-value">{{ $pageCreated }}</div>
       <div class="stat-label">Créations (page)</div>
-    </div>
-    <div class="stat-card">
+    </a>
+
+    <a href="{{ route('audit.index', array_merge(request()->only('department'), ['action' => 'updated'])) }}"
+       class="stat-card {{ request('action') == 'updated' ? 'active-filter' : '' }}">
       <div class="stat-top">
         <div class="stat-icon amber"><i class="bi bi-pencil-square"></i></div>
       </div>
       <div class="stat-value">{{ $pageUpdated }}</div>
       <div class="stat-label">Modifications (page)</div>
-    </div>
-    <div class="stat-card">
+    </a>
+
+    <a href="{{ route('audit.index', array_merge(request()->only('department'), ['actions' => 'deleted,disabled,rejected'])) }}"
+       class="stat-card {{ request('actions') == 'deleted,disabled,rejected' ? 'active-filter' : '' }}">
       <div class="stat-top">
         <div class="stat-icon purple"><i class="bi bi-exclamation-diamond"></i></div>
       </div>
       <div class="stat-value">{{ $pageDeleted }}</div>
       <div class="stat-label">Suppr. / Désact. / Rejets (page)</div>
-    </div>
+    </a>
+
   </div>
 
   {{-- Filtres --}}
@@ -216,6 +238,14 @@
 
       @if(isset($selectedDepartment) && $selectedDepartment && auth()->user()->hasRole('administrateur'))
         <input type="hidden" name="department" value="{{ $selectedDepartment }}">
+      @endif
+
+      {{-- On garde le filtre action/actions actif quand on soumet le formulaire Module/Date --}}
+      @if(request()->filled('action'))
+        <input type="hidden" name="action" value="{{ request('action') }}">
+      @endif
+      @if(request()->filled('actions'))
+        <input type="hidden" name="actions" value="{{ request('actions') }}">
       @endif
 
       <div class="filter-field">
@@ -239,7 +269,7 @@
         <i class="bi bi-funnel"></i> Filtrer
       </button>
 
-      @if(request()->hasAny(['module','user_id','date']))
+      @if(request()->hasAny(['module','user_id','date','action','actions']))
       <a href="{{ route('audit.index', $selectedDepartment ?? null ? ['department' => $selectedDepartment] : []) }}" class="btn-reset">
         <i class="bi bi-x"></i> Reset
       </a>
@@ -261,6 +291,33 @@
         </tr>
       </thead>
       <tbody>
+        @php
+          $moduleLabels = [
+              'document'     => 'Document',
+              'user'         => 'Utilisateur',
+              'workflow'     => 'Workflow',
+              'notification' => 'Notification',
+              'audit'        => 'Audit',
+              'permission'   => 'Permission',
+              'auth'         => 'Authentification',
+              'cache'        => 'Cache',
+          ];
+
+          $actionLabels = [
+              'created'      => 'Créé',
+              'updated'      => 'Modifié',
+              'deleted'      => 'Supprimé',
+              'published'    => 'Publié',
+              'disabled'     => 'Désactivé',
+              'approved'     => 'Approuvé',
+              'rejected'     => 'Rejeté',
+              'role_changed' => 'Rôle modifié',
+              'submitted'    => 'Soumis',
+              'restored'     => 'Restauré',
+              'login'        => 'Connexion',
+              'logout'       => 'Déconnexion',
+          ];
+        @endphp
         @forelse($logs as $log)
         <tr>
           <td class="log-date">
@@ -287,7 +344,7 @@
               $mc = $mColors[$log->module] ?? ['#f1f5f9','#64748b','bi-folder2'];
             @endphp
             <span class="badge-pill" style="background:{{ $mc[0] }};color:{{ $mc[1] }}">
-              <i class="bi {{ $mc[2] }}" style="margin-right:5px"></i>{{ ucfirst($log->module ?? '—') }}
+              <i class="bi {{ $mc[2] }}" style="margin-right:5px"></i>{{ $moduleLabels[$log->module] ?? ucfirst($log->module ?? '—') }}
             </span>
           </td>
           <td>
@@ -309,7 +366,7 @@
               $ac = $aColors[$log->action] ?? ['#f1f5f9','#64748b','bi-dot'];
             @endphp
             <span class="badge-pill" style="background:{{ $ac[0] }};color:{{ $ac[1] }}">
-              <i class="bi {{ $ac[2] }}" style="margin-right:5px"></i>{{ ucfirst($log->action ?? '—') }}
+              <i class="bi {{ $ac[2] }}" style="margin-right:5px"></i>{{ $actionLabels[$log->action] ?? ucfirst($log->action ?? '—') }}
             </span>
           </td>
           <td class="log-desc">

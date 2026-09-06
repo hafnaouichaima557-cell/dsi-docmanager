@@ -81,13 +81,13 @@ class ProfileController extends Controller
 
     /**
      * Delete the user's account.
-     * Réservé à l'admin et au responsable.
+     * Réservé à l'administrateur uniquement.
      */
     public function destroy(Request $request): RedirectResponse
     {
         $user = $request->user();
 
-        abort_unless($user->hasRole('administrateur') || $user->hasRole('responsable'), 403);
+        abort_unless($user->hasRole('administrateur'), 403);
 
         $request->validateWithBag('userDeletion', [
             'password' => ['required', 'current_password'],

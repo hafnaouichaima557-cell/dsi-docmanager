@@ -253,7 +253,8 @@
                 <i class="bi bi-eye"></i> Voir
               </a>
 
-              {{-- Changer rôle --}}
+              {{-- Changer rôle — réservé à l'administrateur --}}
+              @if(auth()->user()->isAdmin())
               <form action="{{ route('users.role', $user) }}" method="POST" class="role-form">
                 @csrf
                 @method('PATCH')
@@ -266,6 +267,7 @@
                   <i class="bi bi-check2"></i> Changer
                 </button>
               </form>
+              @endif
 
               {{-- Désactiver --}}
               @if($user->is_active && $user->id !== auth()->id())

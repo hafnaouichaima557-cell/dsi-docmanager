@@ -75,7 +75,7 @@ return [
 
     'moonshine' => [
         'driver' => 'eloquent',
-        'model' => MoonShine\Laravel\Models\MoonshineUser::class,
+        'model' => User::class,
     ],
 
         // 'users' => [

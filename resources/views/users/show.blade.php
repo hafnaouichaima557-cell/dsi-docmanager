@@ -173,6 +173,17 @@
                         <p>Aucun document créé</p>
                     </div>
                 @else
+                    @php
+                        $docStatusLabels = [
+                            'draft'        => 'Brouillon',
+                            'submitted'    => 'Soumis',
+                            'under_review' => 'En révision',
+                            'approved'     => 'Approuvé',
+                            'published'    => 'Publié',
+                            'rejected'     => 'Rejeté',
+                            'disabled'     => 'Désactivé',
+                        ];
+                    @endphp
                     <table class="docs-table">
                         <thead>
                             <tr>
@@ -187,7 +198,7 @@
                                 <td class="doc-title">{{ $doc->title }}</td>
                                 <td>
                                     <span class="status-pill status-{{ $doc->status }}">
-                                        {{ $doc->status }}
+                                        {{ $docStatusLabels[$doc->status] ?? $doc->status }}
                                     </span>
                                 </td>
                                 <td class="doc-date">{{ $doc->created_at->format('d/m/Y') }}</td>

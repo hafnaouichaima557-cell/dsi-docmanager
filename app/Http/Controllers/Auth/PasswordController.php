@@ -12,13 +12,13 @@ class PasswordController extends Controller
 {
     /**
      * Update the user's password.
-     * Réservé à l'admin et au responsable.
+     * Réservé à l'administrateur uniquement.
      */
     public function update(Request $request): RedirectResponse
     {
         $user = $request->user();
 
-        abort_unless($user->hasRole('administrateur') || $user->hasRole('responsable'), 403);
+        abort_unless($user->hasRole('administrateur'), 403);
 
         $validated = $request->validateWithBag('updatePassword', [
             'current_password' => ['required', 'current_password'],
