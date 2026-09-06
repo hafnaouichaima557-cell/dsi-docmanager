@@ -16,12 +16,11 @@ class DashboardController extends Controller
         $user = auth()->user();
 
         // Requête des documents : l'admin voit tout, les autres uniquement leur département
+        // (basé sur le département du DOCUMENT lui-même, pas celui du créateur).
         $documentsQuery = Document::query();
 
         if (!$user->isAdmin()) {
-            $documentsQuery->whereHas('creator', function ($q) use ($user) {
-                $q->where('department', $user->department);
-            });
+            $documentsQuery->whereRaw('LOWER(department) = ?', [strtolower(trim($user->department ?? ''))]);
         }
 
         // Statistiques
@@ -82,20 +81,40 @@ class DashboardController extends Controller
 
         $topUser = $topUserQuery->first();
 
-        // ===== Documents par département =====
-        $documentsByDepartment = User::select('users.department')
-            ->selectRaw('COUNT(documents.id) as total')
-            ->join('documents', 'documents.created_by', '=', 'users.id')
-            ->whereNull('documents.deleted_at')
-            ->groupBy('users.department')
-            ->orderByDesc('total')
-            ->get();
+        // ===== Graphique principal =====
+        // Admin : répartition des documents par département (comparaison globale utile).
+        // Responsable / Utilisateur : n'ayant qu'un seul département, on affiche à la place
+        // la répartition des documents par utilisateur au sein de LEUR département,
+        // pour voir qui a créé le plus de documents.
+        if ($user->isAdmin()) {
 
-        $departmentLabels = $documentsByDepartment->pluck('department')->map(function ($d) {
-            return $d ?: 'Non défini';
-        })->values()->all();
+            $deptQuery = Document::select('department')
+                ->selectRaw('COUNT(*) as total')
+                ->whereNull('deleted_at')
+                ->groupBy('department')
+                ->orderByDesc('total');
 
-        $departmentCounts = $documentsByDepartment->pluck('total')->values()->all();
+            $rows = $deptQuery->get();
+
+            $chartTitle  = 'Documents par département';
+            $chartLabels = $rows->pluck('department')->map(fn ($d) => $d ?: 'Non défini')->values()->all();
+            $chartCounts = $rows->pluck('total')->values()->all();
+
+        } else {
+
+            $rows = User::select('users.id', 'users.name')
+                ->selectRaw('COUNT(documents.id) as total')
+                ->join('documents', 'documents.created_by', '=', 'users.id')
+                ->whereRaw('LOWER(documents.department) = ?', [strtolower(trim($user->department ?? ''))])
+                ->whereNull('documents.deleted_at')
+                ->groupBy('users.id', 'users.name')
+                ->orderByDesc('total')
+                ->get();
+
+            $chartTitle  = 'Documents par utilisateur — ' . ($user->department ?? '');
+            $chartLabels = $rows->pluck('name')->values()->all();
+            $chartCounts = $rows->pluck('total')->values()->all();
+        }
 
         return view('dashboard', compact(
             'totalDocuments',
@@ -107,8 +126,9 @@ class DashboardController extends Controller
             'recentAuditLogs',
             'workflowSteps',
             'topUser',
-            'departmentLabels',
-            'departmentCounts'
+            'chartTitle',
+            'chartLabels',
+            'chartCounts'
         ));
     }
 }

@@ -219,11 +219,11 @@
 {{-- Filtres --}}
 <div class="card filters-card shadow-sm mb-4">
     <div class="card-body py-3">
-        <form method="GET" action="{{ route('documents.index') }}" class="d-flex gap-3 align-items-center">
+        <form method="GET" action="{{ route('documents.index') }}" class="d-flex flex-wrap gap-3 align-items-center">
             @if(isset($selectedDepartment) && $selectedDepartment && auth()->user()->isAdmin())
                 <input type="hidden" name="department" value="{{ $selectedDepartment }}">
             @endif
-            <div class="flex-grow-1">
+            <div class="flex-grow-1" style="min-width:220px">
                 <div class="input-group search-input-group">
                     <span class="input-group-text">
                         <i class="bi bi-search text-muted"></i>
@@ -233,6 +233,18 @@
                         placeholder="Rechercher un document...">
                 </div>
             </div>
+            <div style="width:190px">
+                <div class="input-group search-input-group">
+                    <span class="input-group-text">
+                        <i class="bi bi-person text-muted"></i>
+                    </span>
+                    <input type="text" name="creator" value="{{ request('creator') }}"
+                        class="form-control"
+                        placeholder="Créé par...">
+                </div>
+            </div>
+            <input type="date" name="date" value="{{ request('date') }}"
+                class="form-control form-select-soft" style="width:170px">
             <select name="status" class="form-select form-select-soft" style="width:190px">
                 <option value="">Tous les statuts</option>
                 <option value="draft"        {{ request('status') == 'draft'        ? 'selected' : '' }}>Brouillon</option>
@@ -245,6 +257,12 @@
             <button type="submit" class="btn btn-filter">
                 <i class="bi bi-funnel me-1"></i>Filtrer
             </button>
+            @if(request()->hasAny(['search','creator','date','status']))
+            <a href="{{ route('documents.index', isset($selectedDepartment) && $selectedDepartment && auth()->user()->isAdmin() ? ['department' => $selectedDepartment] : []) }}"
+               class="btn btn-filter">
+                <i class="bi bi-x-lg me-1"></i>Réinitialiser
+            </a>
+            @endif
         </form>
     </div>
 </div>

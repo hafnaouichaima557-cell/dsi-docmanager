@@ -75,7 +75,20 @@ class DocumentController extends Controller
             $query->where('status', $request->status);
         }
 
-        $documents = $query->paginate(10)->withQueryString();
+        // Filtre par date de création
+        if ($request->filled('date')) {
+            $query->whereDate('created_at', $request->date);
+        }
+
+        // Filtre par nom de l'utilisateur qui a créé le document
+        if ($request->filled('creator')) {
+            $creatorName = $request->creator;
+            $query->whereHas('creator', function ($q) use ($creatorName) {
+                $q->where('name', 'like', '%'.$creatorName.'%');
+            });
+        }
+
+        $documents = $query->paginate(100)->withQueryString();
 
         return view('documents.index', compact('documents', 'selectedDepartment'));
     }

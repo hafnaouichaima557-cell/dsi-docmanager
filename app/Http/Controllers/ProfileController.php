@@ -29,15 +29,23 @@ class ProfileController extends Controller
 
     /**
      * Update the user's profile information.
+     * L'utilisateur simple ne peut modifier que son nom et sa photo.
+     * L'admin et le responsable peuvent également modifier leur email.
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
         $user = $request->user();
 
-        $user->fill($request->safe()->except('photo'));
+        $user->name = $request->validated('name');
 
-        if ($user->isDirty('email')) {
-            $user->email_verified_at = null;
+        $canEditEmail = $user->hasRole('administrateur') || $user->hasRole('responsable');
+
+        if ($canEditEmail && $request->filled('email')) {
+            $user->email = $request->validated('email');
+
+            if ($user->isDirty('email')) {
+                $user->email_verified_at = null;
+            }
         }
 
         $photoChanged = false;
@@ -73,14 +81,17 @@ class ProfileController extends Controller
 
     /**
      * Delete the user's account.
+     * Réservé à l'admin et au responsable.
      */
     public function destroy(Request $request): RedirectResponse
     {
+        $user = $request->user();
+
+        abort_unless($user->hasRole('administrateur') || $user->hasRole('responsable'), 403);
+
         $request->validateWithBag('userDeletion', [
             'password' => ['required', 'current_password'],
         ]);
-
-        $user = $request->user();
 
         if ($user->photo) {
             Storage::disk('public')->delete($user->photo);

@@ -201,8 +201,8 @@
 </style>
 
 @php
-    $departmentLabelsArr = $departmentLabels ?? ['DSI', 'RH', 'Finance', 'Marketing'];
-    $departmentCountsArr = $departmentCounts ?? [10, 6, 4, 2];
+    $chartLabelsArr = $chartLabels ?? [];
+    $chartCountsArr = $chartCounts ?? [];
 @endphp
 
 {{-- KPI Cards --}}
@@ -269,7 +269,7 @@
     </div>
 </div>
 
-{{-- Donut + Top créateur + Tickets Chart --}}
+{{-- Donut + Top créateur + Chart --}}
 <div class="row g-3 mb-3">
     <div class="col-lg-4">
         <div class="section-card card">
@@ -341,7 +341,7 @@
     <div class="col-lg-8">
         <div class="tickets-card">
             <div class="tickets-header">
-                <span class="tickets-title">Documents par département</span>
+                <span class="tickets-title">{{ $chartTitle ?? 'Documents' }}</span>
             </div>
             <div style="padding:10px 16px 16px 16px;height:280px">
                 <canvas id="departmentChart"></canvas>
@@ -424,9 +424,9 @@
         }
     });
 
-    // ===== Documents par département =====
-    const departmentLabels = {!! json_encode($departmentLabelsArr) !!};
-    const departmentCounts = {!! json_encode($departmentCountsArr) !!};
+    // ===== Graphique (département pour l'admin, utilisateur sinon) =====
+    const departmentLabels = {!! json_encode($chartLabelsArr) !!};
+    const departmentCounts = {!! json_encode($chartCountsArr) !!};
     const departmentColors = ['#1a4fa0', '#0ea5e9', '#3b82f6', '#38bdf8', '#2563eb', '#0284c7', '#60a5fa'];
 
     new Chart(document.getElementById('departmentChart'), {

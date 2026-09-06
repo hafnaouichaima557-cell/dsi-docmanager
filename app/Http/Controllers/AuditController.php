@@ -99,7 +99,7 @@ class AuditController extends Controller
             $query->whereDate('performed_at', $request->date);
         }
 
-        $logs = $query->paginate(20)->withQueryString();
+        $logs = $query->paginate(500)->withQueryString();
 
         $modules = AuditLog::distinct()->pluck('module');
 
