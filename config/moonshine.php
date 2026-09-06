@@ -15,7 +15,7 @@ use MoonShine\Crud\Forms\FiltersForm;
 use MoonShine\Crud\Forms\LoginForm;
 use MoonShine\Laravel\Exceptions\MoonShineNotFoundException;
 use MoonShine\Laravel\Http\Middleware\Authenticate;
-use MoonShine\Laravel\Http\Middleware\ChangeLocale;
+// use MoonShine\Laravel\Http\Middleware\ChangeLocale;
 use MoonShine\Laravel\Layouts\AppLayout;
 use App\Models\User;
 use MoonShine\Laravel\Pages\Dashboard;
@@ -64,7 +64,7 @@ return [
         ShareErrorsFromSession::class,
         VerifyCsrfToken::class,
         SubstituteBindings::class,
-        ChangeLocale::class,
+        // ChangeLocale::class,
     ],
 
     // Storage
@@ -93,7 +93,7 @@ return [
 
     // Layout, palette, pages, forms
     'layout' => App\MoonShine\Layouts\MoonShineLayout::class,
-    'palette' => MoonShine\ColorManager\Palettes\SkyPalette::class,
+    'palette' => MoonShine\ColorManager\Palettes\PurplePalette::class,
 
     'forms' => [
         'login' => LoginForm::class,
@@ -109,7 +109,8 @@ return [
 
     // Localizations
     'locale' => 'en',
-    'locale_key' => ChangeLocale::KEY,
+    //'locale_key' => ChangeLocale::KEY,
+    'locale_key' => 'locale',
     'locales' => [
         // en
     ],

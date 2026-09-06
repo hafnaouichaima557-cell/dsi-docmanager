@@ -25,7 +25,7 @@ class WorkflowTest extends TestCase
             'status'      => 'draft',
         ]);
 
-        $service = new WorkflowService();
+        $service = app(WorkflowService::class);
         $this->actingAs($user);
 
         $service->submit($document, [[
@@ -56,7 +56,7 @@ class WorkflowTest extends TestCase
             'status'      => 'submitted',
         ]);
 
-        $service = new WorkflowService();
+        $service = app(WorkflowService::class);
         $this->actingAs($validator);
 
         $service->submit($document, [[
