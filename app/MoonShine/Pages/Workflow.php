@@ -46,12 +46,12 @@ class Workflow extends Page
         $this->getAssetManager()->add(
             InlineCss::make(<<<'CSS'
                 /* =====================================================
-                   WORKFLOW DOC FLOW
+                   WORKFLOW DOC FLOW - VIBRANT EDITION
                 ===================================================== */
 
                 .df-workflow-page {
-                    background: #f4f7fb !important;
-                    border: 1px solid #dce5f2 !important;
+                    background: linear-gradient(135deg, #2a5fb9 0%, #1e4a8f 100%) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.1) !important;
                     border-radius: 18px !important;
                     padding: 22px !important;
                 }
@@ -77,21 +77,21 @@ class Workflow extends Page
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    background: linear-gradient(135deg, #1749a8, #2563eb);
+                    background: linear-gradient(135deg, #466BB9 0%, #1A4FA0 100%);
                     color: white;
-                    box-shadow: 0 8px 18px rgba(37, 99, 235, .22);
+                    box-shadow: 0 8px 18px rgba(13, 43, 107, 0.3);
                 }
 
                 .df-workflow-title h1 {
                     margin: 0;
-                    color: #123b7a;
+                    color: #ffffff;
                     font-size: 24px;
                     font-weight: 700;
                 }
 
                 .df-workflow-subtitle {
                     margin: 4px 0 0;
-                    color: #667085;
+                    color: rgba(255, 255, 255, 0.8);
                     font-size: 13px;
                 }
 
@@ -101,19 +101,20 @@ class Workflow extends Page
                     gap: 7px;
                     padding: 8px 13px;
                     border-radius: 9px;
-                    background: white;
-                    color: #1749a8 !important;
-                    border: 1px solid #cbdaf1;
+                    background: rgba(255, 255, 255, 0.15);
+                    color: #ffffff !important;
+                    border: 1px solid rgba(255, 255, 255, 0.2);
                     font-size: 12px;
                     font-weight: 600;
                     text-decoration: none !important;
                     transition: .2s ease;
+                    backdrop-filter: blur(4px);
                 }
 
                 .df-workflow-back:hover {
-                    background: #1749a8;
+                    background: rgba(255, 255, 255, 0.25);
                     color: white !important;
-                    border-color: #1749a8;
+                    border-color: rgba(255, 255, 255, 0.3);
                 }
 
                 .df-workflow-stats {
@@ -122,7 +123,6 @@ class Workflow extends Page
                     gap: 14px;
                     margin-bottom: 18px;
                 }
-
                 .df-workflow-stat {
                     position: relative;
                     overflow: hidden;
@@ -133,6 +133,7 @@ class Workflow extends Page
                     align-items: center;
                     gap: 12px;
                     border: 1px solid transparent;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
                 }
 
                 .df-workflow-stat-icon {
@@ -150,6 +151,7 @@ class Workflow extends Page
                     font-size: 24px;
                     line-height: 1;
                     margin-bottom: 5px;
+                    font-weight: 700;
                 }
 
                 .df-workflow-stat span {
@@ -157,56 +159,65 @@ class Workflow extends Page
                     font-weight: 600;
                 }
 
+                /* PENDING - Bleu */
                 .df-pending {
-                    background: #eef2f7;
-                    color: #475467;
-                    border-color: #d9e0ea;
+                    background: linear-gradient(135deg, rgba(70, 107, 185, 0.15) 0%, rgba(26, 79, 160, 0.1) 100%);
+                    color: #ffffff;
+                    border-color: rgba(70, 107, 185, 0.3);
+                    backdrop-filter: blur(10px);
                 }
 
                 .df-pending .df-workflow-stat-icon {
-                    background: #64748b;
+                    background: #466BB9;
                     color: white;
                 }
 
+                /* PROGRESS - Orange/Rose */
                 .df-progress {
-                    background: #fff3df;
-                    color: #a15c00;
-                    border-color: #f7d79c;
+                    background: linear-gradient(135deg, rgba(219, 39, 119, 0.15) 0%, rgba(244, 114, 182, 0.1) 100%);
+                    color: #ffffff;
+                    border-color: rgba(219, 39, 119, 0.3);
+                    backdrop-filter: blur(10px);
                 }
 
                 .df-progress .df-workflow-stat-icon {
-                    background: #e98a00;
+                    background: #DB2777;
                     color: white;
                 }
 
+                /* APPROVED - Vert */
                 .df-approved {
-                    background: #e5f8ef;
-                    color: #087443;
-                    border-color: #bde9d2;
+                    background: linear-gradient(135deg, rgba(5, 150, 105, 0.15) 0%, rgba(52, 211, 153, 0.1) 100%);
+                    color: #ffffff;
+                    border-color: rgba(13, 165, 34, 0.74);
+                    backdrop-filter: blur(10px);
                 }
 
                 .df-approved .df-workflow-stat-icon {
-                    background: #129b5a;
+                    background: #059646;
                     color: white;
                 }
 
+                /* REJECTED - Auge ciel/Bleu clair */
                 .df-rejected {
-                    background: #fde9e9;
-                    color: #b42318;
-                    border-color: #f5c2c0;
+                    background: linear-gradient(135deg, rgba(14, 165, 233, 0.15) 0%, rgba(56, 189, 248, 0.1) 100%);
+                    color: #ffffff;
+                    border-color: rgba(14, 165, 233, 0.3);
+                    backdrop-filter: blur(10px);
                 }
 
                 .df-rejected .df-workflow-stat-icon {
-                    background: #d92d20;
+                    background: #0EA5E9;
                     color: white;
                 }
 
                 .df-workflow-search {
-                    background: white;
-                    border: 1px solid #dce5f2;
+                    background: rgba(255, 255, 255, 0.12);
+                    border: 1px solid rgba(255, 255, 255, 0.15);
                     border-radius: 14px;
                     padding: 14px;
                     margin-bottom: 18px;
+                    backdrop-filter: blur(10px);
                 }
 
                 .df-workflow-search form {
@@ -220,32 +231,36 @@ class Workflow extends Page
                     position: relative;
                     flex: 1;
                 }
-
                 .df-workflow-search-wrap svg {
                     position: absolute;
                     left: 12px;
                     top: 50%;
                     transform: translateY(-50%);
-                    color: #7b8da8;
+                    color: rgba(255, 255, 255, 0.6);
                     pointer-events: none;
                 }
 
                 .df-workflow-search input {
                     width: 100%;
                     height: 40px;
-                    border: 1px solid #d4deed;
+                    border: 1px solid rgba(255, 255, 255, 0.2);
                     border-radius: 9px;
                     padding: 0 13px 0 38px;
                     outline: none;
-                    background: #f8fafc;
-                    color: #1d2939;
+                    background: rgba(255, 255, 255, 0.1);
+                    color: #ffffff;
                     font-size: 12px;
+                    backdrop-filter: blur(4px);
+                }
+
+                .df-workflow-search input::placeholder {
+                    color: rgba(255, 255, 255, 0.6);
                 }
 
                 .df-workflow-search input:focus {
-                    background: white;
-                    border-color: #3576df;
-                    box-shadow: 0 0 0 3px rgba(53, 118, 223, .11);
+                    background: rgba(255, 255, 255, 0.15);
+                    border-color: rgba(255, 255, 255, 0.4);
+                    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
                 }
 
                 .df-search-button {
@@ -253,7 +268,7 @@ class Workflow extends Page
                     border: 0;
                     border-radius: 9px;
                     padding: 0 16px;
-                    background: linear-gradient(135deg, #1749a8, #2563eb);
+                    background: linear-gradient(135deg, #466BB9 0%, #1A4FA0 100%);
                     color: white;
                     font-size: 12px;
                     font-weight: 600;
@@ -261,17 +276,48 @@ class Workflow extends Page
                     display: inline-flex;
                     align-items: center;
                     gap: 7px;
+                    box-shadow: 0 4px 12px rgba(13, 43, 107, 0.25);
+                    transition: .2s ease;
                 }
 
                 .df-search-button:hover {
-                    background: #123b7a;
+                    background: linear-gradient(135deg, #345aa3 0%, #153a7e 100%);
+                    box-shadow: 0 6px 16px rgba(13, 43, 107, 0.3);
                 }
 
                 .df-workflow-table {
-                    background: white !important;
-                    border: 1px solid #dce5f2 !important;
+                    background: rgba(255, 255, 255, 0.98) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
                     border-radius: 14px !important;
                     overflow: hidden;
+                    box-shadow: 0 8px 24px rgba(13, 43, 107, 0.15) !important;
+                }
+
+                .df-workflow-table table {
+                    background: transparent !important;
+                }
+
+                .df-workflow-table thead {
+                    background: linear-gradient(135deg, #1e3a5f 0%, #2d5a8f 100%) !important;
+                }
+
+                .df-workflow-table thead th {
+                    color: #ffffff !important;
+                    font-weight: 700 !important;
+                    border-color: rgba(255, 255, 255, 0.1) !important;
+                }
+
+                .df-workflow-table tbody tr {
+                    border-color: #f0f0f0 !important;
+                }
+
+                .df-workflow-table tbody tr:hover {
+                    background: #f8f9fb !important;
+                }
+
+                .df-workflow-table tbody td {
+                    color: #1d2939 !important;
+                    font-size: 13px !important;
                 }
 
                 @media (max-width: 900px) {
@@ -293,8 +339,7 @@ class Workflow extends Page
                     .df-workflow-search form {
                         flex-direction: column;
                     }
-
-                    .df-workflow-search-wrap,
+                   .df-workflow-search-wrap,
                     .df-search-button {
                         width: 100%;
                     }
@@ -432,8 +477,7 @@ class Workflow extends Page
         | PAGE
         |--------------------------------------------------------------------------
         */
-
-        yield Box::make([
+            yield Box::make([
             /*
             |--------------------------------------------------------------------------
             | HEADER
@@ -605,7 +649,6 @@ class Workflow extends Page
                             <svg width="15" height="15"
                                  viewBox="0 0 24 24"
                                  fill="none"
-                                 stroke="currentColor"
                                  stroke-width="2"
                                  stroke-linecap="round"
                                  stroke-linejoin="round">
