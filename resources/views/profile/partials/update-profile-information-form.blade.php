@@ -1,3 +1,5 @@
+<?php $canEditEmail = $user->hasRole('administrateur'); ?>
+
 <h2><i class="bi bi-person me-1" style="color:var(--accent)"></i> Informations du profil</h2>
 <p class="subtitle">Modifiez votre nom, votre email et votre photo de profil.</p>
 
@@ -48,7 +50,23 @@
 
     <div class="mb-3">
         <label for="email" class="form-label-soft">Email</label>
-        <input id="email" name="email" type="email" class="form-control-soft" value="{{ old('email', $user->email) }}" required autocomplete="username">
+        <input
+            id="email"
+            name="email"
+            type="email"
+            class="form-control-soft"
+            value="{{ old('email', $user->email) }}"
+            required
+            autocomplete="username"
+            @if(! $canEditEmail) readonly disabled style="cursor:not-allowed;opacity:0.7" @endif
+        >
+        @if(! $canEditEmail)
+            {{-- Champ verrouillé côté navigateur : on renvoie quand même la vraie valeur au serveur --}}
+            <input type="hidden" name="email" value="{{ $user->email }}">
+            <p class="mt-2 mb-0" style="font-size:12px;color:var(--slate-500)">
+                <i class="bi bi-lock-fill"></i> Seul l'administrateur peut modifier l'adresse email.
+            </p>
+        @endif
         @error('email')
             <div class="field-error">{{ $message }}</div>
         @enderror

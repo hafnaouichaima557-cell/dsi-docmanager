@@ -29,81 +29,133 @@ class ProfileController extends Controller
 
     /**
      * Update the user's profile information.
-     * L'utilisateur simple ne peut modifier que son nom et sa photo.
-     * L'admin et le responsable peuvent également modifier leur email.
+     *
+     * User simple :
+     * - nom
+     * - photo
+     *
+     * Responsable / Administrateur :
+     * - nom
+     * - email
+     * - photo
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
         $user = $request->user();
 
+        // Modifier le nom
         $user->name = $request->validated('name');
 
-        $canEditEmail = $user->hasRole('administrateur') || $user->hasRole('responsable');
+        /*
+         * Seuls le Responsable et l'Administrateur
+         * peuvent modifier leur adresse email.
+         */
+        $canEditEmail =
+            $user->hasRole('administrateur') ||
+            $user->hasRole('responsable');
 
         if ($canEditEmail && $request->filled('email')) {
-            $user->email = $request->validated('email');
 
-            if ($user->isDirty('email')) {
+            $newEmail = $request->validated('email');
+
+            if ($newEmail !== $user->email) {
+                $user->email = $newEmail;
+
+                // L'email devra être vérifié à nouveau
                 $user->email_verified_at = null;
             }
         }
 
+        // Gestion de la photo
         $photoChanged = false;
 
-        // Photo de profil (optionnelle) — remplace l'ancienne si une nouvelle est envoyée
         if ($request->hasFile('photo')) {
+
+            // Supprimer l'ancienne photo
             if ($user->photo) {
                 Storage::disk('public')->delete($user->photo);
             }
 
-            $path = $request->file('photo')->store('avatars', 'public');
+            // Enregistrer la nouvelle photo
+            $path = $request->file('photo')
+                ->store('avatars', 'public');
+
             $user->photo = $path;
+
             $photoChanged = true;
         }
 
-        $changedFields = collect($user->getDirty())->keys()
-            ->reject(fn ($field) => in_array($field, ['email_verified_at']))
+        // Récupérer les champs modifiés
+        $changedFields = collect($user->getDirty())
+            ->keys()
+            ->reject(function ($field) {
+                return $field === 'email_verified_at';
+            })
             ->values();
 
-        if ($photoChanged) {
+        if ($photoChanged && !$changedFields->contains('photo')) {
             $changedFields->push('photo');
         }
 
+        // Sauvegarder
         $user->save();
 
-        // Notification : responsables du département + admins
+        // Notification
         if ($changedFields->isNotEmpty()) {
-            $this->notifier->userEvent($user, 'updated', $changedFields->implode(', '));
+            $this->notifier->userEvent(
+                $user,
+                'updated',
+                $changedFields->implode(', ')
+            );
         }
 
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+        return Redirect::route('profile.edit')
+            ->with('status', 'profile-updated');
     }
 
     /**
      * Delete the user's account.
-     * Réservé à l'administrateur uniquement.
+     *
+     * Seul l'Administrateur peut supprimer son compte.
      */
     public function destroy(Request $request): RedirectResponse
     {
         $user = $request->user();
 
-        abort_unless($user->hasRole('administrateur'), 403);
+        /*
+         * Suppression réservée à l'Administrateur.
+         */
+        abort_unless(
+            $user->hasRole('administrateur'),
+            403
+        );
 
+        // Vérification du mot de passe
         $request->validateWithBag('userDeletion', [
-            'password' => ['required', 'current_password'],
+            'password' => [
+                'required',
+                'current_password',
+            ],
         ]);
 
+        // Supprimer la photo
         if ($user->photo) {
             Storage::disk('public')->delete($user->photo);
         }
 
+        // Déconnexion
         Auth::logout();
 
+        // Suppression définitive du compte
         $user->forceDelete();
 
+        // Invalider la session
         $request->session()->invalidate();
+
+        // Nouveau token CSRF
         $request->session()->regenerateToken();
 
+        // Retour à l'accueil
         return Redirect::to('/');
     }
 }

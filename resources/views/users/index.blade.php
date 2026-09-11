@@ -49,6 +49,42 @@
         font-size:13.5px;font-weight:600;margin-bottom:1.25rem;
     }
 
+    .search-card{
+        background:#fff;border:1px solid var(--slate-300);border-radius:14px;
+        padding:0.9rem 1.1rem;margin-bottom:1.25rem;
+        box-shadow:0 1px 3px rgba(15,23,42,0.04);
+    }
+    .search-form{display:flex;gap:10px;align-items:center}
+    .search-input-group{
+        flex-grow:1;background:var(--slate-100);border:1.5px solid var(--slate-300);
+        border-radius:10px;display:flex;align-items:center;gap:8px;padding:8px 14px;
+        transition:border-color .15s ease, background .15s ease, box-shadow .15s ease;
+    }
+    .search-input-group:focus-within{
+        border-color:var(--accent-light);background:#fff;
+        box-shadow:0 0 0 4px var(--accent-100);
+    }
+    .search-input-group input{
+        border:none;background:transparent;outline:none;font-size:13.5px;
+        width:100%;color:var(--navy);
+    }
+    .search-input-group i{color:var(--slate-500)}
+    .btn-search{
+        padding:9px 20px;border-radius:10px;border:none;
+        background:linear-gradient(135deg, var(--accent-light), var(--accent));
+        color:#fff;font-size:13.5px;font-weight:700;
+        box-shadow:0 4px 10px rgba(29,78,216,0.3);
+        transition:filter .15s ease, transform .15s ease;
+    }
+    .btn-search:hover{filter:brightness(1.06);transform:translateY(-1px);color:#fff}
+    .btn-reset-search{
+        padding:9px 16px;border-radius:10px;
+        background:var(--slate-100);border:1.5px solid var(--slate-300);color:var(--slate-500);
+        font-size:13.5px;font-weight:600;text-decoration:none;
+        transition:background .12s ease;
+    }
+    .btn-reset-search:hover{background:var(--slate-300);color:var(--slate-500)}
+
     .users-panel{
         background:#fff;border:1px solid var(--slate-300);border-radius:16px;
         overflow:hidden;position:relative;
@@ -181,6 +217,24 @@
     <i class="bi bi-check-circle"></i> {{ session('success') }}
   </div>
   @endif
+
+  {{-- Recherche --}}
+  <div class="search-card">
+    <form method="GET" action="{{ route('users.index') }}" class="search-form">
+      <div class="search-input-group">
+        <i class="bi bi-search"></i>
+        <input type="text" name="search" value="{{ request('search') }}" placeholder="Rechercher par nom ou email...">
+      </div>
+      <button type="submit" class="btn-search">
+        <i class="bi bi-search"></i> Rechercher
+      </button>
+      @if(request()->filled('search'))
+      <a href="{{ route('users.index') }}" class="btn-reset-search">
+        <i class="bi bi-x"></i> Reset
+      </a>
+      @endif
+    </form>
+  </div>
 
   {{-- Table --}}
   <div class="users-panel">

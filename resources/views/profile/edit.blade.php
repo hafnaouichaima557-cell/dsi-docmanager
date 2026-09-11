@@ -125,8 +125,8 @@
         @include('profile.partials.update-profile-information-form')
     </div>
 
-    {{-- Mot de passe et suppression de compte : réservés à l'admin et au responsable --}}
-    @if(auth()->user()->hasRole('administrateur') || auth()->user()->hasRole('responsable'))
+    {{-- Mot de passe et suppression de compte : réservés à l'administrateur uniquement --}}
+    @if(auth()->user()->hasRole('administrateur'))
 
     <div class="profile-card">
         @include('profile.partials.update-password-form')
