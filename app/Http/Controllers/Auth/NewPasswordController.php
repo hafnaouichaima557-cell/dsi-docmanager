@@ -7,8 +7,8 @@ use App\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
@@ -17,47 +17,95 @@ use Illuminate\View\View;
 class NewPasswordController extends Controller
 {
     /**
-     * Display the password reset view.
+     * Afficher la page de nouveau mot de passe.
      */
-    public function create(Request $request): View
+    public function create(Request $request): View|RedirectResponse
     {
-        return view('auth.reset-password', ['request' => $request]);
+        if (
+            !session('password_reset_verified') ||
+            !session('password_reset_email')
+        ) {
+            return redirect()
+                ->route('password.request')
+                ->withErrors([
+                    'email' => 'Veuillez vérifier votre code avant de continuer.',
+                ]);
+        }
+
+        return view('auth.reset-password', [
+            'email' => session('password_reset_email'),
+        ]);
     }
 
     /**
-     * Handle an incoming new password request.
+     * Enregistrer le nouveau mot de passe.
      *
      * @throws ValidationException
      */
     public function store(Request $request): RedirectResponse
     {
+        if (
+            !session('password_reset_verified') ||
+            !session('password_reset_email')
+        ) {
+            return redirect()
+                ->route('password.request')
+                ->withErrors([
+                    'email' => 'Votre session a expiré. Veuillez recommencer.',
+                ]);
+        }
+
         $request->validate([
-            'token' => ['required'],
-            'email' => ['required', 'email'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'password' => [
+                'required',
+                'confirmed',
+                Rules\Password::defaults(),
+            ],
+        ], [
+            'password.required' => 'Veuillez saisir un nouveau mot de passe.',
+            'password.confirmed' => 'Les mots de passe ne correspondent pas.',
         ]);
 
-        // Here we will attempt to reset the user's password. If it is successful we
-        // will update the password on an actual user model and persist it to the
-        // database. Otherwise we will parse the error and return the response.
-        $status = Password::reset(
-            $request->only('email', 'password', 'password_confirmation', 'token'),
-            function (User $user) use ($request) {
-                $user->forceFill([
-                    'password' => Hash::make($request->password),
-                    'remember_token' => Str::random(60),
-                ])->save();
+        $email = session('password_reset_email');
 
-                event(new PasswordReset($user));
-            }
-        );
+        $user = User::where('email', $email)->first();
 
-        // If the password was successfully reset, we will redirect the user back to
-        // the application's home authenticated view. If there is an error we can
-        // redirect them back to where they came from with their error message.
-        return $status == Password::PASSWORD_RESET
-                    ? redirect()->route('login')->with('status', __($status))
-                    : back()->withInput($request->only('email'))
-                        ->withErrors(['email' => __($status)]);
+        if (!$user) {
+            session()->forget([
+                'password_reset_verified',
+                'password_reset_email',
+                'email',
+            ]);
+
+            return redirect()
+                ->route('password.request')
+                ->withErrors([
+                    'email' => 'Utilisateur introuvable.',
+                ]);
+        }
+
+        // Modifier le mot de passe
+        $user->forceFill([
+            'password' => Hash::make($request->password),
+            'remember_token' => Str::random(60),
+        ])->save();
+
+        event(new PasswordReset($user));
+
+        // Supprimer le code utilisé
+        DB::table('password_reset_tokens')
+            ->where('email', $email)
+            ->delete();
+
+        // Nettoyer la session
+        session()->forget([
+            'password_reset_verified',
+            'password_reset_email',
+            'email',
+        ]);
+
+        return redirect()
+            ->route('login')
+            ->with('status', 'Votre mot de passe a été réinitialisé avec succès. Vous pouvez maintenant vous connecter.');
     }
 }

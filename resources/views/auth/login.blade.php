@@ -1,308 +1,1085 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Connexion — Doc Flow</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    {{-- Favicon icosnet (remplace l'icone Laravel par defaut dans l'onglet du navigateur) --}}
-    <link rel="icon" type="image/png" href="{{ asset('images/logo-icosnet.png') }}">
-    <link rel="shortcut icon" type="image/png" href="{{ asset('images/logo-icosnet.png') }}">
-    <link rel="apple-touch-icon" href="{{ asset('images/logo-icosnet.png') }}">
+    <title>Connexion - Doc Flow</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Bootstrap -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <!-- Bootstrap Icons -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+        rel="stylesheet"
+    >
+
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            min-height: 100%;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
 
         body {
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             overflow: hidden;
-            font-family: 'Segoe UI', sans-serif;
-            background: #0a1628;
+            position: relative;
+
+            background:
+                radial-gradient(circle at 50% 110%,
+                    rgba(0, 194, 255, 0.75) 0%,
+                    rgba(0, 139, 220, 0.45) 25%,
+                    rgba(16, 58, 137, 0.75) 55%,
+                    rgba(5, 20, 52, 1) 100%);
         }
 
-        /* Animated background */
-        .bg-scene {
-            position: fixed;
-            inset: 0;
-            background: linear-gradient(180deg,
-                #0a1628 0%,
-                #0d2b6b 30%,
-                #1a4fa0 60%,
-                #00a8e8 100%
-            );
-            z-index: 0;
-        }
+        /* =========================
+           ÉTOILES
+        ========================= */
 
-        /* Stars */
         .stars {
             position: fixed;
             inset: 0;
-            z-index: 1;
+            pointer-events: none;
+            z-index: 0;
         }
+
         .star {
             position: absolute;
-            background: #fff;
+            width: 3px;
+            height: 3px;
             border-radius: 50%;
-            animation: twinkle 3s infinite alternate;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 0 8px rgba(255,255,255,0.6);
+            animation: twinkle 3s infinite ease-in-out;
+        }
+
+        .star:nth-child(3n) {
+            animation-delay: 0.6s;
+        }
+
+        .star:nth-child(3n+1) {
+            animation-delay: 1.4s;
+        }
+
+        .star:nth-child(4n) {
+            width: 2px;
+            height: 2px;
+        }
+
+        .star:nth-child(5n) {
+            width: 4px;
+            height: 4px;
+            animation-delay: 2.1s;
+        }
+
+        .star:nth-child(1) {
+            top: 4%;
+            left: 2%;
+        }
+
+        .star:nth-child(2) {
+            top: 2%;
+            left: 23%;
+        }
+
+        .star:nth-child(3) {
+            top: 3%;
+            left: 46%;
+        }
+
+        .star:nth-child(4) {
+            top: 7%;
+            left: 74%;
+        }
+
+        .star:nth-child(5) {
+            top: 17%;
+            left: 85%;
+        }
+
+        .star:nth-child(6) {
+            top: 26%;
+            left: 70%;
+        }
+
+        .star:nth-child(7) {
+            top: 32%;
+            left: 24%;
+        }
+
+        .star:nth-child(8) {
+            top: 37%;
+            left: 8%;
+        }
+
+        .star:nth-child(9) {
+            top: 50%;
+            left: 93%;
+        }
+
+        .star:nth-child(10) {
+            top: 63%;
+            left: 4%;
+        }
+
+        .star:nth-child(11) {
+            top: 72%;
+            left: 89%;
+        }
+
+        .star:nth-child(12) {
+            top: 82%;
+            left: 13%;
+        }
+
+        .star:nth-child(13) {
+            top: 88%;
+            left: 75%;
+        }
+
+        .star:nth-child(14) {
+            top: 21%;
+            left: 96%;
+        }
+
+        .star:nth-child(15) {
+            top: 45%;
+            left: 36%;
+        }
+
+        .star:nth-child(16) {
+            top: 12%;
+            left: 57%;
+        }
+
+        .star:nth-child(17) {
+            top: 6%;
+            left: 90%;
+        }
+
+        .star:nth-child(18) {
+            top: 15%;
+            left: 38%;
+        }
+
+        .star:nth-child(19) {
+            top: 24%;
+            left: 10%;
+        }
+
+        .star:nth-child(20) {
+            top: 29%;
+            left: 63%;
+        }
+
+        .star:nth-child(21) {
+            top: 34%;
+            left: 90%;
+        }
+
+        .star:nth-child(22) {
+            top: 40%;
+            left: 48%;
+        }
+
+        .star:nth-child(23) {
+            top: 48%;
+            left: 20%;
+        }
+
+        .star:nth-child(24) {
+            top: 55%;
+            left: 78%;
+        }
+
+        .star:nth-child(25) {
+            top: 58%;
+            left: 55%;
+        }
+
+        .star:nth-child(26) {
+            top: 66%;
+            left: 30%;
+        }
+
+        .star:nth-child(27) {
+            top: 70%;
+            left: 62%;
+        }
+
+        .star:nth-child(28) {
+            top: 76%;
+            left: 5%;
+        }
+
+        .star:nth-child(29) {
+            top: 80%;
+            left: 44%;
+        }
+
+        .star:nth-child(30) {
+            top: 85%;
+            left: 92%;
+        }
+
+        .star:nth-child(31) {
+            top: 92%;
+            left: 20%;
+        }
+
+        .star:nth-child(32) {
+            top: 95%;
+            left: 60%;
+        }
+
+        .star:nth-child(33) {
+            top: 8%;
+            left: 15%;
+        }
+
+        .star:nth-child(34) {
+            top: 18%;
+            left: 80%;
+        }
+
+        .star:nth-child(35) {
+            top: 25%;
+            left: 55%;
+        }
+
+        .star:nth-child(36) {
+            top: 30%;
+            left: 3%;
+        }
+
+        .star:nth-child(37) {
+            top: 38%;
+            left: 33%;
+        }
+
+        .star:nth-child(38) {
+            top: 44%;
+            left: 68%;
+        }
+
+        .star:nth-child(39) {
+            top: 52%;
+            left: 12%;
+        }
+
+        .star:nth-child(40) {
+            top: 60%;
+            left: 40%;
+        }
+
+        .star:nth-child(41) {
+            top: 62%;
+            left: 85%;
+        }
+
+        .star:nth-child(42) {
+            top: 68%;
+            left: 18%;
+        }
+
+        .star:nth-child(43) {
+            top: 74%;
+            left: 95%;
+        }
+
+        .star:nth-child(44) {
+            top: 78%;
+            left: 52%;
+        }
+
+        .star:nth-child(45) {
+            top: 84%;
+            left: 30%;
+        }
+
+        .star:nth-child(46) {
+            top: 90%;
+            left: 8%;
+        }
+
+        .star:nth-child(47) {
+            top: 93%;
+            left: 42%;
+        }
+
+        .star:nth-child(48) {
+            top: 96%;
+            left: 78%;
         }
 
         @keyframes twinkle {
-            0% { opacity: 0.2; transform: scale(1); }
-            100% { opacity: 1; transform: scale(1.3); }
+            0%, 100% {
+                opacity: 0.35;
+                transform: scale(0.8);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.3);
+            }
         }
 
-        /* Floating documents */
-        .floating-docs {
+        /* =========================
+           ICÔNES DOCUMENTAIRES
+        ========================= */
+
+        .floating-icon {
             position: fixed;
-            inset: 0;
-            z-index: 2;
+            z-index: 1;
+            color: rgba(129, 192, 255, 0.15);
+            font-size: 42px;
             pointer-events: none;
-        }
-        .doc-icon {
-            position: absolute;
-            color: rgba(255,255,255,0.08);
-            font-size: 48px;
-            animation: float 6s ease-in-out infinite;
-        }
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(5deg); }
+            animation: floating 6s ease-in-out infinite;
         }
 
-        /* Glass card */
-        .login-card {
-            position: relative;
-            z-index: 10;
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 24px;
-            padding: 48px 40px;
-            width: 100%;
-            max-width: 420px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+        .icon-1 {
+            top: 10%;
+            left: 2%;
         }
+
+        .icon-2 {
+            top: 22%;
+            right: 6%;
+            font-size: 40px;
+            animation-delay: 1s;
+        }
+
+        .icon-3 {
+            top: 42%;
+            left: 4%;
+            font-size: 44px;
+            animation-delay: 2s;
+        }
+
+        .icon-4 {
+            bottom: 13%;
+            left: 11%;
+            font-size: 44px;
+            animation-delay: 1.5s;
+        }
+
+        .icon-5 {
+            bottom: 7%;
+            right: 9%;
+            font-size: 42px;
+            animation-delay: 3s;
+        }
+
+        .icon-6 {
+            bottom: 16%;
+            right: 2%;
+            font-size: 38px;
+            animation-delay: 2.5s;
+        }
+
+        .icon-7 {
+            bottom: 6%;
+            left: 46%;
+            font-size: 42px;
+            animation-delay: 1s;
+        }
+
+        .icon-8 {
+            top: 4%;
+            left: 38%;
+            font-size: 36px;
+            animation-delay: 0.5s;
+        }
+
+        .icon-9 {
+            top: 60%;
+            left: 2%;
+            font-size: 40px;
+            animation-delay: 2.2s;
+        }
+
+        .icon-10 {
+            top: 68%;
+            right: 4%;
+            font-size: 38px;
+            animation-delay: 1.8s;
+        }
+
+        .icon-11 {
+            bottom: 30%;
+            left: 20%;
+            font-size: 34px;
+            animation-delay: 2.8s;
+        }
+
+        .icon-12 {
+            bottom: 28%;
+            right: 20%;
+            font-size: 36px;
+            animation-delay: 0.8s;
+        }
+
+        @keyframes floating {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-12px);
+            }
+        }
+
+        /* =========================
+           CONTAINER
+        ========================= */
+
+        .login-wrapper {
+            min-height: 100vh;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 5;
+            padding: 20px;
+        }
+
+        /* =========================
+           CARTE
+        ========================= */
+
+        .login-card {
+            width: 420px;
+            max-height: 92vh;
+            overflow-y: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+
+            padding: 36px 36px 24px;
+
+            border-radius: 24px;
+
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(29, 49, 82, 0.96) 0%,
+                    rgba(39, 83, 151, 0.92) 48%,
+                    rgba(12, 164, 221, 0.90) 100%
+                );
+
+            border: 1px solid rgba(255, 255, 255, 0.24);
+
+            box-shadow:
+                0 25px 70px rgba(0, 0, 0, 0.40),
+                inset 0 1px 0 rgba(255, 255, 255, 0.12);
+
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+
+            position: relative;
+        }
+
+        .login-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: rgba(255,255,255,0.35);
+        }
+
+        .login-card::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* =========================
+           LOGO
+        ========================= */
+
+        .logo-box {
+            width: 72px;
+            height: 68px;
+
+            margin: 0 auto 16px;
+
+            border-radius: 16px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #1557ff,
+                    #1765ee,
+                    #2d62db
+                );
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+
+            box-shadow:
+                0 12px 30px rgba(0, 57, 190, 0.35),
+                inset 0 1px 1px rgba(255,255,255,0.2);
+        }
+
+        .logo-text {
+            letter-spacing: -0.5px;
+        }
+
+        /* =========================
+           TITRE
+        ========================= */
 
         .login-title {
-            font-size: 32px;
-            font-weight: 700;
-            color: #fff;
+            color: white;
             text-align: center;
-            margin-bottom: 8px;
+            font-size: 30px;
+            font-weight: 700;
+            margin: 0 0 6px;
+            letter-spacing: -0.5px;
         }
 
         .login-subtitle {
-            font-size: 13px;
-            color: rgba(255,255,255,0.6);
+            color: rgba(255,255,255,0.62);
             text-align: center;
-            margin-bottom: 32px;
+            font-size: 14px;
+            margin-bottom: 30px;
         }
 
-        .form-label {
-            color: rgba(255,255,255,0.8);
-            font-size: 13px;
-            margin-bottom: 6px;
+        /* =========================
+           LABEL
+        ========================= */
+
+        .form-label-custom {
+            display: block;
+            color: rgba(255,255,255,0.82);
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 7px;
         }
 
-        .glass-input {
-            background: rgba(255,255,255,0.1) !important;
-            border: 1px solid rgba(255,255,255,0.25) !important;
-            border-radius: 12px !important;
-            color: #fff !important;
-            padding: 12px 16px !important;
-            font-size: 14px !important;
-            transition: all 0.3s;
+        /* =========================
+           INPUT
+        ========================= */
+
+        .input-group-custom {
+            display: flex;
+            width: 100%;
+            height: 50px;
+            margin-bottom: 18px;
         }
-        .glass-input::placeholder { color: rgba(255,255,255,0.4) !important; }
-        .glass-input:focus {
-            background: rgba(255,255,255,0.15) !important;
-            border-color: rgba(255,255,255,0.5) !important;
-            box-shadow: 0 0 0 3px rgba(255,255,255,0.1) !important;
-            color: #fff !important;
-        }
+
         .input-icon {
-            background: rgba(255,255,255,0.1) !important;
-            border: 1px solid rgba(255,255,255,0.25) !important;
-            border-right: none !important;
-            border-radius: 12px 0 0 12px !important;
-            color: rgba(255,255,255,0.7) !important;
-        }
-        .input-icon + .glass-input {
-            border-left: none !important;
-            border-radius: 0 12px 12px 0 !important;
+            width: 44px;
+            min-width: 44px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            color: rgba(255,255,255,0.72);
+
+            background: rgba(255,255,255,0.08);
+
+            border: 1px solid rgba(255,255,255,0.28);
+            border-right: none;
+
+            border-radius: 13px 0 0 13px;
+
+            font-size: 18px;
         }
 
-        .btn-login {
-            background: linear-gradient(135deg, #fff 0%, #e8f0fe 100%);
-            color: #0d2b6b;
+        .input-custom {
+            flex: 1;
+
+            height: 50px;
+
+            border: 1px solid rgba(255,255,255,0.8);
+            border-radius: 0 13px 13px 0;
+
+            background: rgba(245, 248, 255, 0.94);
+
+            color: #1d2738;
+
+            font-size: 14px;
+
+            padding: 0 16px;
+
+            outline: none;
+
+            transition: 0.25s ease;
+        }
+
+        .input-custom:focus {
+            background: white;
+
+            border-color: white;
+
+            box-shadow:
+                0 0 0 4px rgba(255,255,255,0.10);
+        }
+
+        .input-custom::placeholder {
+            color: #8b96a8;
+        }
+
+        /* =========================
+           REMEMBER + FORGOT
+        ========================= */
+
+        .options-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            margin-top: 2px;
+            margin-bottom: 24px;
+        }
+
+        .remember-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            color: rgba(255,255,255,0.78);
+
+            font-size: 13px;
+
+            cursor: pointer;
+        }
+
+        .remember-checkbox {
+            width: 17px;
+            height: 17px;
+
+            appearance: none;
+            -webkit-appearance: none;
+
+            border: 2px solid rgba(255,255,255,0.42);
+
+            border-radius: 4px;
+
+            background: rgba(255,255,255,0.10);
+
+            cursor: pointer;
+
+            position: relative;
+        }
+
+        .remember-checkbox:checked {
+            background: white;
+            border-color: white;
+        }
+
+        .remember-checkbox:checked::after {
+            content: "✓";
+
+            position: absolute;
+
+            left: 2px;
+            top: -3px;
+
+            color: #1e55b8;
+
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .forgot-link {
+            color: rgba(255,255,255,0.88);
+
+            text-decoration: none;
+
+            font-size: 13px;
+            font-weight: 500;
+
+            transition: 0.2s;
+        }
+
+        .forgot-link:hover {
+            color: white;
+            text-decoration: underline;
+        }
+
+        /* =========================
+           BOUTON
+        ========================= */
+
+        .login-button {
+            width: 100%;
+            height: 50px;
+
             border: none;
-            border-radius: 12px;
-            padding: 13px;
+            border-radius: 13px;
+
+            background: rgba(255,255,255,0.96);
+
+            color: #18386f;
+
             font-size: 15px;
             font-weight: 600;
-            width: 100%;
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(255,255,255,0.2);
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+
+            cursor: pointer;
+
+            box-shadow:
+                0 8px 25px rgba(0,0,0,0.13);
+
+            transition: all 0.25s ease;
         }
-        .btn-login:hover {
+
+        .login-button i {
+            font-size: 15px;
+        }
+
+        .login-button:hover {
+            background: white;
+
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(255,255,255,0.3);
-            color: #0d2b6b;
+
+            box-shadow:
+                0 12px 30px rgba(0,0,0,0.20);
         }
 
-        .form-check-input {
-            background: rgba(255,255,255,0.2);
-            border-color: rgba(255,255,255,0.4);
-        }
-        .form-check-label { color: rgba(255,255,255,0.7); font-size: 13px; }
-
-        .divider {
-            border-color: rgba(255,255,255,0.15);
-            margin: 24px 0;
+        .login-button:active {
+            transform: translateY(0);
         }
 
-        .footer-text {
-            color: rgba(255,255,255,0.4);
-            font-size: 12px;
+        /* =========================
+           MESSAGES
+        ========================= */
+
+        .alert-custom {
+            border-radius: 10px;
+            border: none;
+
+            font-size: 13px;
+
+            margin-bottom: 16px;
+        }
+
+        /* =========================
+           FOOTER
+        ========================= */
+
+        .login-footer {
             text-align: center;
-            margin-top: 24px;
+
+            color: rgba(255,255,255,0.42);
+
+            font-size: 12px;
+
+            margin-top: 22px;
         }
 
-        /* Logo box (fallback si l'image ne charge pas) */
-     .logo-box {
-    width: 80px;
-    height: 80px;
-    margin: 0 auto 12px;
-    border-radius: 16px;
-    background: transparent;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overFlow: hidden;
-}
-        .logo-box img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: cover;
-            border-radius: 16px;
-        }
-        .logo-box i {
-            color: #fff;
-            font-size: 28px;
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 700px) {
+
+            body {
+                overflow-y: auto;
+            }
+
+            .login-wrapper {
+                padding: 15px;
+            }
+
+            .login-card {
+                width: 100%;
+                max-height: none;
+
+                padding: 32px 22px 24px;
+
+                border-radius: 20px;
+            }
+
+            .logo-box {
+                width: 62px;
+                height: 58px;
+                font-size: 12px;
+            }
+
+            .login-title {
+                font-size: 26px;
+            }
+
+            .login-subtitle {
+                font-size: 13px;
+                margin-bottom: 24px;
+            }
+
+            .input-group-custom,
+            .input-custom {
+                height: 46px;
+            }
+
+            .input-icon {
+                height: 46px;
+                min-width: 42px;
+                width: 42px;
+            }
+
+            .options-row {
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .forgot-link {
+                font-size: 12px;
+            }
+
+            .floating-icon {
+                display: none;
+            }
         }
     </style>
 </head>
+
 <body>
 
-{{-- Background --}}
-<div class="bg-scene"></div>
+    <!-- =========================
+         ÉTOILES
+    ========================= -->
 
-{{-- Stars --}}
-<div class="stars" id="stars"></div>
-
-{{-- Floating document icons --}}
-<div class="floating-docs">
-    <i class="bi bi-file-earmark-text doc-icon" style="top:10%;left:5%;animation-delay:0s"></i>
-    <i class="bi bi-file-earmark-pdf doc-icon" style="top:20%;right:8%;animation-delay:1s"></i>
-    <i class="bi bi-folder doc-icon" style="top:60%;left:3%;animation-delay:2s"></i>
-    <i class="bi bi-file-earmark-word doc-icon" style="top:70%;right:5%;animation-delay:0.5s"></i>
-    <i class="bi bi-shield-check doc-icon" style="top:40%;left:8%;animation-delay:1.5s"></i>
-    <i class="bi bi-file-earmark-check doc-icon" style="bottom:15%;right:10%;animation-delay:2.5s"></i>
-    <i class="bi bi-archive doc-icon" style="bottom:10%;left:15%;animation-delay:3s;font-size:64px"></i>
-    <i class="bi bi-file-earmark-text doc-icon" style="top:5%;left:40%;animation-delay:0.8s;font-size:36px"></i>
-    <i class="bi bi-files doc-icon" style="top:80%;right:20%;animation-delay:1.8s;font-size:56px"></i>
-</div>
-
-{{-- Login Card --}}
-<div class="login-card">
-
-    {{-- Logo --}}
-    <div class="text-center mb-4">
-        <div class="logo-box">
-            <img src="{{ asset('images/logo-icosnet.png') }}"
-                 alt="icosnet"
-                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-            <i class="bi bi-file-earmark-text" style="display:none;"></i>
-        </div>
-        <h2 class="login-title">Doc Flow</h2>
-        <p class="login-subtitle">Direction des Systèmes d'Information — icosnet</p>
+    <div class="stars">
+        @for ($i = 0; $i < 48; $i++)
+            <span class="star"></span>
+        @endfor
     </div>
 
-    @if($errors->any())
-    <div class="alert py-2 mb-3" style="background:rgba(220,38,38,0.2);border:1px solid rgba(220,38,38,0.4);border-radius:10px;color:#fca5a5;font-size:13px">
-        <i class="bi bi-exclamation-circle me-2"></i>{{ $errors->first() }}
+
+    <!-- =========================
+         ICÔNES FLOTTANTES
+    ========================= -->
+
+    <i class="bi bi-file-earmark-text floating-icon icon-1"></i>
+
+    <i class="bi bi-file-earmark-pdf floating-icon icon-2"></i>
+
+    <i class="bi bi-shield-check floating-icon icon-3"></i>
+
+    <i class="bi bi-folder floating-icon icon-4"></i>
+
+    <i class="bi bi-file-earmark-check floating-icon icon-5"></i>
+
+    <i class="bi bi-file-earmark-word floating-icon icon-6"></i>
+
+    <i class="bi bi-files floating-icon icon-7"></i>
+
+    <i class="bi bi-file-earmark-lock floating-icon icon-8"></i>
+
+    <i class="bi bi-cloud-check floating-icon icon-9"></i>
+
+    <i class="bi bi-printer floating-icon icon-10"></i>
+
+    <i class="bi bi-file-earmark-spreadsheet floating-icon icon-11"></i>
+
+    <i class="bi bi-archive floating-icon icon-12"></i>
+
+
+    <!-- =========================
+         LOGIN
+    ========================= -->
+
+    <div class="login-wrapper">
+
+        <div class="login-card">
+
+            <!-- LOGO -->
+            <div class="logo-box">
+                <span class="logo-text">iCOSNET</span>
+            </div>
+
+
+            <!-- TITRE -->
+            <h1 class="login-title">
+                Doc Flow
+            </h1>
+
+            <div class="login-subtitle">
+                Direction des Systèmes d'Information — icosnet
+            </div>
+
+
+            <!-- ERREURS -->
+            @if ($errors->any())
+                <div class="alert alert-danger alert-custom">
+                    <i class="bi bi-exclamation-circle me-2"></i>
+
+                    {{ $errors->first() }}
+                </div>
+            @endif
+
+
+            <!-- MESSAGE SUCCESS -->
+            @if (session('status'))
+                <div class="alert alert-success alert-custom">
+                    <i class="bi bi-check-circle me-2"></i>
+
+                    {{ session('status') }}
+                </div>
+            @endif
+
+
+            <!-- FORMULAIRE -->
+            <form method="POST" action="{{ route('login') }}">
+
+                @csrf
+
+
+                <!-- EMAIL -->
+                <label class="form-label-custom">
+                    Adresse email
+                </label>
+
+                <div class="input-group-custom">
+
+                    <div class="input-icon">
+                        <i class="bi bi-envelope"></i>
+                    </div>
+
+                    <input
+                        type="email"
+                        name="email"
+                        class="input-custom"
+                        value="{{ old('email') }}"
+                        placeholder="Adresse email"
+                        required
+                        autofocus
+                        autocomplete="email"
+                    >
+
+                </div>
+
+
+                <!-- PASSWORD -->
+                <label class="form-label-custom">
+                    Mot de passe
+                </label>
+
+                <div class="input-group-custom">
+
+                    <div class="input-icon">
+                        <i class="bi bi-lock"></i>
+                    </div>
+
+                    <input
+                        type="password"
+                        name="password"
+                        id="password"
+                        class="input-custom"
+                        placeholder="Mot de passe"
+                        required
+                        autocomplete="current-password"
+                    >
+
+                </div>
+
+
+                <!-- OPTIONS -->
+                <div class="options-row">
+
+                    <label class="remember-label">
+
+                        <input
+                            type="checkbox"
+                            name="remember"
+                            value="1"
+                            class="remember-checkbox"
+                            {{ old('remember') ? 'checked' : '' }}
+                        >
+
+                        <span>
+                            Se souvenir de moi
+                        </span>
+
+                    </label>
+
+
+                    <!-- MOT DE PASSE OUBLIÉ -->
+                    <a
+                        href="{{ route('password.request') }}"
+                        class="forgot-link"
+                    >
+                        Mot de passe oublié ?
+                    </a>
+
+                </div>
+
+
+                <!-- BOUTON -->
+                <button
+                    type="submit"
+                    class="login-button"
+                >
+
+                    <i class="bi bi-box-arrow-in-right"></i>
+
+                    <span>
+                        Se connecter
+                    </span>
+
+                </button>
+
+            </form>
+
+
+            <!-- FOOTER -->
+            <div class="login-footer">
+                © {{ date('Y') }} icosnet — Tous droits réservés
+            </div>
+
+        </div>
+
     </div>
-    @endif
 
-    <form method="POST" action="{{ route('login') }}">
-        @csrf
 
-        <div class="mb-3">
-            <label class="form-label">Adresse email</label>
-            <div class="input-group">
-                <span class="input-group-text input-icon">
-                    <i class="bi bi-envelope"></i>
-                </span>
-                <input type="email" name="email" value="{{ old('email') }}"
-                    class="form-control glass-input"
-                    placeholder="vous@icosnet.dz" autofocus>
-            </div>
-        </div>
-        <div class="mb-4">
-            <label class="form-label">Mot de passe</label>
-            <div class="input-group">
-                <span class="input-group-text input-icon">
-                    <i class="bi bi-lock"></i>
-                </span>
-                <input type="password" name="password"
-                    class="form-control glass-input"
-                    placeholder="••••••••">
-            </div>
-        </div>
+    <!-- =========================
+         JS
+    ========================= -->
 
-        <div class="d-flex align-items-center justify-content-between mb-4">
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" name="remember" id="remember">
-                <label class="form-check-label" for="remember">Se souvenir de moi</label>
-            </div>
-        </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
 
-        <button type="submit" class="btn-login">
-            <i class="bi bi-box-arrow-in-right me-2"></i>
-            Se connecter
-        </button>
+            const password = document.getElementById('password');
 
-    </form>
+            if (password) {
 
-    <p class="footer-text">© {{ date('Y') }} icosnet — Tous droits réservés</p>
+                password.addEventListener('keydown', function (event) {
 
-</div>
+                    if (event.key === 'Enter') {
+                        this.form.submit();
+                    }
 
-<script>
-    // Generate stars
-    const starsContainer = document.getElementById('stars');
-    for (let i = 0; i < 150; i++) {
-        const star = document.createElement('div');
-        star.classList.add('star');
-        const size = Math.random() * 3 + 1;
-        star.style.cssText = `
-            width: ${size}px;
-            height: ${size}px;
-            top: ${Math.random() * 60}%;
-            left: ${Math.random() * 100}%;
-            animation-delay: ${Math.random() * 3}s;
-            animation-duration: ${2 + Math.random() * 3}s;
-        `;
-        starsContainer.appendChild(star);
-    }
-</script>
+                });
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+            }
+
+        });
+    </script>
+
 </body>
 </html>

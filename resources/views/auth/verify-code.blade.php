@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Nouveau mot de passe - Doc Flow</title>
+    <title>Vérification du code - Doc Flow</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
           rel="stylesheet">
@@ -58,6 +58,10 @@
             height: 50px;
             border-radius: 12px;
             border: none;
+            padding: 0 15px;
+            text-align: center;
+            font-size: 22px;
+            letter-spacing: 8px;
         }
 
         .form-control:focus {
@@ -79,18 +83,25 @@
             color: #0d2b6b;
         }
 
+        .email-text {
+            word-break: break-word;
+            font-weight: 600;
+        }
+
+        .back-link {
+            color: rgba(255, 255, 255, 0.85);
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .back-link:hover {
+            color: white;
+            text-decoration: underline;
+        }
+
         .alert {
             font-size: 13px;
             border-radius: 10px;
-        }
-
-        .email-box {
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            text-align: center;
-            margin-bottom: 25px;
-            word-break: break-word;
         }
     </style>
 </head>
@@ -101,14 +112,8 @@
 
     <div class="logo">
         <h1>Doc Flow</h1>
-        <p>Nouveau mot de passe</p>
+        <p>Vérification du code</p>
     </div>
-
-    @if($errors->any())
-        <div class="alert alert-danger">
-            {{ $errors->first() }}
-        </div>
-    @endif
 
     @if(session('status'))
         <div class="alert alert-success">
@@ -116,47 +121,56 @@
         </div>
     @endif
 
-    <div class="email-box">
-        {{ $email }}
+    @if($errors->any())
+        <div class="alert alert-danger">
+            {{ $errors->first() }}
+        </div>
+    @endif
+
+    <div class="text-center mb-4">
+        <p class="mb-2">
+            Un code à 6 chiffres a été envoyé à :
+        </p>
+
+        <div class="email-text">
+            {{ $email }}
+        </div>
     </div>
 
-    <form method="POST" action="{{ route('password.store') }}">
+    <form method="POST" action="{{ route('password.verify.store') }}">
         @csrf
 
-        <div class="mb-3">
-            <label for="password" class="form-label">
-                Nouveau mot de passe
-            </label>
-
-            <input
-                type="password"
-                name="password"
-                id="password"
-                class="form-control"
-                required
-                autocomplete="new-password"
-            >
-        </div>
-
         <div class="mb-4">
-            <label for="password_confirmation" class="form-label">
-                Confirmer le mot de passe
+            <label for="code" class="form-label">
+                Code de vérification
             </label>
 
             <input
-                type="password"
-                name="password_confirmation"
-                id="password_confirmation"
+                type="text"
+                name="code"
+                id="code"
                 class="form-control"
+                maxlength="6"
+                minlength="6"
+                pattern="[0-9]{6}"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+                placeholder="000000"
                 required
-                autocomplete="new-password"
+                autofocus
             >
         </div>
 
         <button type="submit" class="btn btn-primary">
-            Réinitialiser le mot de passe
+            Vérifier le code
         </button>
     </form>
+
+    <div class="text-center mt-4">
+        <a href="{{ route('password.request') }}" class="back-link">
+            ← Demander un nouveau code
+        </a>
+    </div>
 
 </div>
 

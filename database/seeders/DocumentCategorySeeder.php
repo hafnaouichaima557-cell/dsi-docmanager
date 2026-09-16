@@ -15,6 +15,7 @@ class DocumentCategorySeeder extends Seeder
             ['name' => 'Guide',        'slug' => 'guide'],
             ['name' => 'Formulaire',   'slug' => 'formulaire'],
             ['name' => 'Rapport',      'slug' => 'rapport'],
+            ['name' => 'contra',      'slug' => 'contra'],
         ];
         foreach ($categories as $category) {
             DB::table('document_categories')->insertOrIgnore([
