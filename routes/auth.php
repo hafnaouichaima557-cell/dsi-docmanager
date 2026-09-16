@@ -56,7 +56,9 @@ Route::middleware('guest')->group(function () {
         ->name('password.request');
 
     // Envoyer le code à 6 chiffres
+    // throttle:3,1 -> max 3 demandes de code par minute (par IP)
     Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])
+        ->middleware('throttle:3,1')
         ->name('password.email');
 
     // Page de vérification du code
@@ -64,7 +66,9 @@ Route::middleware('guest')->group(function () {
         ->name('password.verify');
 
     // Vérifier le code
+    // throttle:5,1 -> max 5 tentatives de vérification par minute (par IP)
     Route::post('verify-reset-code', [VerifyResetCodeController::class, 'store'])
+        ->middleware('throttle:5,1')
         ->name('password.verify.store');
 
     // Page nouveau mot de passe
